@@ -13,6 +13,11 @@ import math
 
 """
 Autoregressive policy network for sequence generation.
+Policy Network: decides what character should come next
+Value Network: Evaluates how good the current sequence looks so far
+For RL in this case,
+    - Actor:    Policy
+    - Critic:   Value
 """
 class PolicyNetwork(nn.Module):
     # vocab_size: the number of unique characters in the vocabulary
@@ -20,8 +25,7 @@ class PolicyNetwork(nn.Module):
     # context_window: the number of previous characters the model looks at to predct the next one
     # hidden_dim: the number of neurons in the hidden layers of the networks
     # embed_dim: the size of the vector used to represent each character
-    def __init__(self, vocab_size: int, max_seq_len: int, context_window: int = 8, 
-                 hidden_dim: int = 256, embed_dim: int = 64):
+    def __init__(self, vocab_size: int, max_seq_len: int, context_window: int = 8, hidden_dim: int = 256, embed_dim: int = 64):
         
         super().__init__()
         self.vocab_size = vocab_size
@@ -29,14 +33,13 @@ class PolicyNetwork(nn.Module):
         self.context_window = context_window
         self.embed_dim = embed_dim
         
-
         # Character embedding
         # Create an embedding layer. This layer is a lookup table that maps each character's integer index to a dense vector of size "embed_dim"
         self.char_embedding = nn.Embedding(vocab_size, embed_dim)
         
         # Positional encoding
         # Generate a tensor that contains information about the position of each character in the sequence.
-        self.pos_encoding = self._create_positional_encoding(max_seq_len, embed_dim)
+        self.pos_encoding = self.create_positional_encoding(max_seq_len, embed_dim)
         
         # Input dimension: context_window * embed_dim + embed_dim (for position)
         # Calculate the total size of the input vector that will be fed into the policy and value networks.
@@ -65,7 +68,7 @@ class PolicyNetwork(nn.Module):
     """
     A helper function for generating the sinusoidal positional encoding tensor using sine and cosine functions of different frequencies.
     """
-    def _create_positional_encoding(self, max_len: int, embed_dim: int) -> torch.Tensor:
+    def create_positional_encoding(self, max_len: int, embed_dim: int) -> torch.Tensor:
         # Create an empty tensor of shape (max_len, embed_dim) to store the encodings
         pe = torch.zeros(max_len, embed_dim)
         # create a column vector with values from 0 and max_len - 1, representing the positions
@@ -81,8 +84,12 @@ class PolicyNetwork(nn.Module):
     
     """
     A helper function for preparing the input tensor for the neural networks for a batch of sequences
+    - looks back at the last few characters
+    - converts those characters into number vectors
+    - add position info
+    - package everything into a format the neural network can understand
     """
-    def _get_context_input(self, sequences: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
+    def get_context_input(self, sequences: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
         batch_size = sequences.size(0)
         context_inputs = []
         
@@ -127,7 +134,7 @@ class PolicyNetwork(nn.Module):
     """
     def forward(self, sequences: torch.Tensor, positions: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         # process the raw sequence and position data into the final input tensor
-        context_input = self._get_context_input(sequences, positions)
+        context_input = self.get_context_input(sequences, positions)
         
         # Policy output
         # pass the input tensor through the policy network to get the raw output scores for the next character
