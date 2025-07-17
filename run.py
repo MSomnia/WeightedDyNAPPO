@@ -69,8 +69,10 @@ def dna_oracle(sequence: List[int]) -> float:
     # Rewards sequences containing "ATCG" pattern
     motif_bonus = seq_str.count('ATCG') * 2  # Bonus for specific motif
     
+    a_content = seq_str.count('A')
+
     # Final score with realistic noise
-    return gc_content * 10 + motif_bonus + np.random.normal(0, 0.1)
+    return a_content
 
 
 
@@ -83,11 +85,11 @@ if __name__ == "__main__":
     trained_dyna_ppo = run_dyna_ppo_algorithm(
         oracle_fn=dna_oracle,
         vocab_size=4,  # DNA: A, T, G, C  
-        max_seq_len=8,
+        max_seq_len=14,
         N=10,  # Number of experiment rounds
         M=5,   # Number of model-based training rounds  
         tau=0.1,  # Minimum model score threshold
-        batch_size=32
+        batch_size=128
     )
     
     # Generate some final sequences

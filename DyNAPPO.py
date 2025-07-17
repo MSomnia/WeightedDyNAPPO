@@ -298,6 +298,7 @@ class DyNAPPO:
             'Example: If GGCGTACC got reward 1.0 but value predicted 0.6, advantage = 0.4'
             advantages = rewards_tensor - values
             
+            # ====================== PPO =====================
             # PPO loss - limit how much the policy can change
             # ratio = P_new(sequence) / P_old(sequence)
             ratio = torch.exp(current_log_probs - old_log_probs_tensor)
@@ -459,8 +460,8 @@ class DyNAPPO:
         # ALG. 8: Train policy π_θ on D_n
         # Learn from this round's lab results
         # *** Update policy using these samples - this approximates the gradient of the expectation
-        'GGCGTACC got 0.8 binding - reinforce this pattern!'
-        'AAAATTTT got 0.1 binding - avoid poly-A stretches!'
+        'GGCGTACC got 0.8 binding - reinforce this pattern'
+        'AAAATTTT got 0.1 binding - avoid poly-A stretches'
         self.update_policy(sequences, oracle_rewards, old_log_probs)
         
 
@@ -537,6 +538,8 @@ class DyNAPPO:
 
                     # Collect all rewards for reporting
                     model_rewards.extend(final_rewards)
+
+                    # print(model_sequences)
 
                 # ALG. 15: end for - model rounds
             # ALG. 16: end if - reliable models exist

@@ -1,3 +1,4 @@
+
 # DyNA PPO flow
 1. Initialize neural network policy π_θ
 2. For each round n:
@@ -239,3 +240,76 @@ Different binding mechanisms might work in vivo
 Provides backup options
 
 Reveals multiple solutions to the problem
+
+
+# DyNA PPO Guide
+## create_surrogate_models()
+Create a diverse pool of machine learning models that will learn to predict sequence performance.
+
+## generate_sequence()
+Generates a single sequence by making decisions at each position based on learned probabilities.
+
+At each position, asks the policy network "what should come next?"
+
+## generate_batch()
+Generate multiple sequences at once for efficient batch testing.
+
+## compute_rewards()
+Evaluate sequences using the oracle function and applies diversity bonus.
+
+get the true score from the lab testing.
+
+## update_policy()
+Update the neural network based on which sequences performed well or poorly.
+
+Use PPO, update both policy network and value network.
+
+- computes current log probabilities for each sequence
+- calculates advantages: rewards - baseline values
+- computes PPO loss with clipping to prevent large updates
+- updates both policy and value networds
+
+## fit_surrogate_models()
+Trains multiple models to predict sequence performance.
+- test each model type using cv
+- only keeps models that R2 is greater than the threshold
+
+## predict_with_ensemble()
+Use multiple trained models to predict sequence performance.
+- each reliable model makes a prediction
+- average all prediction - where we want to customize
+
+## train_round()
+Execute one complete round of DyNA PPO.
+Combine and use the functions above.
+
+E[R(s_{1:T})|s_0, θ]
+
+One complete cycle of:
+   1. Generate DNA sequences
+   2. Test in lab (expensive)
+   3. Learn from results
+   4. Use models for virtual testing
+   5. Learn more from virtual results
+
+### Phase 1 - REAL LAB
+- Generates sequences using current policy
+- Tests them with expensive oracle function
+- Updates policy based on real results
+
+### Phase 2 - Virtual Testing
+- Trains surrogate models on all historical data
+- If models are reliable:
+   - Generates many more sequences
+   - Tests them virtually
+   - Updates policy based on predictions
+
+
+
+
+
+
+1. Try different types of oracle function: classification
+2. batch size, sequence length, number of round
+3. dynamic tau
+4. scatter plot 
