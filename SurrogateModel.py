@@ -10,7 +10,9 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import BayesianRidge
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
-
+from xgboost import XGBRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.svm import SVR
 """
 Wrapper for surrogate models
 """
@@ -31,6 +33,12 @@ class SurrogateModel:
             self.model = KNeighborsRegressor(**kwargs)
         elif model_type == 'ridge':
             self.model = BayesianRidge(**kwargs)
+        elif model_type == 'xgb':
+            self.model = XGBRegressor(**kwargs)
+        elif model_type == 'mlp':
+            self.model = MLPRegressor(**kwargs)
+        elif model_type == 'svr':
+            self.model = SVR(**kwargs)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
     
