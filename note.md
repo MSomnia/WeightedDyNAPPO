@@ -313,3 +313,15 @@ One complete cycle of:
 2. batch size, sequence length, number of round
 3. dynamic tau
 4. scatter plot 
+
+
+
+7.27
+Gradually reduce diversity penalty - DyNA PPO 513
+Complex oracle function
+train_round: stronger exploration
+l2 regularization
+
+To-do 
+learning rate
+loss function check

@@ -9,6 +9,7 @@ from typing import List, Tuple, Dict, Optional
 import torch
 import torch.nn.functional as F
 from torch.distributions import Categorical
+import random
 
 # File import
 from SurrogateModel import SurrogateModel
@@ -20,7 +21,7 @@ class DyNAPPO:
     def __init__(self, vocab_size: int, max_seq_len: int, batch_size: int = 64,
                  learning_rate: float = 3e-4, gamma: float = 0.99, clip_ratio: float = 0.2,
                  model_threshold: float = 0.5, max_model_rounds: int = 10,
-                 diversity_lambda: float = 0.1, diversity_epsilon: int = 2):
+                 diversity_lambda: float = 0.05, diversity_epsilon: int = 3):
         
         self.vocab_size = vocab_size
         self.max_seq_len = max_seq_len
@@ -99,7 +100,7 @@ class DyNAPPO:
     Position 2: Choose C (given we have "GG")
     ... and so on
     """
-    def generate_sequence(self, deterministic: bool = False) -> List[int]:
+    def generate_sequence(self, deterministic: bool = False, epsilon: float = 0.0) -> List[int]:
         # This samples actions a_t from π_θ(a_t|s_t) at each step
 
         sequence = []
@@ -128,10 +129,14 @@ class DyNAPPO:
                     'Example: argmax([0.1, 0.15, 0.6, 0.15]) = 2 (G)'
                     action = torch.argmax(policy_probs[0]).item()
                 else:
-                    # Sample from probability distribution (exploration)
-                    'Example: might pick G (60% chance), but could pick C (15% chance)'
-                    dist = Categorical(policy_probs[0])
-                    action = dist.sample().item()   # Sample one a_t
+                    # Epsilon-greedy exploration
+                    if random.random() < epsilon:
+                        action = random.randint(0, self.vocab_size - 1)
+                    else:
+                        # Sample from probability distribution (exploration)
+                        'Example: might pick G (60% chance), but could pick C (15% chance)'
+                        dist = Categorical(policy_probs[0])
+                        action = dist.sample().item()   # Sample one a_t
                 
                 # Add chosen base to sequence
                 'Example: sequence goes from [2,2,1] to [2,2,1,2] (GGC → GGCG)'
@@ -316,6 +321,11 @@ class DyNAPPO:
             
             # Combined loss
             total_loss = policy_loss + 0.5 * value_loss
+
+            # **** L2 Regularization
+            l2_lambda = 0.001
+            l2_norm = sum(p.pow(2.0).sum() for p in self.policy_net.parameters())
+            total_loss = policy_loss + 0.5 * value_loss + l2_lambda * l2_norm
             
             # Backpropagation: update neural network weights
             self.optimizer.zero_grad()
@@ -346,35 +356,96 @@ class DyNAPPO:
         - Neural Network: R2 = 0.52 - gppd  (finally working!)
         Reliable models: 4 (ensemble is powerful)
     """
-    def fit_surrogate_models(self, sequences: List[List[int]], rewards: List[float]) -> List[SurrogateModel]:
+    def fit_surrogate_models(self, sequences: List[List[int]], rewards: List[float], round_num: int = 0) -> List[SurrogateModel]:
+
         # Need minimum data for meaningful patterns
         if len(sequences) < 10:
             return []
         
-        # self.surrogate_models = self.create_surrogate_models(len(sequences))
+        # recreate the model pool in each round to adapt to the current data distribution:
+        #self.surrogate_models = self.create_surrogate_models(len(sequences))
 
         # Convert sequences to features - 32-dimensional vector (8 positions × 4 bases)
         'DNA [2,2,1,2,1,0,1,1] → one-hot: [0,0,1,0, 0,0,1,0, 0,1,0,0, ...]'
         X = sequence_to_features(sequences, self.vocab_size)
         y = np.array(rewards)
         
+        # **** Adaptive threshold based on round and data quality
+        # Adaptive threshold based on round and data quality
+        base_threshold = self.model_threshold
+
+        # Determine threshold based on training round
+        if round_num <= 2:
+            # Early rounds: very lenient, accept any positive R²
+            threshold = 0.0
+            print(f"Round {round_num}: Using lenient threshold (R2 > 0.0)")
+        elif round_num <= 5:
+            # Middle rounds: moderately lenient
+            threshold = base_threshold * 0.5
+            print(f"Round {round_num}: Using moderate threshold (R2 > {threshold:.3f})")
+        else:
+            # Later rounds: use full threshold
+            threshold = base_threshold
+            print(f"Round {round_num}: Using full threshold (R2 > {threshold:.3f})")
+
+        # Track all model scores for fallback selection
+        model_scores = []
         reliable_models = []
         
         # for each candiate model
         for model in self.surrogate_models:
             try:
-                # computes r2 score using cross validation
+                # Compute R2 score using cross-validation
                 score = model.score(X, y)
-                print(f"Model {model.model_type}: {score:.3f}")
-                # if score >= threshold, fits the model and adds to reliable models list
-                if score >= self.model_threshold:
+                model_scores.append((score, model))
+                print(f"Model {model.model_type}: R2 = {score:.3f}")
+                
+                # Check if model meets adaptive threshold
+                if score >= threshold:
                     model.fit(X, y)
                     reliable_models.append(model)
-                    print(f"Model {model.model_type} is reliable with R2 score: {score:.3f}")
-
+                    print(f"Model {model.model_type} selected (R2 = {score:.3f} >= {threshold:.3f})")
+                    
             except Exception as e:
                 print(f"Error fitting model {model.model_type}: {e}")
                 continue
+        
+        # Fallback strategy if no models meet threshold
+        if not reliable_models and model_scores:
+            print("\nNo models met threshold. Using fallback selection...")
+            
+            # Sort models by score (best first)
+            model_scores.sort(key=lambda x: x[0], reverse=True)
+            
+            # Strategy 1: Take top N models with positive scores
+            n_fallback = min(3, len(model_scores))
+            fallback_count = 0
+            
+            for score, model in model_scores:
+                if score > 0 and fallback_count < n_fallback:
+                    try:
+                        model.fit(X, y)
+                        reliable_models.append(model)
+                        print(f"Fallback: Using {model.model_type} with R2 = {score:.3f}")
+                        fallback_count += 1
+                    except:
+                        continue
+            
+            # Strategy 2: If still no models, take the single best one
+            if not reliable_models and model_scores[0][0] > -0.5:
+                best_score, best_model = model_scores[0]
+                try:
+                    best_model.fit(X, y)
+                    reliable_models.append(best_model)
+                    print(f"Last resort: Using best model {best_model.model_type} with R2 = {best_score:.3f}")
+                except:
+                    pass
+        
+        # Summary
+        print(f"\nSelected {len(reliable_models)} reliable models for round {round_num}")
+        if reliable_models:
+            selected_types = [m.model_type for m in reliable_models]
+            print(f"Model types: {', '.join(selected_types)}")
         
         return reliable_models
 
@@ -425,7 +496,18 @@ class DyNAPPO:
         # Round 1: generate random batch of sequences - this samples multiple trajectories
         # *** Each trajectory represents one realization of the sum over s_t, a_t
         # Round 5: Generates sophisticated sequences
-        sequences = self.generate_batch(self.batch_size)    # Multiple samples
+        epsilon = max(0.1, 0.5 - (round_num * 0.05))  # Start at 50%, decay to 10%
+        #sequences = self.generate_batch(self.batch_size)    # Multiple samples
+        sequences = [self.generate_sequence(epsilon=epsilon) for _ in range(self.batch_size)]
+
+
+        # Quick sequence preview
+        print(f"\n--- Round {round_num} Generated Sequences ---:\n", end="")
+        dna_map = {0: 'A', 1: 'T', 2: 'G', 3: 'C'}
+        for i in range(min(20, len(sequences))):
+            dna_str = ''.join([dna_map[b] for b in sequences[i]])
+            print(f"{dna_str} ", end="")
+        print(f"... ({len(sequences)} total)")
         
         # Store current policy's probability of generating each sequence
         # Compute old log probabilities for PPO
@@ -478,7 +560,9 @@ class DyNAPPO:
             # ALG. 9: Fit candidate models f' ∈ S on ∪ᵢ₌₁ⁿ Dᵢ and compute score by cross-validation
             # Try to build simulators that can predict binding without lab tests
             'Models learn patterns like GC-rich centers bind well'
-            reliable_models = self.fit_surrogate_models(all_sequences, all_rewards)
+            #reliable_models = self.fit_surrogate_models(all_sequences, all_rewards)
+            reliable_models = self.fit_surrogate_models(all_sequences, all_rewards, round_num)
+
             
             # Use models only if they're reliable
             # ALG. 10: Select subset of models S' ⊆ S with score ≥ τ
@@ -496,18 +580,30 @@ class DyNAPPO:
                     # Use ensemble to predict binding, no lab needed
                     # Predict rewards with ensemble - this is f''(x)
                     predicted_rewards = self.predict_with_ensemble(model_sequences, reliable_models)
-                    
+
                     # Apply diversity penalty to virtual sequences
+                    # final_rewards = []
+                    # for seq, pred_reward in zip(model_sequences, predicted_rewards):
+                    #     # Penalize if too similar to previous sequences
+                    #     diversity_penalty = compute_diversity_penalty(
+                    #         seq, 
+                    #         self.sequence_history, # All sequences ever generated
+                    #         self.diversity_lambda, 
+                    #         self.diversity_epsilon
+                    #     )
+                    #     'Example: GGCGTACC predicted 0.85, but we have 5 similar ones. Final reward: 0.85 - 0.05 = 0.80'
+                    #     final_rewards.append(pred_reward - diversity_penalty)
+                    
+                    # ****** gradually reduce diversity penalty
+                    diversity_weight = max(0, 1 - m / self.max_model_rounds)  # Linear decay
                     final_rewards = []
                     for seq, pred_reward in zip(model_sequences, predicted_rewards):
-                        # Penalize if too similar to previous sequences
                         diversity_penalty = compute_diversity_penalty(
                             seq, 
-                            self.sequence_history, # All sequences ever generated
-                            self.diversity_lambda, 
+                            self.sequence_history,
+                            self.diversity_lambda * diversity_weight,
                             self.diversity_epsilon
                         )
-                        'Example: GGCGTACC predicted 0.85, but we have 5 similar ones. Final reward: 0.85 - 0.05 = 0.80'
                         final_rewards.append(pred_reward - diversity_penalty)
                     
                     # Calculate policy probabilities for virtual sequences
