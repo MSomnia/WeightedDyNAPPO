@@ -14,7 +14,8 @@ import random
 # File import
 from SurrogateModel import SurrogateModel
 from PolicyNetwork import PolicyNetwork
-from SequenceUtils import compute_diversity_penalty, sequence_to_features, edit_distance
+from SequenceUtils import compute_diversity_penalty, sequence_to_features, edit_distance, compute_sequence_diversity
+from LearningRateTracker import LearningMetricsTracker
 
 class DyNAPPO:
     
@@ -57,9 +58,9 @@ class DyNAPPO:
         max_depth = max(10, min(20, data_size // 50))
 
         # Random Forest
-        models.append(SurrogateModel('rf', n_estimators=50, max_depth=5))
-        models.append(SurrogateModel('rf', n_estimators=100, max_depth=10))
-        models.append(SurrogateModel('rf', n_estimators=200, max_depth=None))
+        models.append(SurrogateModel('rf', n_estimators=100, max_depth=5))
+        models.append(SurrogateModel('rf', n_estimators=300, max_depth=10))
+        models.append(SurrogateModel('rf', n_estimators=500, max_depth=None))
         models.append(SurrogateModel('rf', n_estimators=base_estimators, max_depth=max_depth))
         models.append(SurrogateModel('rf', n_estimators=base_estimators*2, max_depth=None))
         
@@ -72,6 +73,7 @@ class DyNAPPO:
         # Other
         models.append(SurrogateModel('knn', n_neighbors=5))
         models.append(SurrogateModel('knn', n_neighbors=10))
+        models.append(SurrogateModel('knn', n_neighbors=15))
         k_neighbors = max(5, min(50, int(np.sqrt(data_size))))
         models.append(SurrogateModel('knn', n_neighbors=k_neighbors))
         models.append(SurrogateModel('ridge'))
@@ -156,7 +158,7 @@ class DyNAPPO:
     DNA Example: Generate 32 different DNA sequences for lab testing
     Each represents a different "trajectory" through sequence space
     """
-    def generate_batch(self, batch_size: int) -> List[List[int]]:
+    def generate_batch(self, batch_size: int, epsilon: float = 0.0) -> List[List[int]]:
         # This samples different trajectories, covering different s_t states
         '''
             Example output for batch_size=4:
@@ -167,7 +169,7 @@ class DyNAPPO:
             [0,2,1,2,1,0,1,1],  AGCGTACC
             ]
         '''
-        return [self.generate_sequence() for _ in range(batch_size)]
+        return [self.generate_sequence(epsilon = epsilon) for _ in range(batch_size)]
     
 
     """
@@ -243,7 +245,7 @@ class DyNAPPO:
         - "Avoid more than 2 consecutive identical bases"
     
     """
-    def update_policy(self, sequences: List[List[int]], rewards: List[float], old_log_probs: List[float], epochs: int = 4):
+    def update_policy(self, sequences: List[List[int]], rewards: List[float], old_log_probs: List[float], epochs: int = 4, round_num: int = 0, metrics_tracker: Optional[LearningMetricsTracker] = None):
         
         # Convert lists to tensors for gradient computation
         rewards_tensor = torch.tensor(rewards, dtype=torch.float32)
@@ -252,9 +254,11 @@ class DyNAPPO:
         # Normalize rewards to stabilize training
         # help the network learn equally from good and bad examples
         rewards_tensor = (rewards_tensor - rewards_tensor.mean()) / (rewards_tensor.std() + 1e-8)
+
+        update_idx = 0
         
         # multiple training passes over the same data
-        for _ in range(epochs):
+        for epoch in range(epochs):
             # Recompute probabilities with current policy parameters
             current_log_probs = []
             values = []
@@ -319,8 +323,11 @@ class DyNAPPO:
             # train value network to better predict rewards
             value_loss = F.mse_loss(values, rewards_tensor)
             
+            # Compute KL divergence
+            kl_div = (old_log_probs_tensor - current_log_probs).mean().item()
+
             # Combined loss
-            total_loss = policy_loss + 0.5 * value_loss
+            #total_loss = policy_loss + 0.5 * value_loss
 
             # **** L2 Regularization
             l2_lambda = 0.001
@@ -330,7 +337,31 @@ class DyNAPPO:
             # Backpropagation: update neural network weights
             self.optimizer.zero_grad()
             total_loss.backward()
+
+            # Compute gradient norm before clipping
+            total_norm = 0
+            for p in self.policy_net.parameters():
+                if p.grad is not None:
+                    param_norm = p.grad.data.norm(2)
+                    total_norm += param_norm.item() ** 2
+            total_norm = total_norm ** 0.5
+
+
             self.optimizer.step()
+
+            # Log metrics if tracker provided
+            if metrics_tracker:
+                metrics_tracker.log_update_metrics(
+                    round_num=round_num,
+                    update_idx=update_idx,
+                    policy_loss=policy_loss.item(),
+                    value_loss=value_loss.item(),
+                    total_loss=total_loss.item(),
+                    gradient_norm=total_norm,
+                    kl_divergence=kl_div
+                )
+            
+            update_idx += 1
 
 
     """
@@ -360,7 +391,7 @@ class DyNAPPO:
 
         # Need minimum data for meaningful patterns
         if len(sequences) < 10:
-            return []
+            return [], []
         
         # recreate the model pool in each round to adapt to the current data distribution:
         #self.surrogate_models = self.create_surrogate_models(len(sequences))
@@ -391,12 +422,14 @@ class DyNAPPO:
         # Track all model scores for fallback selection
         model_scores = []
         reliable_models = []
+        all_r2_scores = []  # Collect all R2 scores
         
         # for each candiate model
         for model in self.surrogate_models:
             try:
                 # Compute R2 score using cross-validation
                 score = model.score(X, y)
+                all_r2_scores.append(score)  # Store the score
                 model_scores.append((score, model))
                 print(f"Model {model.model_type}: R2 = {score:.3f}")
                 
@@ -447,7 +480,7 @@ class DyNAPPO:
             selected_types = [m.model_type for m in reliable_models]
             print(f"Model types: {', '.join(selected_types)}")
         
-        return reliable_models
+        return reliable_models, all_r2_scores
 
 
 
@@ -488,18 +521,18 @@ class DyNAPPO:
         4. Use models for virtual testing (cheap)
         5. Learn more from virtual results
     """
-    def train_round(self, oracle_fn, round_num: int = 0) -> Dict:
+    def train_round(self, oracle_fn, metrics_tracker: LearningMetricsTracker, round_num: int = 0, exploration_rate: float = 0) -> Dict:
         # *** This approximates the full expectation through Monte Carlo sampling
-
         # ========== PHASE 1: REAL LAB EXPERIMENTS ==========
         # ALG. 7: Collect samples D_n = {x, f(x)} using policy π_θ
         # Round 1: generate random batch of sequences - this samples multiple trajectories
         # *** Each trajectory represents one realization of the sum over s_t, a_t
         # Round 5: Generates sophisticated sequences
-        epsilon = max(0.1, 0.5 - (round_num * 0.05))  # Start at 50%, decay to 10%
         #sequences = self.generate_batch(self.batch_size)    # Multiple samples
-        sequences = [self.generate_sequence(epsilon=epsilon) for _ in range(self.batch_size)]
+        sequences = self.generate_batch(self.batch_size, epsilon=exploration_rate)
 
+        # Compute diversity
+        diversity = compute_sequence_diversity(sequences)
 
         # Quick sequence preview
         print(f"\n--- Round {round_num} Generated Sequences ---:\n", end="")
@@ -534,6 +567,10 @@ class DyNAPPO:
         # *** Compute rewards for each trajectory
         oracle_rewards = self.compute_rewards(sequences, oracle_fn)
         
+        # **** Highly encourage diversity
+        for reward in oracle_rewards:
+            reward = reward + diversity * 2
+        
         # Store data for cumulative dataset ∪ᵢ₌₁ⁿ Dᵢ
         for seq, reward in zip(sequences, oracle_rewards):
             self.all_data.append((seq, reward))
@@ -544,12 +581,13 @@ class DyNAPPO:
         # *** Update policy using these samples - this approximates the gradient of the expectation
         'GGCGTACC got 0.8 binding - reinforce this pattern'
         'AAAATTTT got 0.1 binding - avoid poly-A stretches'
-        self.update_policy(sequences, oracle_rewards, old_log_probs)
+        self.update_policy(sequences, oracle_rewards, old_log_probs, epochs = 4, round_num=round_num, metrics_tracker=metrics_tracker)
         
 
         # ========== PHASE 2: VIRTUAL MODEL-BASED TRAINING - ALG. 9 - 16 ==========
         model_rewards = oracle_rewards.copy()   # Start with real rewards
         models_used = 0
+        model_r2_scores = []
         
         # Only attempt model-based training if we have enough data
         if len(self.all_data) > 20:  # Need sufficient data
@@ -561,8 +599,8 @@ class DyNAPPO:
             # Try to build simulators that can predict binding without lab tests
             'Models learn patterns like GC-rich centers bind well'
             #reliable_models = self.fit_surrogate_models(all_sequences, all_rewards)
-            reliable_models = self.fit_surrogate_models(all_sequences, all_rewards, round_num)
-
+            reliable_models, all_r2_scores = self.fit_surrogate_models(all_sequences, all_rewards, round_num)
+            model_r2_scores = all_r2_scores  # Store for metrics
             
             # Use models only if they're reliable
             # ALG. 10: Select subset of models S' ⊆ S with score ≥ τ
@@ -627,7 +665,7 @@ class DyNAPPO:
                     
                     # ALG. 14: Update policy with virtual data - Learn from model predictions without lab costs
                     # Update π_θ on {x, f''(x)}
-                    self.update_policy(model_sequences, final_rewards, model_old_log_probs)
+                    self.update_policy(model_sequences, final_rewards, model_old_log_probs, epochs = 2, round_num=round_num, metrics_tracker=metrics_tracker)
                     
                     # Track virtual sequences for diversity
                     self.sequence_history.extend(model_sequences)
@@ -640,13 +678,20 @@ class DyNAPPO:
                 # ALG. 15: end for - model rounds
             # ALG. 16: end if - reliable models exist
         
+        # Collect oracle rewards statistics
+        oracle_rewards = self.compute_rewards(sequences, oracle_fn)
+
         # Return statistics
         return {
             'oracle_rewards': oracle_rewards,   # Real lab results
             'model_rewards': model_rewards,     # All rewards (real + virtual)
             'models_used': models_used,         # Number of reliable models
             'mean_oracle_reward': np.mean(oracle_rewards),  # Average binding this round
+            'min_oracle_reward': np.min(oracle_rewards),
             'max_oracle_reward': np.max(oracle_rewards),    # Best binding this round
+            'std_oracle_reward': np.std(oracle_rewards),
+            'sequence_diversity': diversity,
+            'model_r2_scores': model_r2_scores,
             'total_sequences': len(self.all_data)           # Cumulative sequences tested
         }
 

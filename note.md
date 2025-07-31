@@ -316,12 +316,14 @@ One complete cycle of:
 
 
 
-7.27
+7.30
+Use models with highest R2 scores instead of nothing
 Gradually reduce diversity penalty - DyNA PPO 513
 Complex oracle function
-train_round: stronger exploration
+train_round: stronger exploration - 572
 l2 regularization
+learning rate
+Metrics diagram
+
 
 To-do 
-learning rate
-loss function check

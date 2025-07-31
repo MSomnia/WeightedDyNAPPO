@@ -77,3 +77,13 @@ def compute_diversity_penalty(sequence: List[int], history: List[List[int]], lam
             # Add weighted penalty to total
             penalty += weight
     return lambda_penalty * penalty
+
+"""
+Compute diversity ratio of sequences.
+Helper function to compute sequence diversity
+"""
+def compute_sequence_diversity(sequences: List[List[int]]) -> float:
+    if not sequences:
+        return 0.0
+    unique_sequences = len(set(tuple(seq) for seq in sequences))
+    return unique_sequences / len(sequences)

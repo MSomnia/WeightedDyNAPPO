@@ -304,3 +304,16 @@ One complete cycle of:
    - Tests them virtually
    - Updates policy based on predictions
 
+
+   # Metrics Tracker
+   ## Gradient Magnitude
+   How quick the policy changes
+
+   ## KL Divergence
+   How much the policy changes
+
+   ## Reward Variance
+   How much the reward fluctuate from epoch to epoch
+
+   How stable (low variance) the policy is.
+
