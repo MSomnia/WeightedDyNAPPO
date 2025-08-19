@@ -327,3 +327,6 @@ Metrics diagram
 
 
 To-do 
+mlp svr xgb
+number of rounds
+one-hot encoding: two symbols (0, 1)
