@@ -4,6 +4,7 @@
 #   This file contains the reinforcement learning surrogate model part of the project.
 
 import numpy as np
+from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.neighbors import KNeighborsRegressor
@@ -16,11 +17,12 @@ from sklearn.svm import SVR
 """
 Wrapper for surrogate models
 """
-class SurrogateModel:
+class SurrogateModel(BaseEstimator, RegressorMixin):
     
     def __init__(self, model_type: str, **kwargs):
         self.model_type = model_type
         self.scaler = StandardScaler()
+        self.kwargs = kwargs
         
         # a list of machine learning models for the surrogate model
         if model_type == 'rf':

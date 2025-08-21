@@ -8,6 +8,7 @@ from typing import List, Tuple, Dict, Optional
 from DyNAPPO import DyNAPPO
 from LearningRateTracker import LearningMetricsTracker
 
+
 """
 Run DyNA PPO
 
@@ -76,7 +77,7 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int, N: int 
         print(f"Exploration Rate: {exploration_rate:.3f}")
         
         # Execute one round of the algorithm (7-16)
-        results = dyna_ppo.train_round(oracle_fn, metrics_tracker, n, exploration_rate)
+        results = dyna_ppo.train_round_old(oracle_fn, metrics_tracker, n, exploration_rate)
 
         # Log round-level metrics
         metrics_tracker.log_round_metrics(n, results, current_lr, exploration_rate)
@@ -274,11 +275,11 @@ if __name__ == "__main__":
     trained_dyna_ppo = run_dyna_ppo_algorithm(
         oracle_fn=dna_oracle,
         vocab_size=4,  # DNA: A, T, G, C  
-        max_seq_len=12,
+        max_seq_len=8,
         N=10,  # Number of experiment rounds
         M=5,   # Number of model-based training rounds  
         tau=0.1,  # Minimum model score threshold
-        batch_size=64
+        batch_size=32
     )
     
     # Generate some final sequences
