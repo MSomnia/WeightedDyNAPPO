@@ -336,3 +336,4 @@ Metrics diagram
 5. Intrinsic reward: encourage explore at early rounds and disencourage at laters
 6. Adaptive learning rate
 7. Improved surrogate model fit
+8. warm-up phase
