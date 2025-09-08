@@ -337,3 +337,6 @@ Metrics diagram
 6. Adaptive learning rate
 7. Improved surrogate model fit
 8. warm-up phase
+
+To do
+1. R2 diagram threshold guideline

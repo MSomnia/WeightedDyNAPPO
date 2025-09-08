@@ -308,6 +308,8 @@ class DyNAPPO:
         
         return models
 
+
+
     """
     Generate a single sequence using the current policy.
 
@@ -372,6 +374,8 @@ class DyNAPPO:
         return sequence
 
 
+
+
     """
     Generate a sequence of tokens autoregressively using temperature-controlled sampling.
     This method allows for creativity scaling (temperature) and can limit the choices to 
@@ -431,6 +435,7 @@ class DyNAPPO:
                 sequence.append(action)
         
         return sequence
+
 
 
     """
@@ -505,6 +510,7 @@ class DyNAPPO:
         return sequences
 
 
+
     """
         Create features for each sequence using context window approach.
         At each position t, encode:
@@ -554,6 +560,9 @@ class DyNAPPO:
         
         return np.array(features)
 
+
+
+
     """
     Generate sinusoidal positional encoding
     
@@ -580,6 +589,7 @@ class DyNAPPO:
                 encoding[i + 1] = np.cos(position / denominator)
         
         return encoding
+
 
 
     """
@@ -747,6 +757,7 @@ class DyNAPPO:
                     f"kl_div={kl_div:.4f}")
 
 
+
     """
         Improved ensemble prediction with uncertainty handling
     """
@@ -803,6 +814,9 @@ class DyNAPPO:
         
         return ensemble_pred.tolist()
 
+
+
+
     """
     Compute intrinsic reward to encourage exploration of under-explored regions
     Encourage to explore new and different solutions rather than getting stuck on the same ones
@@ -836,6 +850,7 @@ class DyNAPPO:
         exploration_weight = max(0, 1 - round_num / 10)
         
         return novelty_reward * exploration_weight
+
 
 
     """
@@ -883,6 +898,9 @@ class DyNAPPO:
             param_group['lr'] = final_lr
         
         return final_lr
+
+
+
 
     """
     Analyze training progress and provide insights
@@ -1018,6 +1036,8 @@ class DyNAPPO:
                 print(f"  Fallback: Using {name} with R2 = {r2_scores[best_idx]:.3f}")
         
         return reliable_models, r2_scores
+
+
 
     """
     Execute one training round of DyNA PPO - corresponds to ALG. 6-17.
