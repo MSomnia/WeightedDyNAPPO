@@ -343,6 +343,9 @@ if __name__ == "__main__":
         use_warmup=True    # Enable warm-up phase
     )
     
+    # print("\n=== Ensemble Weight Analysis ===")
+    # trained_dyna_ppo.analyze_weight_evolution()
+
     # Generate and evaluate final optimized sequences
     print("\n" + "=" * 70)
     print("FINAL OPTIMIZED SEQUENCES")

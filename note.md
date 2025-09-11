@@ -338,5 +338,9 @@ Metrics diagram
 7. Improved surrogate model fit
 8. warm-up phase
 
-To do
-1. R2 diagram threshold guideline
+
+
+
+9.10
+1. Line 1126: Increasing threshold
+2. Line 830: Weighted ensemble of surrogate models and Dynamic ensemble

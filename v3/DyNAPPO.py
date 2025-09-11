@@ -27,6 +27,7 @@ from SurrogateModel import SurrogateModel
 from PolicyNetwork import PolicyNetwork
 from SequenceUtils import compute_diversity_penalty, sequence_to_features, edit_distance, compute_sequence_diversity
 from LearningRateTracker import LearningMetricsTracker
+from OptimalEnsembleWeights import OptimalEnsembleWeights
 
 # SETTINGS
 # This will ignore all convergence warnings
@@ -69,6 +70,9 @@ class DyNAPPO:
 
         # Add threshold tracking
         self.threshold_history = []  # Store (round, threshold) pairs
+
+        # Add weight learner
+        self.weight_learner = OptimalEnsembleWeights(method='validation')
 
 
     """
@@ -765,27 +769,25 @@ class DyNAPPO:
         Improved ensemble prediction with uncertainty handling
     """
     def predict_with_improved_ensemble(self, sequences: List[List[int]], 
-                                    models: List, round_num: int = 0) -> List[float]:
+                                    models: List, total_round, round_num: int = 0) -> List[float]:
         if not models:
-            # Return neutral predictions if no models
             return [0.0] * len(sequences)
         
         # Encoding
         X = self.context_window_encoding(sequences, context_window=8, embed_dim=16)
         
+        # Get predictions from all models
         predictions = []
-        weights = []
+        model_names = []
         
-        # Extract model info (name, model, score) tuples
         for model_info in models:
             if isinstance(model_info, tuple) and len(model_info) == 3:
                 name, model, score = model_info
                 
                 try:
-                    # Make predictions
                     pred = model.predict(X)
                     
-                    # Clip predictions to reasonable range based on observed rewards
+                    # Clip predictions
                     if self.all_data:
                         all_rewards = [r for _, r in self.all_data]
                         min_reward = np.percentile(all_rewards, 5)
@@ -793,27 +795,80 @@ class DyNAPPO:
                         pred = np.clip(pred, min_reward, max_reward)
                     
                     predictions.append(pred)
+                    model_names.append(name)
                     
                 except Exception as e:
                     print(f"    Prediction error with {name}: {e}")
                     continue
         
         if not predictions:
-            # Fallback to mean reward if all predictions fail
+            # Fallback
             if self.all_data:
                 mean_reward = np.mean([r for _, r in self.all_data])
                 return [mean_reward] * len(sequences)
             else:
                 return [0.0] * len(sequences)
         
-        # Simple average of all predictions
-        # Average predictions f''(x) = 1/|S'| Σ f'(x)
-        #*********** The original algorithm uses mean *********
+        # ============ OPTIMAL WEIGHT LEARNING ============
         predictions = np.array(predictions)
-        ensemble_pred = np.mean(predictions, axis=0)
+        
+        # Initialize weight learner if not exists
+        if not hasattr(self, 'weight_learner'):
+            self.weight_learner = OptimalEnsembleWeights(method='validation')
+        
+        # Learn or update weights based on historical data
+        if len(self.all_data) > 50 and round_num > 2:
+            # Prepare validation data from recent sequences
+            val_size = min(30, len(self.all_data) // 3)
+            val_data = self.all_data[-val_size:]
+            
+            X_val_sequences = [data[0] for data in val_data]
+            y_val = np.array([data[1] for data in val_data])
+            X_val = self.context_window_encoding(X_val_sequences, context_window=8, embed_dim=16)
+            
 
-        # ************************** Use Adaptive weighted models ***************************
+            # OPTION1: FIXED Average weights
+            weights = self.weight_learner.learn_weights_performance(models)
+            print(f"    Using performance-based weights")
 
+            # # OPTION 2: Dynamic weight methods
+            # # Choose weight learning method based on round
+            # if round_num <= (total_round / 3):
+            #     # Early rounds: use performance-based weights
+            #     # Simple and fast, based solely on R² scores
+            #     weights = self.weight_learner.learn_weights_performance(models)
+            #     print(f"    Using performance-based weights")
+                
+            # elif round_num <= (total_round * 2/ 3):
+            #     # Middle rounds: use ridge regression
+            #     # Regularized learning, can identify harmful models
+            #     weights = self.weight_learner.learn_weights_ridge(models, X_val, y_val)
+            #     print(f"    Using ridge regression weights")
+                
+            # else:
+            #     # Later rounds: use validation-based optimization
+            #     #  Most accurate but needs validation data
+            #     weights = self.weight_learner.learn_weights_validation(models, X_val, y_val)
+            #     print(f"    Using validation-optimized weights")
+            
+
+
+            # Store weights for analysis
+            self.weight_learner.weight_history.append((round_num, weights))
+            
+            # Print weight distribution
+            print(f"    Model weights: ", end="")
+            for name, w in zip(model_names, weights):
+                print(f"{name}:{w:.3f} ", end="")
+            print()
+            
+        else:
+            # Early rounds or insufficient data: use uniform weights
+            weights = np.ones(len(predictions)) / len(predictions)
+            print(f"    Using uniform weights (insufficient data)")
+        
+        # Apply learned weights
+        ensemble_pred = np.sum(predictions * weights[:, np.newaxis], axis=0)
         
         # Add small noise for diversity in early rounds
         if round_num <= 5:
@@ -822,6 +877,45 @@ class DyNAPPO:
         
         return ensemble_pred.tolist()
 
+
+    def analyze_weight_evolution(self) -> None:
+        """
+        Analyze how ensemble weights evolved over training.
+        """
+        if not hasattr(self, 'weight_learner') or not self.weight_learner.weight_history:
+            print("No weight history available")
+            return
+        
+        import matplotlib.pyplot as plt
+        
+        history = self.weight_learner.weight_history
+        rounds = [h[0] for h in history]
+        weights = np.array([h[1] for h in history])
+        
+        plt.figure(figsize=(10, 6))
+        
+        # Plot weight evolution for each model
+        n_models = weights.shape[1]
+        for i in range(n_models):
+            plt.plot(rounds, weights[:, i], marker='o', label=f'Model {i+1}')
+        
+        plt.xlabel('Round')
+        plt.ylabel('Weight')
+        plt.title('Evolution of Ensemble Weights')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.show()
+        
+        # Print final weight statistics
+        final_weights = weights[-1]
+        print("\nFinal Weight Distribution:")
+        print(f"  Max weight: {final_weights.max():.3f}")
+        print(f"  Min weight: {final_weights.min():.3f}")
+        print(f"  Weight entropy: {-np.sum(final_weights * np.log(final_weights + 1e-10)):.3f}")
+        
+        # Identify dominant models
+        top_indices = np.argsort(final_weights)[-3:][::-1]
+        print(f"  Top 3 models: {top_indices.tolist()} with weights {final_weights[top_indices]}")
 
 
 
@@ -1289,7 +1383,7 @@ class DyNAPPO:
                     
                     # Predict rewards using improved ensemble
                     predicted_rewards = self.predict_with_improved_ensemble(
-                        virtual_sequences, reliable_models, round_num
+                        virtual_sequences, reliable_models, total_rounds, round_num
                     )
                     
                     # Only apply diversity penalty if models are good
