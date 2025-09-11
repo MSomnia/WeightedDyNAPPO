@@ -1124,7 +1124,7 @@ class DyNAPPO:
         #threshold = get_dynamic_threshold1(round_num, total_rounds)
 
         start_threshold = -0.3  # Beginning threshold
-        end_threshold = 0.5     # Final threshold
+        end_threshold = 0.2     # Final threshold
         start_round = round(total_rounds / 10)
         threshold_increase_constant = 0.01
         # Linear interpolation based on progress
