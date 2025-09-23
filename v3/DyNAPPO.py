@@ -21,6 +21,7 @@ from sklearn.pipeline import Pipeline
 import warnings
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.model_selection import cross_val_score
+import sys
 
 # File import
 from SurrogateModel import SurrogateModel
@@ -38,8 +39,9 @@ class DyNAPPO:
     
     def __init__(self, vocab_size: int, max_seq_len: int, batch_size: int = 64,
                  learning_rate: float = 3e-4, gamma: float = 0.99, clip_ratio: float = 0.2,
-                 model_threshold: float = 0.5, max_model_rounds: int = 10,
-                 diversity_lambda: float = 0.05, diversity_epsilon: int = 3):
+                 model_threshold: float = 0.5, max_total_rounds: int = 10, max_model_rounds: int = 5,
+                 diversity_lambda: float = 0.05, diversity_epsilon: int = 3,
+                 method = 'average', threshold_type = 'fixed', diversity_penalty = 'yes', use_warmup = True):
         
         self.vocab_size = vocab_size
         self.max_seq_len = max_seq_len
@@ -48,8 +50,15 @@ class DyNAPPO:
         self.clip_ratio = clip_ratio
         self.model_threshold = model_threshold
         self.max_model_rounds = max_model_rounds
+        self.max_total_rounds = max_total_rounds
         self.diversity_lambda = diversity_lambda
         self.diversity_epsilon = diversity_epsilon
+
+        # ['average', 'weighted', 'dynamic']
+        self.ensemble_method = method
+        self.threshold_type = threshold_type
+        self.diversity_penalty = diversity_penalty
+        self.use_warmup = use_warmup
         
         # Initialize policy network
         self.policy_net = PolicyNetwork(vocab_size, max_seq_len)
@@ -73,6 +82,15 @@ class DyNAPPO:
 
         # Add weight learner
         self.weight_learner = OptimalEnsembleWeights(method='validation')
+
+        # Add model performance tracking
+        self.model_performance_history = {
+            'rounds': [],
+            'model_names': [],
+            'r2_scores': [],
+            'weights': [],
+            'prediction_errors': []
+        }
 
 
     """
@@ -769,112 +787,196 @@ class DyNAPPO:
         Improved ensemble prediction with uncertainty handling
     """
     def predict_with_improved_ensemble(self, sequences: List[List[int]], 
-                                    models: List, total_round, round_num: int = 0) -> List[float]:
+                                    models: List, total_round, round_num: int = 0, method = 'average') -> List[float]:
         if not models:
             return [0.0] * len(sequences)
         
+        print(f"Current Method: {method}")
+
         # Encoding
         X = self.context_window_encoding(sequences, context_window=8, embed_dim=16)
-        
-        # Get predictions from all models
-        predictions = []
-        model_names = []
-        
-        for model_info in models:
-            if isinstance(model_info, tuple) and len(model_info) == 3:
-                name, model, score = model_info
-                
-                try:
-                    pred = model.predict(X)
+        #======================== Average Ensemble Method ========================
+        if method not in ['average', 'weighted', 'dynamic']:
+            print(f'[ERROR] Method {method} does not exist.')
+            sys.exit('[ERROR] Method not exist.')
+        elif method == 'average':
+            predictions = []
+            
+            # Extract model info (name, model, score) tuples
+            for model_info in models:
+                if isinstance(model_info, tuple) and len(model_info) == 3:
+                    name, model, score = model_info
                     
-                    # Clip predictions
-                    if self.all_data:
-                        all_rewards = [r for _, r in self.all_data]
-                        min_reward = np.percentile(all_rewards, 5)
-                        max_reward = np.percentile(all_rewards, 95)
-                        pred = np.clip(pred, min_reward, max_reward)
-                    
-                    predictions.append(pred)
-                    model_names.append(name)
-                    
-                except Exception as e:
-                    print(f"    Prediction error with {name}: {e}")
-                    continue
-        
-        if not predictions:
-            # Fallback
-            if self.all_data:
-                mean_reward = np.mean([r for _, r in self.all_data])
-                return [mean_reward] * len(sequences)
-            else:
-                return [0.0] * len(sequences)
-        
-        # ============ OPTIMAL WEIGHT LEARNING ============
-        predictions = np.array(predictions)
-        
-        # Initialize weight learner if not exists
-        if not hasattr(self, 'weight_learner'):
-            self.weight_learner = OptimalEnsembleWeights(method='validation')
-        
-        # Learn or update weights based on historical data
-        if len(self.all_data) > 50 and round_num > 2:
-            # Prepare validation data from recent sequences
-            val_size = min(30, len(self.all_data) // 3)
-            val_data = self.all_data[-val_size:]
+                    try:
+                        # Make predictions
+                        pred = model.predict(X)
+                        
+                        # Clip predictions to reasonable range based on observed rewards
+                        if self.all_data:
+                            all_rewards = [r for _, r in self.all_data]
+                            min_reward = np.percentile(all_rewards, 5)
+                            max_reward = np.percentile(all_rewards, 95)
+                            pred = np.clip(pred, min_reward, max_reward)
+                        
+                        predictions.append(pred)
+                        
+                    except Exception as e:
+                        print(f"    Prediction error with {name}: {e}")
+                        continue
             
-            X_val_sequences = [data[0] for data in val_data]
-            y_val = np.array([data[1] for data in val_data])
-            X_val = self.context_window_encoding(X_val_sequences, context_window=8, embed_dim=16)
+            if not predictions:
+                # Fallback to mean reward if all predictions fail
+                if self.all_data:
+                    mean_reward = np.mean([r for _, r in self.all_data])
+                    return [mean_reward] * len(sequences)
+                else:
+                    return [0.0] * len(sequences)
             
-
-            # OPTION1: FIXED Average weights
-            weights = self.weight_learner.learn_weights_performance(models)
-            print(f"    Using performance-based weights")
-
-            # # OPTION 2: Dynamic weight methods
-            # # Choose weight learning method based on round
-            # if round_num <= (total_round / 3):
-            #     # Early rounds: use performance-based weights
-            #     # Simple and fast, based solely on R² scores
-            #     weights = self.weight_learner.learn_weights_performance(models)
-            #     print(f"    Using performance-based weights")
-                
-            # elif round_num <= (total_round * 2/ 3):
-            #     # Middle rounds: use ridge regression
-            #     # Regularized learning, can identify harmful models
-            #     weights = self.weight_learner.learn_weights_ridge(models, X_val, y_val)
-            #     print(f"    Using ridge regression weights")
-                
-            # else:
-            #     # Later rounds: use validation-based optimization
-            #     #  Most accurate but needs validation data
-            #     weights = self.weight_learner.learn_weights_validation(models, X_val, y_val)
-            #     print(f"    Using validation-optimized weights")
+            # Simple average of all predictions
+            # Average predictions f''(x) = 1/|S'| Σ f'(x)
+            #*********** The original algorithm uses mean *********
+            predictions = np.array(predictions)
+            ensemble_pred = np.mean(predictions, axis=0)
             
+            # Add small noise for diversity in early rounds
+            if round_num <= 5:
+                noise = np.random.normal(0, 0.1, size=ensemble_pred.shape)
+                ensemble_pred += noise
+            
+            #return ensemble_pred.tolist()
 
 
-            # Store weights for analysis
-            self.weight_learner.weight_history.append((round_num, weights))
-            
-            # Print weight distribution
-            print(f"    Model weights: ", end="")
-            for name, w in zip(model_names, weights):
-                print(f"{name}:{w:.3f} ", end="")
-            print()
-            
+
+        # ================ Weighted Ensemble Method ==============
         else:
-            # Early rounds or insufficient data: use uniform weights
-            weights = np.ones(len(predictions)) / len(predictions)
-            print(f"    Using uniform weights (insufficient data)")
+            # Get predictions from all models
+            predictions = []
+            model_names = []
+            
+            for model_info in models:
+                if isinstance(model_info, tuple) and len(model_info) == 3:
+                    name, model, score = model_info
+                    
+                    try:
+                        pred = model.predict(X)
+                        
+                        # Clip predictions
+                        if self.all_data:
+                            all_rewards = [r for _, r in self.all_data]
+                            min_reward = np.percentile(all_rewards, 5)
+                            max_reward = np.percentile(all_rewards, 95)
+                            pred = np.clip(pred, min_reward, max_reward)
+                        
+                        predictions.append(pred)
+                        model_names.append(name)
+                        
+                    except Exception as e:
+                        print(f"    Prediction error with {name}: {e}")
+                        continue
+            
+            if not predictions:
+                # Fallback
+                if self.all_data:
+                    mean_reward = np.mean([r for _, r in self.all_data])
+                    return [mean_reward] * len(sequences)
+                else:
+                    return [0.0] * len(sequences)
+            
+            # ============ OPTIMAL WEIGHT LEARNING ============
+            predictions = np.array(predictions)
+            
+            # Initialize weight learner if not exists
+            if not hasattr(self, 'weight_learner'):
+                self.weight_learner = OptimalEnsembleWeights(method='validation')
+            
+            # Learn or update weights based on historical data
+            if len(self.all_data) > 50 and round_num > 2:
+                # Prepare validation data from recent sequences
+                val_size = min(30, len(self.all_data) // 3)
+                val_data = self.all_data[-val_size:]
+                
+                X_val_sequences = [data[0] for data in val_data]
+                y_val = np.array([data[1] for data in val_data])
+                X_val = self.context_window_encoding(X_val_sequences, context_window=8, embed_dim=16)
+                
+
+                # OPTION1: R2 Performance-based weights
+                if method == 'weighted':
+                    weights = self.weight_learner.learn_weights_performance(models)
+                    print(f"    Using performance-based weights")
+
+                else:
+                    # OPTION 2: Dynamic weight methods
+                    # Choose weight learning method based on round
+                    if round_num <= (total_round / 3):
+                        # Early rounds: use performance-based weights
+                        # Simple and fast, based solely on R² scores
+                        weights = self.weight_learner.learn_weights_performance(models)
+                        print(f"    Using performance-based weights")
+                        
+                    elif round_num <= (total_round * 2/ 3):
+                        # Middle rounds: use ridge regression
+                        # Regularized learning, can identify harmful models
+                        weights = self.weight_learner.learn_weights_ridge(models, X_val, y_val)
+                        print(f"    Using ridge regression weights")
+                        
+                    else:
+                        # Later rounds: use validation-based optimization
+                        #  Most accurate but needs validation data
+                        weights = self.weight_learner.learn_weights_validation(models, X_val, y_val)
+                        print(f"    Using validation-optimized weights")
+                    
+
+
+                # Store weights for analysis
+                self.weight_learner.weight_history.append((round_num, weights))
+                
+                # Print weight distribution
+                print(f"    Model weights: ", end="")
+                for name, w in zip(model_names, weights):
+                    print(f"{name}:{w:.3f} ", end="")
+                print()
+                
+            else:
+                # Early rounds or insufficient data: use uniform weights
+                weights = np.ones(len(predictions)) / len(predictions)
+                print(f"    Using uniform weights (insufficient data)")
+            
+            # Apply learned weights
+            ensemble_pred = np.sum(predictions * weights[:, np.newaxis], axis=0)
+            
+            # Add small noise for diversity in early rounds
+            if round_num <= 5:
+                noise = np.random.normal(0, 0.1, size=ensemble_pred.shape)
+                ensemble_pred += noise
+            
+            #return ensemble_pred.tolist()
         
-        # Apply learned weights
-        ensemble_pred = np.sum(predictions * weights[:, np.newaxis], axis=0)
-        
-        # Add small noise for diversity in early rounds
-        if round_num <= 5:
-            noise = np.random.normal(0, 0.1, size=ensemble_pred.shape)
-            ensemble_pred += noise
-        
+        # Track model performance for this round
+        if models and hasattr(self, 'model_performance_history'):
+            # Extract model information
+            tracked_names = []
+            tracked_r2 = []
+            tracked_weights = []
+            
+            for i, model_info in enumerate(models):
+                if isinstance(model_info, tuple) and len(model_info) == 3:
+                    name, _, score = model_info
+                    tracked_names.append(name)
+                    tracked_r2.append(score)
+                    
+                    # Get weight for this model
+                    if method == 'average':
+                        weight = 1.0 / len(models)
+                    else:
+                        weight = weights[i] if i < len(weights) else 0
+                    tracked_weights.append(weight)
+            
+            # Store in history
+            self.model_performance_history['rounds'].append(round_num)
+            self.model_performance_history['model_names'].append(tracked_names)
+            self.model_performance_history['r2_scores'].append(tracked_r2)
+            self.model_performance_history['weights'].append(tracked_weights)
         return ensemble_pred.tolist()
 
 
@@ -1087,7 +1189,7 @@ class DyNAPPO:
     Completely revised model fitting with better strategies
     """
     def improved_fit_surrogate_models(self, sequences: List[List[int]], 
-                                        rewards: List[float], total_rounds: int, round_num: int):
+                                        rewards: List[float], total_rounds: int, round_num: int, threshold_type, tau):
 
         if len(sequences) < 30:  # Need more data before trying models
             return [], []
@@ -1122,18 +1224,21 @@ class DyNAPPO:
         # a negative R2 is acceptable as a starting point.
         #threshold = -0.2 if round_num <= 3 else 0.0
         #threshold = get_dynamic_threshold1(round_num, total_rounds)
+        if threshold_type == 'fixed': 
+            threshold = tau
 
-        start_threshold = -0.3  # Beginning threshold
-        end_threshold = 0.2     # Final threshold
-        start_round = round(total_rounds / 10)
-        threshold_increase_constant = 0.01
-        # Linear interpolation based on progress
-        if round_num < start_round:
-            threshold = start_threshold
         else:
-            progress = (round_num - 1) / (max(1, total_rounds - 1))
-            threshold = min(end_threshold, start_threshold + (round_num - start_round) * threshold_increase_constant)
-            #threshold = start_threshold + (end_threshold - start_threshold) * progress
+            start_threshold = -0.3  # Beginning threshold
+            end_threshold = tau     # Final threshold
+            start_round = round(total_rounds / 10)
+            threshold_increase_constant = 0.01
+            # Linear interpolation based on progress
+            if round_num < start_round:
+                threshold = start_threshold
+            else:
+                progress = (round_num - 1) / (max(1, total_rounds - 1))
+                threshold = min(end_threshold, start_threshold + (round_num - start_round) * threshold_increase_constant)
+                #threshold = start_threshold + (end_threshold - start_threshold) * progress
             
         print(f"Current R2 threshold: {threshold}")
 
@@ -1192,7 +1297,7 @@ class DyNAPPO:
         5. Learn more from virtual results
     """
     def train_round(self, oracle_fn, metrics_tracker: LearningMetricsTracker, total_rounds: int, 
-                round_num: int = 0, exploration_rate: float = 0) -> Dict:
+                round_num: int = 0, exploration_rate: float = 0, method = 'average', threshold_type = 'fixed', tau = '0.2', diversity_penalty = "yes") -> Dict:
         
         # ========== PHASE 1: ANALYZE PROGRESS & ADAPT PARAMETERS ==========
         # Track performance trend for adaptive learning
@@ -1334,7 +1439,7 @@ class DyNAPPO:
             
             # Use improved model fitting with oracle-aligned features
             reliable_models, model_r2_scores = self.improved_fit_surrogate_models(
-                all_sequences, all_rewards, total_rounds, round_num
+                all_sequences, all_rewards, total_rounds, round_num, threshold_type = threshold_type, tau = tau
             )
             
             models_used = len(reliable_models)
@@ -1383,11 +1488,11 @@ class DyNAPPO:
                     
                     # Predict rewards using improved ensemble
                     predicted_rewards = self.predict_with_improved_ensemble(
-                        virtual_sequences, reliable_models, total_rounds, round_num
+                        virtual_sequences, reliable_models, total_rounds, round_num, method = method
                     )
                     
                     # Only apply diversity penalty if models are good
-                    if best_r2 > 0:
+                    if best_r2 > 0 and diversity_penalty == 'yes':
                         diversity_weight = max(0.2, 1 - m / virtual_rounds)
                         final_rewards = []
                         for seq, pred_reward in zip(virtual_sequences, predicted_rewards):
@@ -1442,6 +1547,22 @@ class DyNAPPO:
                     
                     print(f"  Round {m+1}/{virtual_rounds}: "
                         f"Mean predicted reward = {np.mean(final_rewards):.3f}")
+                    
+
+                    # After getting predicted_rewards, calculate accuracy
+                    if reliable_models and virtual_sequences:
+                        # Get actual rewards for accuracy calculation
+                        actual_rewards = [oracle_fn(seq) for seq in virtual_sequences[:10]]  # Sample
+                        predicted_sample = predicted_rewards[:10]
+                        
+                        # Calculate prediction errors
+                        errors = [abs(a - p) for a, p in zip(actual_rewards, predicted_sample)]
+                        mean_error = np.mean(errors)
+                        
+                        # Add to tracking
+                        if hasattr(self, 'model_performance_history'):
+                            if 'prediction_errors' in self.model_performance_history:
+                                self.model_performance_history['prediction_errors'].append(mean_error)
             
             else:
                 print(f"\nNo reliable models found. Skipping model-based training.")
@@ -1473,6 +1594,187 @@ class DyNAPPO:
         analysis = self.analyze_and_report_progress(round_num, results)
         
         return results
+    
+
+    def plot_model_weight_evolution(self, save_path: Optional[str] = None):
+        """Create stacked area chart showing weight distribution over time"""
+        
+        if not hasattr(self, 'model_performance_history'):
+            print("No model performance history available")
+            return
+        
+        history = self.model_performance_history
+        if not history['rounds']:
+            print("No tracking data available")
+            return
+        
+        import matplotlib.pyplot as plt
+        import numpy as np
+        from collections import defaultdict, OrderedDict
+        
+        # Get all unique rounds and model types
+        all_model_types = set()
+        rounds_data = OrderedDict()
+        
+        for i, round_num in enumerate(history['rounds']):
+            if round_num not in rounds_data:
+                rounds_data[round_num] = defaultdict(float)
+            
+            names = history['model_names'][i]
+            weights = history['weights'][i]
+            
+            for name, weight in zip(names, weights):
+                model_type = name.split('-')[0]
+                all_model_types.add(model_type)
+                rounds_data[round_num][model_type] += weight
+        
+        # Convert to consistent arrays
+        unique_rounds = sorted(rounds_data.keys())
+        model_types = sorted(list(all_model_types))
+        
+        # Create weight matrix with zeros for missing values
+        weights_matrix = []
+        for model_type in model_types:
+            model_weights = []
+            for round_num in unique_rounds:
+                weight = rounds_data[round_num].get(model_type, 0.0)
+                model_weights.append(weight)
+            weights_matrix.append(model_weights)
+        
+        # Convert to numpy array
+        weights_array = np.array(weights_matrix)
+        
+        # Create plots
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
+        
+        # 1. Stacked area chart of weights
+        colors = plt.cm.Set3(np.linspace(0, 1, len(model_types)))
+        ax1.stackplot(unique_rounds, weights_array, labels=model_types, colors=colors, alpha=0.8)
+        ax1.set_xlabel('Round')
+        ax1.set_ylabel('Weight Distribution')
+        ax1.set_title('Model Weight Evolution (Stacked Area)')
+        ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        ax1.grid(True, alpha=0.3)
+        ax1.set_ylim(0, 1.1)
+        
+        # 2. Individual model R² scores over time
+        for i, round_num in enumerate(history['rounds']):
+            r2_scores = history['r2_scores'][i] if i < len(history['r2_scores']) else []
+            names = history['model_names'][i] if i < len(history['model_names']) else []
+            
+            for name, score in zip(names, r2_scores):
+                model_type = name.split('-')[0]
+                try:
+                    color_idx = model_types.index(model_type)
+                    ax2.scatter(round_num, score, color=colors[color_idx], alpha=0.6, s=30)
+                except (ValueError, IndexError):
+                    continue
+        
+        ax2.axhline(y=0, color='red', linestyle='--', alpha=0.5)
+        ax2.set_xlabel('Round')
+        ax2.set_ylabel('R² Score')
+        ax2.set_title('Individual Model R² Scores')
+        ax2.grid(True, alpha=0.3)
+        ax2.set_ylim(-1, 1)
+        
+        # 3. FIX: Handle prediction errors properly
+        if 'prediction_errors' in history and history['prediction_errors']:
+            # Match the length of rounds with errors
+            error_data = history['prediction_errors']
+            
+            # If prediction_errors is longer than unique_rounds, truncate it
+            if len(error_data) > len(unique_rounds):
+                error_data = error_data[:len(unique_rounds)]
+            
+            # If prediction_errors is shorter, only use corresponding rounds
+            rounds_with_errors = unique_rounds[:len(error_data)]
+            
+            # Now both arrays have the same length
+            ax3.plot(rounds_with_errors, error_data, 
+                    'b-', linewidth=2, marker='o', markersize=6, label='Prediction Error')
+            ax3.set_xlabel('Round')
+            ax3.set_ylabel('Mean Absolute Error')
+            ax3.set_title('Prediction Accuracy Over Time')
+            ax3.grid(True, alpha=0.3)
+            ax3.legend()
+            # Note: Not inverting y-axis as lower error is visually intuitive at bottom
+        else:
+            # Alternative: Show individual model type weights over time
+            for i, model_type in enumerate(model_types):
+                model_weights_line = []
+                for round_num in unique_rounds:
+                    weight = rounds_data[round_num].get(model_type, 0.0)
+                    model_weights_line.append(weight)
+                ax3.plot(unique_rounds, model_weights_line, 
+                        color=colors[i], linewidth=2, label=model_type, 
+                        marker='o', markersize=4, alpha=0.7)
+            ax3.set_xlabel('Round')
+            ax3.set_ylabel('Model Weight')
+            ax3.set_title('Individual Model Type Weights Over Time')
+            ax3.legend(loc='best', fontsize=8, ncol=2)
+            ax3.grid(True, alpha=0.3)
+            ax3.set_ylim(-0.05, 1.05)
+        
+
+        # Create detailed configuration text
+        config_text = "Experiment Configuration:\n"
+        config_text += "─" * 25 + "\n"
+        
+        # Core parameters
+        config_text += f"• Batch Size: {self.batch_size}\n"
+        config_text += f"• Max Rounds: {self.max_total_rounds}\n"
+        config_text += f"• Sequence Length: {self.max_seq_len}\n"
+        config_text += f"• Vocab Size: {self.vocab_size}\n"
+        config_text += f"• Model Threshold: {self.model_threshold}\n"
+        config_text += f"• Diversity λ: {self.diversity_lambda}\n"
+        config_text += f"• Warmup Samples: {self.use_warmup}\n"
+
+        # other parameters
+        config_text += f"• Threshold Type: {self.threshold_type}\n"
+        config_text += f"• Diversity Penalty: {self.diversity_penalty}\n"
+
+
+        # Place text box in bottom right corner
+        fig.text(0.98, 0.02, config_text, 
+                transform=fig.transFigure,
+                fontsize=9,
+                verticalalignment='bottom',
+                horizontalalignment='right',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8),
+                fontfamily='monospace')
+        plt.tight_layout()
+        
+        if save_path:
+            save_path = save_path.replace('.png', f'_r{self.max_total_rounds}_b{self.batch_size}_l{self.max_seq_len}.png')
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            print(f"Model evolution plot saved to {save_path}")
+        else:
+            plt.show()
+        
+        # Print summary statistics
+        print("\n=== Model Performance Summary ===")
+        
+        # Final round statistics
+        if unique_rounds:
+            final_round = unique_rounds[-1]
+            final_weights = rounds_data[final_round]
+            
+            print(f"\nFinal weight distribution (Round {final_round}):")
+            for mt in sorted(final_weights.keys(), key=lambda x: -final_weights[x]):
+                if final_weights[mt] > 0:
+                    print(f"  {mt}: {final_weights[mt]:.3f}")
+            
+            # Most dominant model types across all rounds
+            total_dominance = defaultdict(float)
+            for round_data in rounds_data.values():
+                for model_type, weight in round_data.items():
+                    total_dominance[model_type] += weight
+            
+            print("\nOverall model importance (average weight across all rounds):")
+            for mt in sorted(total_dominance.keys(), key=lambda x: -total_dominance[x]):
+                avg_weight = total_dominance[mt] / len(unique_rounds)
+                if avg_weight > 0.01:  # Only show models with >1% average weight
+                    print(f"  {mt}: {avg_weight:.3f}")
     
 
         

@@ -8,7 +8,8 @@ from datetime import datetime
 Track learning rate and other training metrics for DyNA PPO.
 """
 class LearningMetricsTracker:
-    def __init__(self):
+    def __init__(self, experiment_config: Optional[Dict] = None):
+        self.experiment_config = experiment_config or {}
         self.metrics = {
             'round': [],
             'oracle_mean_reward': [],
@@ -86,10 +87,19 @@ class LearningMetricsTracker:
     """
     Generate comprehensive learning curves.
     """
-    def plot_learning_curves(self, save_path: Optional[str] = None):
+    def plot_learning_curves(self, save_path: Optional[str] = None, experiment_config: Optional[Dict] = None):
         
-        fig, axes = plt.subplots(3, 3, figsize=(15, 12))
-        fig.suptitle('DyNA PPO Learning Curves', fontsize=16)
+        fig, axes = plt.subplots(3, 3, figsize=(16, 13))
+        # Create title with experiment info
+        if experiment_config:
+            title_lines = ['DyNA PPO Learning Curves']
+            config_line = f"Batch: {experiment_config.get('batch_size', 'N/A')} | " \
+                        f"Rounds: {experiment_config.get('max_rounds', 'N/A')} | " \
+                        f"Seq Len: {experiment_config.get('seq_length', 'N/A')} | " \
+                        f"Ensemble: {experiment_config.get('ensemble_method', 'N/A')}"
+            fig.suptitle('\n'.join([title_lines[0], config_line]), fontsize=14, y=0.995)
+        else:
+            fig.suptitle('DyNA PPO Learning Curves', fontsize=16)
         
         # 1. Rewards over rounds
         ax = axes[0, 0]
@@ -142,109 +152,6 @@ class LearningMetricsTracker:
         ax.set_ylim(0, 1.1)
         ax.grid(True)
         
-        # # 6. Model R2 scores
-        # ax = axes[1, 2]
-        # for round_idx, r2_scores in enumerate(self.metrics['model_r2_scores']):
-        #     # if r2_scores:
-        #     #     round_num = self.metrics['round'][round_idx]
-        #     #     ax.scatter([round_num] * len(r2_scores), r2_scores, alpha=0.6)
-        #     if r2_scores:
-        #         round_num = self.metrics['round'][round_idx]
-                
-        #         # Filter the scores to only include those greater than -5
-        #         filtered_scores = [score for score in r2_scores if score > -5]
-                
-        #         # Only plot if there are scores remaining after the filter
-        #         if filtered_scores:
-        #             # Create a corresponding list of round numbers for the x-axis
-        #             x_coords = [round_num] * len(filtered_scores)
-        #             ax.scatter(x_coords, filtered_scores, alpha=0.6)
-                    
-        # ax.axhline(y=0, color='r', linestyle='--', alpha=0.5)
-        # ax.set_xlabel('Round')
-        # ax.set_ylabel('R2 Score')
-        # ax.set_title('Surrogate Model R2 Scores')
-        # ax.grid(True)
-
-
-        #======================================================================
-
-        # # 6. Model R2 scores
-        # ax = axes[1, 2]
-
-        # # Track dynamic thresholds for each round
-        # threshold_values = []
-        # round_numbers = []
-
-        # for round_idx, r2_scores in enumerate(self.metrics['model_r2_scores']):
-        #     if r2_scores:
-        #         round_num = self.metrics['round'][round_idx]
-                
-        #         # Determine the threshold for this round (matching your logic)
-        #         if round_num <= 3:
-        #             current_threshold = -0.2
-        #         else:
-        #             current_threshold = 0.0
-                
-        #         threshold_values.append(current_threshold)
-        #         round_numbers.append(round_num)
-                
-        #         # Filter the scores to only include those greater than -5
-        #         filtered_scores = [score for score in r2_scores if score > -5]
-                
-        #         # Only plot if there are scores remaining after the filter
-        #         if filtered_scores:
-        #             # Color code points based on whether they meet the threshold
-        #             colors = ['green' if score > current_threshold else 'red' 
-        #                     for score in filtered_scores]
-        #             x_coords = [round_num] * len(filtered_scores)
-                    
-        #             # Plot with color coding
-        #             for x, y, c in zip(x_coords, filtered_scores, colors):
-        #                 ax.scatter(x, y, alpha=0.6, color=c, s=30)
-
-        # # Plot the dynamic threshold as a step function
-        # if round_numbers and threshold_values:
-        #     # Extend to show the full threshold line
-        #     extended_rounds = round_numbers + [round_numbers[-1] + 1]
-        #     extended_thresholds = threshold_values + [threshold_values[-1]]
-        #     ax.step(extended_rounds, extended_thresholds, where='post', 
-        #             color='blue', linestyle='-', linewidth=2, alpha=0.7, 
-        #             label='Dynamic R2 Threshold')
-
-        # # Add reference lines
-        # ax.axhline(y=0, color='gray', linestyle='--', alpha=0.5, label='R2 = 0')
-        # ax.axhline(y=-0.2, color='orange', linestyle=':', alpha=0.3, label='Early Round Threshold')
-
-        # # Add shaded regions to show acceptance zones
-        # if round_numbers:
-        #     # Early rounds (1-3): acceptance zone from -0.2 to 1.0
-        #     early_end = min(3.5, max(round_numbers))
-        #     ax.fill_between([0.5, early_end], -0.2, 1.0, 
-        #                     alpha=0.05, color='blue', label='Early Acceptance Zone')
-            
-        #     # Later rounds (4+): acceptance zone from 0.0 to 1.0
-        #     if max(round_numbers) > 3:
-        #         ax.fill_between([3.5, max(round_numbers) + 0.5], 0.0, 1.0, 
-        #                         alpha=0.05, color='green', label='Standard Acceptance Zone')
-
-        # ax.set_xlabel('Round')
-        # ax.set_ylabel('R2 Score')
-        # ax.set_title('Surrogate Model R2 Scores (Dynamic Threshold)')
-
-        # # Create custom legend
-        # legend_elements = [
-        #     plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='g', 
-        #             markersize=6, alpha=0.6, label='Accepted Models'),
-        #     plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='r', 
-        #             markersize=6, alpha=0.6, label='Rejected Models'),
-        #     plt.Line2D([0], [0], color='blue', linewidth=2, label='Dynamic Threshold'),
-        #     plt.Line2D([0], [0], color='gray', linestyle='--', label='R2 = 0')
-        # ]
-        # ax.legend(handles=legend_elements, loc='lower right', fontsize=8)
-
-        # ax.grid(True, alpha=0.3)
-        # ax.set_ylim(-1.5, 1.0)  # Set y-axis limits for better visualization
 
         #======================================================================
 
@@ -315,9 +222,60 @@ class LearningMetricsTracker:
             ax.set_title('Reward Variance')
             ax.grid(True)
         
+
+        # Add experiment configuration text box
+        if experiment_config:
+            # Create detailed configuration text
+            config_text = "Experiment Configuration:\n"
+            config_text += "─" * 25 + "\n"
+            
+            # Core parameters
+            config_text += f"• Batch Size: {experiment_config.get('batch_size', 'N/A')}\n"
+            config_text += f"• Max Rounds: {experiment_config.get('max_rounds', 'N/A')}\n"
+            config_text += f"• Sequence Length: {experiment_config.get('seq_length', 'N/A')}\n"
+            config_text += f"• Vocab Size: {experiment_config.get('vocab_size', 'N/A')}\n"
+            
+            # Model parameters
+            config_text += f"\n• Ensemble Method: {experiment_config.get('ensemble_method', 'uniform')}\n"
+            config_text += f"• Model Threshold: {experiment_config.get('model_threshold', 'N/A')}\n"
+            config_text += f"• Model Rounds: {experiment_config.get('model_rounds', 'N/A')}\n"
+            
+            # Learning parameters
+            config_text += f"\n• Learning Rate: {experiment_config.get('learning_rate', 'N/A')}\n"
+            config_text += f"• Diversity λ: {experiment_config.get('diversity_lambda', 'N/A')}\n"
+            config_text += f"• Warmup Samples: {experiment_config.get('warmup_samples', 'N/A')}\n"
+
+            # other parameters
+            config_text += f"• Threshold Type: {experiment_config.get('threshold_type', 'N/A')}\n"
+            config_text += f"• Diversity Penalty: {experiment_config.get('diversity_penalty', 'N/A')}\n"
+            
+            # Add timestamp
+            config_text += f"\n• Time Used (sec): {experiment_config.get('time_used', 'N/A')}"
+
+
+            # Place text box in bottom right corner
+            fig.text(0.98, 0.02, config_text, 
+                    transform=fig.transFigure,
+                    fontsize=9,
+                    verticalalignment='bottom',
+                    horizontalalignment='right',
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8),
+                    fontfamily='monospace')
+        
         plt.tight_layout()
         
+        # Adjust layout to prevent overlap with text box
+        plt.subplots_adjust(bottom=0.15, right=0.85)
+        
         if save_path:
+            # Add config to filename
+            if experiment_config:
+                method = experiment_config.get('ensemble_method', 'unknown')
+                rounds = experiment_config.get('max_rounds', 'X')
+                length = experiment_config.get('seq_length', 'X')
+                batch = experiment_config.get('batch_size', 'X')
+                save_path = save_path.replace('.png', f'_{method}_r{rounds}_b{batch}_l{length}.png')
+            
             plt.savefig(save_path, dpi=300, bbox_inches='tight')
             print(f"Learning curves saved to {save_path}")
         else:
@@ -327,14 +285,22 @@ class LearningMetricsTracker:
     """
     Save all metrics to JSON file.
     """
-    def save_metrics(self, filepath: str):
-        
-        with open(filepath, 'w') as f:
-            json.dump({
-                'round_metrics': self.metrics,
-                'update_metrics': self.update_metrics
-            }, f, indent=2)
-        print(f"Metrics saved to {filepath}")
+    def save_metrics(self, filepath: str, experiment_config):
+        if filepath:
+            if experiment_config:
+                method = experiment_config.get('ensemble_method', 'unknown')
+                rounds = experiment_config.get('max_rounds', 'X')
+                length = experiment_config.get('seq_length', 'X')
+                batch = experiment_config.get('batch_size', 'X')
+                filepath = filepath.replace('.json', f'_{method}_r{rounds}_b{batch}_l{length}.json')
+
+            with open(filepath, 'w') as f:
+                json.dump({
+                    'experiment_config': self.experiment_config,
+                    'round_metrics': self.metrics,
+                    'update_metrics': self.update_metrics
+                }, f, indent=2)
+            print(f"Metrics saved to {filepath}")
     
 
     """

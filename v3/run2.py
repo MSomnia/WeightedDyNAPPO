@@ -4,9 +4,10 @@ import math
 import random
 from typing import List, Tuple, Dict, Optional
 import torch
+import time
 
 # file import
-from DyNAPPO import DyNAPPO  # Make sure your DyNAPPO class includes the improved train_round()
+from DyNAPPO import DyNAPPO
 from LearningRateTracker import LearningMetricsTracker
 
 """
@@ -70,9 +71,11 @@ Args:
     use_warmup: Whether to use warm-up phase for initial data
 """
 def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int, 
-                          N: int = 15, M: int = 5, tau: float = 0.3, 
-                          batch_size: int = 32, use_warmup: bool = True):
+                          N: int = 10, M: int = 5, tau: float = 0.2, 
+                          batch_size: int = 32, use_warmup: bool = True, method = "average", threshold_type = 'fixed', diversity_penalty = 'yes'):
 
+    start_time = time.time()
+    
     # Initialize tracker
     metrics_tracker = LearningMetricsTracker()
 
@@ -86,6 +89,7 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
     print(f"  Minimum model score τ = {tau}")
     print(f"  Batch size B = {batch_size}")
     print(f"  Warm-up phase: {use_warmup}")
+    print(f"  Surrogate model method: {method}")
     print("=" * 70)
     
     # Initialize DyNA PPO with policy π_θ
@@ -95,9 +99,14 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
         max_seq_len=max_seq_len,
         batch_size=batch_size,
         model_threshold=tau,
+        max_total_round = N,
         max_model_rounds=M,
         learning_rate=3e-4,
-        diversity_lambda=0.1  # Increased for better exploration
+        diversity_lambda=0.1,  # Increased for better exploration
+        method = method, 
+        threshold_type = threshold_type,
+        diversity_penalty = diversity_penalty,
+        use_warmup = use_warmup
     )
     
     # ========== WARM-UP PHASE ==========
@@ -121,7 +130,7 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
         if hasattr(dyna_ppo, 'improved_fit_surrogate_models'):
             print("\nPre-training surrogate models on warm-up data...")
             initial_models, initial_scores = dyna_ppo.improved_fit_surrogate_models(
-                warmup_sequences, warmup_rewards, N, round_num=0
+                warmup_sequences, warmup_rewards, N, round_num=0, threshold_type = threshold_type, tau = tau
             )
             print(f"Initial models trained: {len(initial_models)}")
             if initial_scores:
@@ -169,7 +178,7 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
         print(f"Total data collected: {len(dyna_ppo.all_data)}")
         
         # Execute one round of the improved algorithm
-        results = dyna_ppo.train_round(oracle_fn, metrics_tracker, N, n, exploration_rate)
+        results = dyna_ppo.train_round(oracle_fn, metrics_tracker, N, n, exploration_rate, method = method, threshold_type=threshold_type, tau = tau, diversity_penalty=diversity_penalty)
         
         # Log round-level metrics
         #metrics_tracker.log_round_metrics(n, results, current_lr, exploration_rate)
@@ -211,9 +220,11 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
         #             print(f"\n  Early stopping: Converged at round {n}")
         #             break
     
+    end_time = time.time()
+    time_used = (round(end_time - start_time, 2))
     # ========== TRAINING COMPLETE ==========
     print(f"\n{'=' * 70}")
-    print(f"DyNA PPO ALGORITHM COMPLETE!")
+    print(f"DyNA PPO ALGORITHM COMPLETE! Time used {time_used} seconds")
     print(f"{'=' * 70}")
     print(f"Total rounds executed: {n}")
     print(f"Total sequences evaluated: {len(dyna_ppo.all_data)}")
@@ -224,10 +235,31 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
     
     # Plot and save results
     print("\nGenerating learning curves...")
-    metrics_tracker.plot_learning_curves(save_path="learning_curves.png")
+    # Create configuration dictionary
+    experiment_config = {
+        'batch_size': batch_size,
+        'max_rounds': N,
+        'seq_length': max_seq_len,
+        'vocab_size': vocab_size,
+        'ensemble_method': method,  # or 'uniform', 'ridge', etc.
+        'model_threshold': tau,
+        'model_rounds': M,
+        'learning_rate': 3e-4,
+        'diversity_lambda': dyna_ppo.diversity_lambda,
+        'warmup_samples': 50 if use_warmup else 0,
+        'time_used': time_used,
+        'threshold_type': threshold_type,
+        'diversity_penalty': diversity_penalty
+    }
+
+    # Pass config when plotting
+    metrics_tracker.plot_learning_curves(
+        save_path="metrices_plot.png",
+        experiment_config=experiment_config
+    )
     
     print("Saving training metrics...")
-    metrics_tracker.save_metrics("training_metrics.json")
+    metrics_tracker.save_metrics(filepath="metrices_data.json", experiment_config=experiment_config)
     
     return dyna_ppo
 
@@ -331,17 +363,22 @@ if __name__ == "__main__":
     print("RUNNING IMPROVED DyNA PPO WITH BETTER SURROGATE LEARNING")
     print("=" * 70)
     
+
     # Run with improved configuration
     trained_dyna_ppo = run_dyna_ppo_algorithm(
         oracle_fn=dna_oracle,
         vocab_size=4,      # DNA: A, T, G, C  
-        max_seq_len=12,    # 12-base sequences
-        N=100,              # More rounds for better learning
+        max_seq_len=6,    # 12-base sequences
+        N=10,              # More rounds for better learning
         M=5,               # Model-based training rounds
         tau=0.2,           # Lower threshold for early rounds
         batch_size=32,     # Larger batch for more diversity
-        use_warmup=True    # Enable warm-up phase
+        use_warmup=True,    # Enable warm-up phase
+        method = "weighted",
+        threshold_type = 'dynamic',
+        diversity_penalty = 'yes'
     )
+
     
     # print("\n=== Ensemble Weight Analysis ===")
     # trained_dyna_ppo.analyze_weight_evolution()
@@ -388,3 +425,31 @@ if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("Training complete! Check 'learning_curves.png' and 'training_metrics.json'")
     print("=" * 70)
+
+
+    # Generate model evolution plot
+    print("\n=== Model Weight Evolution Analysis ===")
+    trained_dyna_ppo.plot_model_weight_evolution(save_path="model_evolution.png")
+
+    # Generate detailed report
+    if hasattr(trained_dyna_ppo, 'model_performance_history'):
+        history = trained_dyna_ppo.model_performance_history
+        
+        # Export to CSV for further analysis
+        import pandas as pd
+        
+        # Create DataFrame for each round
+        data_rows = []
+        for i in range(len(history['rounds'])):
+            round_num = history['rounds'][i]
+            for j, name in enumerate(history['model_names'][i]):
+                data_rows.append({
+                    'round': round_num,
+                    'model': name,
+                    'r2_score': history['r2_scores'][i][j],
+                    'weight': history['weights'][i][j]
+                })
+        
+        df = pd.DataFrame(data_rows)
+        df.to_csv('model_performance_details.csv', index=False)
+        print("Detailed performance data saved to model_performance_details.csv")

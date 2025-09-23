@@ -341,6 +341,59 @@ Metrics diagram
 
 
 
+
+
+
+
+
+
+
+
+
+
 9.10
 1. Line 1126: Increasing threshold
 2. Line 830: Weighted ensemble of surrogate models and Dynamic ensemble
+
+
+9.22
+Experiments & Result
+1. base comparison
+- standard with average ensemble
+- with R2-based weighted ensemble
+- with dynamic optimal ensemble
+- Pure ppo
+
+Metrics to track:
+- Final best reward achieved
+- Convergence speed (rounds to reach 90% of best)
+- Total oracle evaluations needed
+
+
+2. Ablation study
+Test importance of each component:
+configurations = [
+    "no_warmup",
+    "no_diversity_penalty",
+    "fixed_threshold",
+    "uniform_weights_only",
+    "no_context_encoding"
+]
+Create a table showing performance drop when each component is removed.
+
+3. Data Efficiency Analysis
+oracle_budgets = [100, 200, 500, 1000]
+Compare how well each method uses limited oracle calls.
+Plot oracle efficiency curves.
+
+4. Model Contribution Analysis
+Track which models contribute most:
+For each round, log:
+- Individual model R² scores
+- Assigned weights
+- Prediction accuracy
+Create stacked area charts showing weight distribution over time.
+
+
+Todo:
+
