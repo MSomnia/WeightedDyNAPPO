@@ -16,7 +16,7 @@ from LearningRateTracker import LearningMetricsTracker
 input_l = 20
 input_r = 100
 input_b = 64
-input_m = "weighted"        # # ['average', 'weighted', 'dynamic']
+input_m = "average"        # # ['average', 'weighted', 'dynamic']
 input_ty = "dynamic"
 
 time_str = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -24,7 +24,7 @@ base_dir = Path("experiments")
 dir_path = base_dir / f"{time_str}_r{input_r}_b{input_b}_l{input_l}_{input_m}_{input_ty}"    
 dir_path.mkdir(parents=True, exist_ok=True)
 
-sys.stdout = open(dir_path / "output.txt", "w")
+sys.stdout = open(dir_path / "output.txt", "w", encoding="utf-8")
 sys.stderr = sys.stdout
 
 """

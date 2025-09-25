@@ -1314,7 +1314,7 @@ class DyNAPPO:
                 round_num: int = 0, exploration_rate: float = 0, method = 'average', threshold_type = 'fixed', 
                 tau = '0.2', diversity_penalty = "yes", purePPO = False) -> Dict:
         
-        print(f"[{round_num}/{total_rounds}] New Round running", file=sys.__stdout__)
+        print(f"[{round_num}/{total_rounds}] New Round running".encode('utf-8').decode('utf-8'), file=sys.__stdout__)
         # ========== PHASE 1: ANALYZE PROGRESS & ADAPT PARAMETERS ==========
         # Track performance trend for adaptive learning
         performance_trend = []
