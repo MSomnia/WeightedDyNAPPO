@@ -5,10 +5,27 @@ import random
 from typing import List, Tuple, Dict, Optional
 import torch
 import time
+from datetime import datetime
+from pathlib import Path
+import sys
 
 # file import
 from DyNAPPO import DyNAPPO
 from LearningRateTracker import LearningMetricsTracker
+
+input_l = 20
+input_r = 100
+input_b = 64
+input_m = "weighted"        # # ['average', 'weighted', 'dynamic']
+input_ty = "dynamic"
+
+time_str = datetime.now().strftime("%Y%m%d%H%M%S")
+base_dir = Path("experiments")
+dir_path = base_dir / f"{time_str}_r{input_r}_b{input_b}_l{input_l}_{input_m}_{input_ty}"    
+dir_path.mkdir(parents=True, exist_ok=True)
+
+sys.stdout = open(dir_path / "output.txt", "w")
+sys.stderr = sys.stdout
 
 """
 Generate diverse random sequences for initial training
@@ -70,9 +87,11 @@ Args:
     batch_size: Number of sequences per batch B
     use_warmup: Whether to use warm-up phase for initial data
 """
-def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int, 
+def run_dyna_ppo_algorithm(dir_path, oracle_fn, vocab_size: int, max_seq_len: int, 
                           N: int = 10, M: int = 5, tau: float = 0.2, 
-                          batch_size: int = 32, use_warmup: bool = True, method = "average", threshold_type = 'fixed', diversity_penalty = 'yes'):
+                          batch_size: int = 32, use_warmup: bool = True, method = "average", 
+                          threshold_type = 'fixed', diversity_penalty = 'yes', 
+                          purePPO = False):
 
     start_time = time.time()
     
@@ -99,7 +118,7 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
         max_seq_len=max_seq_len,
         batch_size=batch_size,
         model_threshold=tau,
-        max_total_round = N,
+        max_total_rounds = N,
         max_model_rounds=M,
         learning_rate=3e-4,
         diversity_lambda=0.1,  # Increased for better exploration
@@ -178,7 +197,9 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
         print(f"Total data collected: {len(dyna_ppo.all_data)}")
         
         # Execute one round of the improved algorithm
-        results = dyna_ppo.train_round(oracle_fn, metrics_tracker, N, n, exploration_rate, method = method, threshold_type=threshold_type, tau = tau, diversity_penalty=diversity_penalty)
+        results = dyna_ppo.train_round(oracle_fn, metrics_tracker, N, n, exploration_rate, 
+                                       method = method, threshold_type=threshold_type, 
+                                       tau = tau, diversity_penalty=diversity_penalty, purePPO = purePPO)
         
         # Log round-level metrics
         #metrics_tracker.log_round_metrics(n, results, current_lr, exploration_rate)
@@ -209,6 +230,7 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
             print("  New best mean reward!")
         
         print(f"  Total Sequences Evaluated: {results['total_sequences']}")
+        print(f"    Oracle Count: {dyna_ppo.oracle_call_count} {dyna_ppo.oracle_call_history}")
         
         # Optional: Early stopping if converged
         # if n > 5:  # Check after initial exploration
@@ -254,12 +276,12 @@ def run_dyna_ppo_algorithm(oracle_fn, vocab_size: int, max_seq_len: int,
 
     # Pass config when plotting
     metrics_tracker.plot_learning_curves(
-        save_path="metrices_plot.png",
+        save_path=str(dir_path / "metrices_plot.png"),
         experiment_config=experiment_config
     )
     
     print("Saving training metrics...")
-    metrics_tracker.save_metrics(filepath="metrices_data.json", experiment_config=experiment_config)
+    metrics_tracker.save_metrics(filepath=str(dir_path / "metrices_data.json"), experiment_config=experiment_config)
     
     return dyna_ppo
 
@@ -362,21 +384,35 @@ if __name__ == "__main__":
     print("=" * 70)
     print("RUNNING IMPROVED DyNA PPO WITH BETTER SURROGATE LEARNING")
     print("=" * 70)
+
+    # input_l = 6
+    # input_r = 10
+    # input_b = 32
+    # input_m = "weighted"
+    # input_ty = "dynamic"
+
+    # time_str = datetime.now().strftime("%Y%m%d%H%M%S")
+    # base_dir = Path("experiments")
+    # dir_path = base_dir / f"{time_str}_r{input_r}_b{input_b}_l{input_l}_{input_m}_{input_ty}"    
+    # dir_path.mkdir(parents=True, exist_ok=True)
     
 
     # Run with improved configuration
     trained_dyna_ppo = run_dyna_ppo_algorithm(
+        dir_path = dir_path,
         oracle_fn=dna_oracle,
         vocab_size=4,      # DNA: A, T, G, C  
-        max_seq_len=6,    # 12-base sequences
-        N=10,              # More rounds for better learning
+        max_seq_len=input_l,    # 12-base sequences
+        N=input_r,              # More rounds for better learning
         M=5,               # Model-based training rounds
         tau=0.2,           # Lower threshold for early rounds
-        batch_size=32,     # Larger batch for more diversity
+        batch_size=input_b,     # Larger batch for more diversity
         use_warmup=True,    # Enable warm-up phase
-        method = "weighted",
-        threshold_type = 'dynamic',
-        diversity_penalty = 'yes'
+        method = input_m,
+        threshold_type = input_ty,
+        diversity_penalty = 'yes',
+        purePPO = False
+        
     )
 
     
@@ -429,7 +465,7 @@ if __name__ == "__main__":
 
     # Generate model evolution plot
     print("\n=== Model Weight Evolution Analysis ===")
-    trained_dyna_ppo.plot_model_weight_evolution(save_path="model_evolution.png")
+    trained_dyna_ppo.plot_model_weight_evolution(save_path=str(dir_path / "model_evolution.png"))
 
     # Generate detailed report
     if hasattr(trained_dyna_ppo, 'model_performance_history'):
@@ -451,5 +487,5 @@ if __name__ == "__main__":
                 })
         
         df = pd.DataFrame(data_rows)
-        df.to_csv('model_performance_details.csv', index=False)
+        df.to_csv(dir_path / 'model_performance_details.csv', index=False)
         print("Detailed performance data saved to model_performance_details.csv")

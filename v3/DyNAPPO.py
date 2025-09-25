@@ -92,6 +92,20 @@ class DyNAPPO:
             'prediction_errors': []
         }
 
+        # Oracle call tracking
+        self.oracle_call_count = 0
+        self.oracle_call_history = []  # (round, cumulative_calls, best_reward)
+
+    def track_oracle_call(self, round_num: int, n_calls: int, best_reward: float):
+        """Track oracle usage"""
+        self.oracle_call_count += n_calls
+        self.oracle_call_history.append({
+            'round': round_num,
+            'cumulative_calls': self.oracle_call_count,
+            'new_calls': n_calls,
+            'best_reward_so_far': best_reward
+        })
+
 
     """
     Create models specifically tuned for this problem using SurrogateModel class
@@ -1297,8 +1311,10 @@ class DyNAPPO:
         5. Learn more from virtual results
     """
     def train_round(self, oracle_fn, metrics_tracker: LearningMetricsTracker, total_rounds: int, 
-                round_num: int = 0, exploration_rate: float = 0, method = 'average', threshold_type = 'fixed', tau = '0.2', diversity_penalty = "yes") -> Dict:
+                round_num: int = 0, exploration_rate: float = 0, method = 'average', threshold_type = 'fixed', 
+                tau = '0.2', diversity_penalty = "yes", purePPO = False) -> Dict:
         
+        print(f"[{round_num}/{total_rounds}] New Round running", file=sys.__stdout__)
         # ========== PHASE 1: ANALYZE PROGRESS & ADAPT PARAMETERS ==========
         # Track performance trend for adaptive learning
         performance_trend = []
@@ -1370,6 +1386,11 @@ class DyNAPPO:
                 old_log_probs.append(log_prob.item())
         
         # ========== PHASE 4: ORACLE EVALUATION WITH INTRINSIC REWARDS ==========
+        # COUNT ORACLE CALLS HERE
+        oracle_calls_this_round = 0
+        
+
+
         oracle_rewards = []
         for seq in sequences:
             # Get oracle reward
@@ -1388,7 +1409,12 @@ class DyNAPPO:
             original_reward = oracle_fn(seq)
             self.all_data.append((seq, original_reward))
             self.sequence_history.append(seq)
+            oracle_calls_this_round += 1  # <-- COUNT EACH CALL
         
+        # Track the calls
+        current_best = max([r for _, r in self.all_data]) if self.all_data else 0
+        self.track_oracle_call(round_num, oracle_calls_this_round, current_best)
+
         # Track round performance
         mean_reward = np.mean([oracle_fn(seq) for seq in sequences])
         self.round_rewards_history.append(mean_reward)
@@ -1420,160 +1446,166 @@ class DyNAPPO:
             entropy_coef=entropy_coef
         )
         
-        # ========== PHASE 6: IMPROVED SURROGATE MODEL TRAINING ==========
-        model_rewards = oracle_rewards.copy()
-        models_used = 0
-        model_r2_scores = []
-        reliable_models = []
-        
-        # Minimum data requirements
-        min_data_for_models = 30
-        
-        if len(self.all_data) >= min_data_for_models:
-            print(f"\n=== Surrogate Model Training ===")
-            print(f"Total samples: {len(self.all_data)}")
+        # # ========== PHASE 6: IMPROVED SURROGATE MODEL TRAINING ==========
+        if purePPO == False:
+            model_rewards = oracle_rewards.copy()
+            models_used = 0
+            model_r2_scores = []
+            reliable_models = []
             
-            # Prepare all historical data
-            all_sequences = [data[0] for data in self.all_data]
-            all_rewards = [data[1] for data in self.all_data]
+            # Minimum data requirements
+            min_data_for_models = 30
             
-            # Use improved model fitting with oracle-aligned features
-            reliable_models, model_r2_scores = self.improved_fit_surrogate_models(
-                all_sequences, all_rewards, total_rounds, round_num, threshold_type = threshold_type, tau = tau
-            )
-            
-            models_used = len(reliable_models)
-            
-            # ========== PHASE 7: MODEL-BASED TRAINING ==========
-            if reliable_models:
-                # Determine quality of models
-                if model_r2_scores:
-                    best_r2 = np.max(model_r2_scores)
-                    mean_r2 = np.mean([s for s in model_r2_scores if s > -999])
-                else:
-                    best_r2 = -1
-                    mean_r2 = -1
+            if len(self.all_data) >= min_data_for_models:
+                print(f"\n=== Surrogate Model Training ===")
+                print(f"Total samples: {len(self.all_data)}")
                 
-                print(f"\nModel-based training with {models_used} models")
-                print(f"Best R2: {best_r2:.3f}, Mean R2: {mean_r2:.3f}")
+                # Prepare all historical data
+                all_sequences = [data[0] for data in self.all_data]
+                all_rewards = [data[1] for data in self.all_data]
                 
-                # Adaptive number of virtual rounds based on model quality
-                if best_r2 > 0.3:
-                    virtual_rounds = min(self.max_model_rounds, 5)
-                elif best_r2 > 0:
-                    virtual_rounds = min(self.max_model_rounds, 3)
-                elif best_r2 > -0.3:
-                    virtual_rounds = 2
-                else:
-                    virtual_rounds = 1  # Minimal virtual training with poor models
+                # Use improved model fitting with oracle-aligned features
+                reliable_models, model_r2_scores = self.improved_fit_surrogate_models(
+                    all_sequences, all_rewards, total_rounds, round_num, threshold_type = threshold_type, tau = tau
+                )
                 
-                print(f"Running {virtual_rounds} virtual training rounds")
+                models_used = len(reliable_models)
                 
-                for m in range(virtual_rounds):
-                    # Generate virtual sequences with appropriate strategy
-                    if best_r2 > 0:
-                        # Models are decent - use guided generation
-                        virtual_sequences = self.guided_sequence_generation(
-                            self.batch_size, round_num
+                # ========== PHASE 7: MODEL-BASED TRAINING ==========
+                if reliable_models:
+                    # Determine quality of models
+                    if model_r2_scores:
+                        best_r2 = np.max(model_r2_scores)
+                        mean_r2 = np.mean([s for s in model_r2_scores if s > -999])
+                    else:
+                        best_r2 = -1
+                        mean_r2 = -1
+                    
+                    print(f"\nModel-based training with {models_used} models")
+                    print(f"Best R2: {best_r2:.3f}, Mean R2: {mean_r2:.3f}")
+                    
+                    # Adaptive number of virtual rounds based on model quality
+                    if best_r2 > 0.3:
+                        virtual_rounds = min(self.max_model_rounds, 5)
+                    elif best_r2 > 0:
+                        virtual_rounds = min(self.max_model_rounds, 3)
+                    elif best_r2 > -0.3:
+                        virtual_rounds = 2
+                    else:
+                        virtual_rounds = 1  # Minimal virtual training with poor models
+                    
+                    print(f"Running {virtual_rounds} virtual training rounds")
+                    
+                    for m in range(virtual_rounds):
+                        # Generate virtual sequences with appropriate strategy
+                        if best_r2 > 0:
+                            # Models are decent - use guided generation
+                            virtual_sequences = self.guided_sequence_generation(
+                                self.batch_size, round_num
+                            )
+                        else:
+                            # Models are poor - use more exploration
+                            virtual_sequences = []
+                            for _ in range(self.batch_size):
+                                temp = 1.3 - (m * 0.1)  # Decrease temperature each round
+                                seq = self.generate_sequence_with_temperature(
+                                    temperature=temp, use_top_k=True, k=3
+                                )
+                                virtual_sequences.append(seq)
+                        
+                        # Predict rewards using improved ensemble
+                        predicted_rewards = self.predict_with_improved_ensemble(
+                            virtual_sequences, reliable_models, total_rounds, round_num, method = method
                         )
-                    else:
-                        # Models are poor - use more exploration
-                        virtual_sequences = []
-                        for _ in range(self.batch_size):
-                            temp = 1.3 - (m * 0.1)  # Decrease temperature each round
-                            seq = self.generate_sequence_with_temperature(
-                                temperature=temp, use_top_k=True, k=3
-                            )
-                            virtual_sequences.append(seq)
-                    
-                    # Predict rewards using improved ensemble
-                    predicted_rewards = self.predict_with_improved_ensemble(
-                        virtual_sequences, reliable_models, total_rounds, round_num, method = method
-                    )
-                    
-                    # Only apply diversity penalty if models are good
-                    if best_r2 > 0 and diversity_penalty == 'yes':
-                        diversity_weight = max(0.2, 1 - m / virtual_rounds)
-                        final_rewards = []
-                        for seq, pred_reward in zip(virtual_sequences, predicted_rewards):
-                            diversity_penalty = compute_diversity_penalty(
-                                seq, 
-                                self.sequence_history,
-                                self.diversity_lambda * diversity_weight,
-                                self.diversity_epsilon
-                            )
-                            final_rewards.append(pred_reward - diversity_penalty)
-                    else:
-                        # Poor models - use predictions as-is
-                        final_rewards = predicted_rewards
-                    
-                    # Skip update if predictions are all zeros or invalid
-                    if all(r == 0 for r in final_rewards) or np.std(final_rewards) < 1e-6:
-                        print(f"  Round {m+1}: Skipping update (invalid predictions)")
-                        continue
-                    
-                    # Compute old log probabilities for virtual sequences
-                    virtual_old_log_probs = []
-                    with torch.no_grad():
-                        for seq in virtual_sequences:
-                            log_prob = 0
-                            for t in range(len(seq)):
-                                seq_tensor = torch.tensor([seq], dtype=torch.long)
-                                pos_tensor = torch.tensor([t])
+                        
+                        # Only apply diversity penalty if models are good
+                        if best_r2 > 0 and diversity_penalty == 'yes':
+                            diversity_weight = max(0.2, 1 - m / virtual_rounds)
+                            final_rewards = []
+                            for seq, pred_reward in zip(virtual_sequences, predicted_rewards):
+                                diversity_penalty = compute_diversity_penalty(
+                                    seq, 
+                                    self.sequence_history,
+                                    self.diversity_lambda * diversity_weight,
+                                    self.diversity_epsilon
+                                )
+                                final_rewards.append(pred_reward - diversity_penalty)
+                        else:
+                            # Poor models - use predictions as-is
+                            final_rewards = predicted_rewards
+                        
+                        # Skip update if predictions are all zeros or invalid
+                        if all(r == 0 for r in final_rewards) or np.std(final_rewards) < 1e-6:
+                            print(f"  Round {m+1}: Skipping update (invalid predictions)")
+                            continue
+                        
+                        # Compute old log probabilities for virtual sequences
+                        virtual_old_log_probs = []
+                        with torch.no_grad():
+                            for seq in virtual_sequences:
+                                log_prob = 0
+                                for t in range(len(seq)):
+                                    seq_tensor = torch.tensor([seq], dtype=torch.long)
+                                    pos_tensor = torch.tensor([t])
+                                    
+                                    policy_probs, _ = self.policy_net(seq_tensor, pos_tensor)
+                                    dist = Categorical(policy_probs[0])
+                                    log_prob += dist.log_prob(torch.tensor(seq[t]))
                                 
-                                policy_probs, _ = self.policy_net(seq_tensor, pos_tensor)
-                                dist = Categorical(policy_probs[0])
-                                log_prob += dist.log_prob(torch.tensor(seq[t]))
-                            
-                            virtual_old_log_probs.append(log_prob.item())
-                    
-                    # Update with virtual data (fewer epochs, less entropy)
-                    virtual_epochs = 2 if best_r2 > 0 else 1
-                    virtual_entropy = entropy_coef * 0.5  # Less exploration with virtual data
-                    
-                    self.adaptive_policy_update(
-                        virtual_sequences, 
-                        final_rewards, 
-                        virtual_old_log_probs,
-                        epochs=virtual_epochs,
-                        round_num=round_num,
-                        metrics_tracker=metrics_tracker,
-                        entropy_coef=virtual_entropy
-                    )
-                    
-                    # Track virtual sequences
-                    self.sequence_history.extend(virtual_sequences)
-                    model_rewards.extend(final_rewards)
-                    
-                    print(f"  Round {m+1}/{virtual_rounds}: "
-                        f"Mean predicted reward = {np.mean(final_rewards):.3f}")
-                    
+                                virtual_old_log_probs.append(log_prob.item())
+                        
+                        # Update with virtual data (fewer epochs, less entropy)
+                        virtual_epochs = 2 if best_r2 > 0 else 1
+                        virtual_entropy = entropy_coef * 0.5  # Less exploration with virtual data
+                        
+                        self.adaptive_policy_update(
+                            virtual_sequences, 
+                            final_rewards, 
+                            virtual_old_log_probs,
+                            epochs=virtual_epochs,
+                            round_num=round_num,
+                            metrics_tracker=metrics_tracker,
+                            entropy_coef=virtual_entropy
+                        )
+                        
+                        # Track virtual sequences
+                        self.sequence_history.extend(virtual_sequences)
+                        model_rewards.extend(final_rewards)
+                        
+                        print(f"  Round {m+1}/{virtual_rounds}: "
+                            f"Mean predicted reward = {np.mean(final_rewards):.3f}")
+                        
 
-                    # After getting predicted_rewards, calculate accuracy
-                    if reliable_models and virtual_sequences:
-                        # Get actual rewards for accuracy calculation
-                        actual_rewards = [oracle_fn(seq) for seq in virtual_sequences[:10]]  # Sample
-                        predicted_sample = predicted_rewards[:10]
-                        
-                        # Calculate prediction errors
-                        errors = [abs(a - p) for a, p in zip(actual_rewards, predicted_sample)]
-                        mean_error = np.mean(errors)
-                        
-                        # Add to tracking
-                        if hasattr(self, 'model_performance_history'):
-                            if 'prediction_errors' in self.model_performance_history:
-                                self.model_performance_history['prediction_errors'].append(mean_error)
+                        # After getting predicted_rewards, calculate accuracy
+                        if reliable_models and virtual_sequences:
+                            # Get actual rewards for accuracy calculation
+                            actual_rewards = [oracle_fn(seq) for seq in virtual_sequences[:10]]  # Sample
+                            predicted_sample = predicted_rewards[:10]
+                            
+                            # Calculate prediction errors
+                            errors = [abs(a - p) for a, p in zip(actual_rewards, predicted_sample)]
+                            mean_error = np.mean(errors)
+                            
+                            # Add to tracking
+                            if hasattr(self, 'model_performance_history'):
+                                if 'prediction_errors' in self.model_performance_history:
+                                    self.model_performance_history['prediction_errors'].append(mean_error)
+                
+                else:
+                    print(f"\nNo reliable models found. Skipping model-based training.")
             
             else:
-                print(f"\nNo reliable models found. Skipping model-based training.")
-        
-        else:
-            print(f"\nInsufficient data ({len(self.all_data)} < {min_data_for_models}). "
-                f"Skipping surrogate models.")
+                print(f"\nInsufficient data ({len(self.all_data)} < {min_data_for_models}). "
+                    f"Skipping surrogate models.")
         
         # ========== PHASE 8: ANALYZE PROGRESS ==========
         # Re-evaluate with oracle for accurate statistics
         oracle_rewards_clean = [oracle_fn(seq) for seq in sequences]
+        if purePPO == True:
+            model_rewards = []
+            models_used = []
+            model_r2_scores = []
+
         
         results = {
             'oracle_rewards': oracle_rewards_clean,
