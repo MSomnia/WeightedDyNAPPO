@@ -8694,3 +8694,820 @@ Current Method: weighted
   Model R2 - Mean: 0.266, Max: 0.323, Count: 13
   Total Sequences Evaluated: 6002
     Oracle Count: 5952 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 94/100
+======================================================================
+Learning Rate: 0.000038
+Exploration Rate: 0.050
+Total data collected: 6002
+
+--- Round 94 Configuration ---
+Learning rate: 0.000038
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.703) ---
+  GGAAGACGTTCCTCCGCCGG
+  GCACGGATCGTGTGCCGACC
+  CTCAGGGCACGCAGCCGTTG
+  CCGGATCGCCGGTAGCCTAG
+  GTGGCTCAGCCCCGGATGAC
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 14.866
+  Max reward: 17.634
+  With intrinsic bonuses: 14.900
+
+Policy Update:
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9850, entropy=0.0079, kl_div=0.0000
+    Epoch 1: policy_loss=0.0017, value_loss=0.9849, entropy=0.0081, kl_div=0.0097
+
+=== Surrogate Model Training ===
+Total samples: 6066
+
+Training on 5902 samples (removed 164 outliers)
+Reward range: [9.38, 19.24], mean: 14.42
+  Created 13 candidate models for data size 5902
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.261 (std: 0.135)
+  rf-tuned-xl: R2 = 0.259 (std: 0.137)
+  gb-tuned-l: R2 = 0.297 (std: 0.121)
+  gb-tuned-xl: R2 = 0.297 (std: 0.121)
+  xgb-xl: R2 = 0.242 (std: 0.127)
+  xgb-l: R2 = 0.242 (std: 0.127)
+  mlp-adaptive-xl: R2 = 0.294 (std: 0.133)
+  mlp-l: R2 = 0.278 (std: 0.119)
+  svr-rbf-xl: R2 = 0.326 (std: 0.137)
+  svr-poly-l: R2 = 0.326 (std: 0.137)
+  knn-tuned-sqrt: R2 = 0.223 (std: 0.138)
+  knn-tuned-l: R2 = 0.223 (std: 0.138)
+  ridge: R2 = 0.209 (std: 0.130)
+
+Model-based training with 13 models
+Best R2: 0.326, Mean R2: 0.267
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.078 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=49965.4336, entropy=0.0096, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0012, value_loss=49965.4375, entropy=0.0094, kl_div=-0.0050
+  Round 1/5: Mean predicted reward = -85.688
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.078 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9849, entropy=0.0094, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0031, value_loss=0.9849, entropy=0.0089, kl_div=-0.0236
+  Round 2/5: Mean predicted reward = 14.836
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.078 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9850, entropy=0.0071, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0034, value_loss=0.9850, entropy=0.0069, kl_div=0.0023
+  Round 3/5: Mean predicted reward = 14.828
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.078 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9849, entropy=0.0062, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0033, value_loss=0.9849, entropy=0.0061, kl_div=0.0213
+  Round 4/5: Mean predicted reward = 14.918
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.078 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9849, entropy=0.0070, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0053, value_loss=0.9849, entropy=0.0071, kl_div=0.0124
+  Round 5/5: Mean predicted reward = 14.728
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 94 Results ---
+  Mean Oracle Reward: 14.890
+  Min Oracle Reward: 8.839
+  Max Oracle Reward: 17.567
+  Std Oracle Reward: 2.006
+  Sequence Diversity: 0.703
+  Models Used: 13
+  Model R2 - Mean: 0.267, Max: 0.326, Count: 13
+  Total Sequences Evaluated: 6066
+    Oracle Count: 6016 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 95/100
+======================================================================
+Learning Rate: 0.000300
+Exploration Rate: 0.050
+Total data collected: 6066
+
+--- Round 95 Configuration ---
+Learning rate: 0.000300
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.688) ---
+  TACCGGTGTCGAGCGCAGCC
+  CGTGAGCCACTGAGGCGCTC
+  CCTCGGGCTAAGCCGCGTAG
+  GACGGCCGATTGGCATGCCC
+  GGCCGCACTGACTCGGGCAT
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 15.045
+  Max reward: 17.827
+  With intrinsic bonuses: 15.079
+
+Policy Update:
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9849, entropy=0.0065, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.3158
+
+=== Surrogate Model Training ===
+Total samples: 6130
+
+Training on 5965 samples (removed 165 outliers)
+Reward range: [9.38, 19.24], mean: 14.43
+  Created 13 candidate models for data size 5965
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.272 (std: 0.142)
+  rf-tuned-xl: R2 = 0.266 (std: 0.144)
+  gb-tuned-l: R2 = 0.302 (std: 0.129)
+  gb-tuned-xl: R2 = 0.302 (std: 0.129)
+  xgb-xl: R2 = 0.254 (std: 0.135)
+  xgb-l: R2 = 0.254 (std: 0.135)
+  mlp-adaptive-xl: R2 = 0.308 (std: 0.141)
+  mlp-l: R2 = 0.300 (std: 0.145)
+  svr-rbf-xl: R2 = 0.331 (std: 0.142)
+  svr-poly-l: R2 = 0.331 (std: 0.142)
+  knn-tuned-sqrt: R2 = 0.226 (std: 0.142)
+  knn-tuned-l: R2 = 0.226 (std: 0.142)
+  ridge: R2 = 0.211 (std: 0.138)
+
+Model-based training with 13 models
+Best R2: 0.331, Mean R2: 0.276
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.077 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=20695.7012, entropy=0.0090, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0866
+  Round 1/5: Mean predicted reward = -89.646
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.077 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9849, entropy=0.0090, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1593
+  Round 2/5: Mean predicted reward = 14.859
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.077 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9849, entropy=0.0086, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1862
+  Round 3/5: Mean predicted reward = 14.916
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.077 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9849, entropy=0.0165, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1481
+  Round 4/5: Mean predicted reward = 14.818
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.077 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9849, entropy=0.0183, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.2392
+  Round 5/5: Mean predicted reward = 14.824
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 95 Results ---
+  Mean Oracle Reward: 15.036
+  Min Oracle Reward: 8.083
+  Max Oracle Reward: 17.674
+  Std Oracle Reward: 2.191
+  Sequence Diversity: 0.688
+  Models Used: 13
+  Model R2 - Mean: 0.276, Max: 0.331, Count: 13
+  Total Sequences Evaluated: 6130
+    Oracle Count: 6080 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 95, 'cumulative_calls': 6080, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 96/100
+======================================================================
+Learning Rate: 0.000272
+Exploration Rate: 0.050
+Total data collected: 6130
+  Performance plateaued, reducing LR to 0.000136
+
+--- Round 96 Configuration ---
+Learning rate: 0.000136
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.703) ---
+  CGTGCTCCCGGGTGACAGAC
+  AGGCCTGCACCGTGACCTGG
+  TCGACCGGGCCAGTATCGCG
+  ACCGCTCGCGATCCTGGGAG
+  GACTGCCATGGGTCGGACCC
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 14.689
+  Max reward: 17.900
+  With intrinsic bonuses: 14.693
+
+Policy Update:
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.005
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9847, entropy=0.0236, kl_div=0.0000
+    Epoch 1: policy_loss=0.0132, value_loss=0.9847, entropy=0.0240, kl_div=0.0341
+
+=== Surrogate Model Training ===
+Total samples: 6194
+
+Training on 6028 samples (removed 166 outliers)
+Reward range: [9.38, 19.24], mean: 14.43
+  Created 13 candidate models for data size 6028
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.259 (std: 0.151)
+  rf-tuned-xl: R2 = 0.260 (std: 0.153)
+  gb-tuned-l: R2 = 0.297 (std: 0.135)
+  gb-tuned-xl: R2 = 0.297 (std: 0.135)
+  xgb-xl: R2 = 0.245 (std: 0.145)
+  xgb-l: R2 = 0.245 (std: 0.145)
+  mlp-adaptive-xl: R2 = 0.306 (std: 0.150)
+  mlp-l: R2 = 0.291 (std: 0.151)
+  svr-rbf-xl: R2 = 0.327 (std: 0.150)
+  svr-poly-l: R2 = 0.327 (std: 0.150)
+  knn-tuned-sqrt: R2 = 0.223 (std: 0.164)
+  knn-tuned-l: R2 = 0.223 (std: 0.164)
+  ridge: R2 = 0.211 (std: 0.140)
+
+Model-based training with 13 models
+Best R2: 0.327, Mean R2: 0.270
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.080 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=26615.5938, entropy=0.0233, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0313, value_loss=26615.6133, entropy=0.0236, kl_div=-0.0031
+  Round 1/5: Mean predicted reward = -60.679
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.080 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9848, entropy=0.0239, kl_div=0.0000
+    Epoch 1: policy_loss=0.0126, value_loss=0.9848, entropy=0.0233, kl_div=-0.0078
+  Round 2/5: Mean predicted reward = 14.801
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.080 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9848, entropy=0.0175, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0314, value_loss=0.9847, entropy=0.0182, kl_div=-0.1872
+  Round 3/5: Mean predicted reward = 14.738
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.080 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9848, entropy=0.0235, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0066, value_loss=0.9848, entropy=0.0232, kl_div=-0.0022
+  Round 4/5: Mean predicted reward = 14.856
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.080 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9848, entropy=0.0206, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0246, value_loss=0.9848, entropy=0.0200, kl_div=0.0044
+  Round 5/5: Mean predicted reward = 14.820
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 96 Results ---
+  Mean Oracle Reward: 14.672
+  Min Oracle Reward: 9.300
+  Max Oracle Reward: 17.911
+  Std Oracle Reward: 1.624
+  Sequence Diversity: 0.703
+  Models Used: 13
+  Model R2 - Mean: 0.270, Max: 0.327, Count: 13
+  Total Sequences Evaluated: 6194
+    Oracle Count: 6144 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 95, 'cumulative_calls': 6080, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 96, 'cumulative_calls': 6144, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 97/100
+======================================================================
+Learning Rate: 0.000200
+Exploration Rate: 0.050
+Total data collected: 6194
+
+--- Round 97 Configuration ---
+Learning rate: 0.000200
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.703) ---
+  GGCGCGAGCCACTCACGTGT
+  CTGTCCTCGGGGGCCCGAAA
+  CGCGGATGTTCGACGCCCAG
+  GAGGCGCATTACCCCCGGTG
+  GAGTCTCGCTGCCCCGGGAA
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 14.779
+  Max reward: 17.731
+  With intrinsic bonuses: 14.710
+
+Policy Update:
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.005
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9847, entropy=0.0189, kl_div=0.0000
+    Epoch 1: policy_loss=0.0322, value_loss=0.9847, entropy=0.0150, kl_div=-0.0577
+
+=== Surrogate Model Training ===
+Total samples: 6258
+
+Training on 6089 samples (removed 169 outliers)
+Reward range: [9.39, 19.24], mean: 14.44
+  Created 13 candidate models for data size 6089
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.266 (std: 0.155)
+  rf-tuned-xl: R2 = 0.264 (std: 0.155)
+  gb-tuned-l: R2 = 0.303 (std: 0.139)
+  gb-tuned-xl: R2 = 0.303 (std: 0.139)
+  xgb-xl: R2 = 0.247 (std: 0.141)
+  xgb-l: R2 = 0.247 (std: 0.141)
+  mlp-adaptive-xl: R2 = 0.294 (std: 0.147)
+  mlp-l: R2 = 0.301 (std: 0.143)
+  svr-rbf-xl: R2 = 0.331 (std: 0.146)
+  svr-poly-l: R2 = 0.331 (std: 0.146)
+  knn-tuned-sqrt: R2 = 0.229 (std: 0.161)
+  knn-tuned-l: R2 = 0.229 (std: 0.161)
+  ridge: R2 = 0.212 (std: 0.145)
+
+Model-based training with 13 models
+Best R2: 0.331, Mean R2: 0.273
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=59869.7031, entropy=0.0102, kl_div=0.0000
+    Epoch 1: policy_loss=0.0206, value_loss=59869.7266, entropy=0.0078, kl_div=-0.0630
+  Round 1/5: Mean predicted reward = -93.746
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9847, entropy=0.0070, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0109, value_loss=0.9847, entropy=0.0064, kl_div=0.0111
+  Round 2/5: Mean predicted reward = 14.856
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9847, entropy=0.0080, kl_div=0.0000
+    Epoch 1: policy_loss=0.0046, value_loss=0.9847, entropy=0.0074, kl_div=0.0451
+  Round 3/5: Mean predicted reward = 14.971
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9847, entropy=0.0048, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0842
+  Round 4/5: Mean predicted reward = 14.871
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.074 knn-tuned-l:0.074 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9847, entropy=0.0049, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1123
+  Round 5/5: Mean predicted reward = 14.745
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 97 Results ---
+  Mean Oracle Reward: 14.786
+  Min Oracle Reward: 9.978
+  Max Oracle Reward: 17.638
+  Std Oracle Reward: 1.954
+  Sequence Diversity: 0.703
+  Models Used: 13
+  Model R2 - Mean: 0.273, Max: 0.331, Count: 13
+  Total Sequences Evaluated: 6258
+    Oracle Count: 6208 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 95, 'cumulative_calls': 6080, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 96, 'cumulative_calls': 6144, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 97, 'cumulative_calls': 6208, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 98/100
+======================================================================
+Learning Rate: 0.000110
+Exploration Rate: 0.050
+Total data collected: 6258
+
+--- Round 98 Configuration ---
+Learning rate: 0.000110
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.734) ---
+  TGGGGACAGTCGCCAGCTCC
+  GACCCGGCCCTTGGGGACTA
+  CGGCATACCCGTCTCGGGGA
+  CGCCTGGCTACAGGCCGGAT
+  CGGGGACCCTTAATCCGGGC
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 15.024
+  Max reward: 18.006
+  With intrinsic bonuses: 15.050
+
+Policy Update:
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9846, entropy=0.0105, kl_div=0.0000
+    Epoch 1: policy_loss=0.0078, value_loss=0.9846, entropy=0.0107, kl_div=0.0153
+
+=== Surrogate Model Training ===
+Total samples: 6322
+
+Training on 6154 samples (removed 168 outliers)
+Reward range: [9.39, 19.24], mean: 14.44
+  Created 13 candidate models for data size 6154
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.271 (std: 0.152)
+  rf-tuned-xl: R2 = 0.271 (std: 0.152)
+  gb-tuned-l: R2 = 0.309 (std: 0.138)
+  gb-tuned-xl: R2 = 0.309 (std: 0.138)
+  xgb-xl: R2 = 0.256 (std: 0.152)
+  xgb-l: R2 = 0.256 (std: 0.152)
+  mlp-adaptive-xl: R2 = 0.300 (std: 0.142)
+  mlp-l: R2 = 0.303 (std: 0.145)
+  svr-rbf-xl: R2 = 0.339 (std: 0.143)
+  svr-poly-l: R2 = 0.339 (std: 0.143)
+  knn-tuned-sqrt: R2 = 0.230 (std: 0.161)
+  knn-tuned-l: R2 = 0.230 (std: 0.161)
+  ridge: R2 = 0.218 (std: 0.145)
+
+Model-based training with 13 models
+Best R2: 0.339, Mean R2: 0.280
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=40546.4219, entropy=0.0079, kl_div=0.0000
+    Epoch 1: policy_loss=0.0005, value_loss=40546.4336, entropy=0.0070, kl_div=-0.0259
+  Round 1/5: Mean predicted reward = -98.651
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9847, entropy=0.0069, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0131, value_loss=0.9847, entropy=0.0073, kl_div=0.0069
+  Round 2/5: Mean predicted reward = 14.886
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9847, entropy=0.0086, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0583
+  Round 3/5: Mean predicted reward = 14.782
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9847, entropy=0.0106, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0915
+  Round 4/5: Mean predicted reward = 15.003
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.078 mlp-l:0.079 svr-rbf-xl:0.082 svr-poly-l:0.082 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9847, entropy=0.0146, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0560
+  Round 5/5: Mean predicted reward = 14.874
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 98 Results ---
+  Mean Oracle Reward: 15.016
+  Min Oracle Reward: 9.548
+  Max Oracle Reward: 17.756
+  Std Oracle Reward: 2.206
+  Sequence Diversity: 0.734
+  Models Used: 13
+  Model R2 - Mean: 0.280, Max: 0.339, Count: 13
+  Total Sequences Evaluated: 6322
+    Oracle Count: 6272 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 95, 'cumulative_calls': 6080, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 96, 'cumulative_calls': 6144, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 97, 'cumulative_calls': 6208, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 98, 'cumulative_calls': 6272, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 99/100
+======================================================================
+Learning Rate: 0.000038
+Exploration Rate: 0.050
+Total data collected: 6322
+  Consistent improvement, increasing LR to 0.000045
+
+--- Round 99 Configuration ---
+Learning rate: 0.000045
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.734) ---
+  AGGGGTTCTGAGCCCCGCCA
+  GGGCCGTGCACGGTCACCAT
+  CCTTGGGGGCGTACACCACG
+  AAGCCTCGCGCGTGGACTCG
+  TAGCCCAGCGGCCGAGCGTT
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 14.668
+  Max reward: 18.066
+  With intrinsic bonuses: 14.697
+
+Policy Update:
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9846, entropy=0.0163, kl_div=0.0000
+    Epoch 1: policy_loss=0.0004, value_loss=0.9846, entropy=0.0163, kl_div=0.0044
+
+=== Surrogate Model Training ===
+Total samples: 6386
+
+Training on 6217 samples (removed 169 outliers)
+Reward range: [9.39, 19.24], mean: 14.45
+  Created 13 candidate models for data size 6217
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.280 (std: 0.157)
+  rf-tuned-xl: R2 = 0.277 (std: 0.159)
+  gb-tuned-l: R2 = 0.315 (std: 0.142)
+  gb-tuned-xl: R2 = 0.315 (std: 0.142)
+  xgb-xl: R2 = 0.271 (std: 0.156)
+  xgb-l: R2 = 0.271 (std: 0.156)
+  mlp-adaptive-xl: R2 = 0.309 (std: 0.156)
+  mlp-l: R2 = 0.312 (std: 0.153)
+  svr-rbf-xl: R2 = 0.343 (std: 0.145)
+  svr-poly-l: R2 = 0.343 (std: 0.145)
+  knn-tuned-sqrt: R2 = 0.239 (std: 0.167)
+  knn-tuned-l: R2 = 0.239 (std: 0.167)
+  ridge: R2 = 0.221 (std: 0.147)
+
+Model-based training with 13 models
+Best R2: 0.343, Mean R2: 0.287
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.076 xgb-l:0.076 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=29101.3125, entropy=0.0157, kl_div=0.0000
+    Epoch 1: policy_loss=0.0036, value_loss=29101.3145, entropy=0.0149, kl_div=-0.0160
+  Round 1/5: Mean predicted reward = -95.663
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.076 xgb-l:0.076 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9846, entropy=0.0144, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0052, value_loss=0.9846, entropy=0.0136, kl_div=-0.0088
+  Round 2/5: Mean predicted reward = 14.893
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.076 xgb-l:0.076 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9846, entropy=0.0121, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0014, value_loss=0.9846, entropy=0.0110, kl_div=-0.0128
+  Round 3/5: Mean predicted reward = 14.859
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.076 xgb-l:0.076 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9846, entropy=0.0106, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0079, value_loss=0.9846, entropy=0.0106, kl_div=-0.0038
+  Round 4/5: Mean predicted reward = 14.938
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.076 xgb-l:0.076 mlp-adaptive-xl:0.079 mlp-l:0.079 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9846, entropy=0.0128, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0035, value_loss=0.9846, entropy=0.0139, kl_div=0.0360
+  Round 5/5: Mean predicted reward = 14.929
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 99 Results ---
+  Mean Oracle Reward: 14.685
+  Min Oracle Reward: 6.944
+  Max Oracle Reward: 17.902
+  Std Oracle Reward: 2.233
+  Sequence Diversity: 0.734
+  Models Used: 13
+  Model R2 - Mean: 0.287, Max: 0.343, Count: 13
+  Total Sequences Evaluated: 6386
+    Oracle Count: 6336 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 95, 'cumulative_calls': 6080, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 96, 'cumulative_calls': 6144, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 97, 'cumulative_calls': 6208, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 98, 'cumulative_calls': 6272, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 99, 'cumulative_calls': 6336, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+EXPERIMENT ROUND 100/100
+======================================================================
+Learning Rate: 0.000300
+Exploration Rate: 0.050
+Total data collected: 6386
+
+--- Round 100 Configuration ---
+Learning rate: 0.000300
+Entropy coefficient: 0.0050
+Exploration rate: 0.050
+
+--- Generated Sequences (Diversity: 0.703) ---
+  GCCTCTGACCAGCGTGAGGC
+  GGCTAGCGTGCTGGCAACCC
+  GGAGGCCTCGCGTCACATGC
+  GCTGACGCCCAGGCTGACTG
+  TAAGGGACCCCTCGGGCGTC
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 14.889
+  Max reward: 18.102
+  With intrinsic bonuses: 14.883
+
+Policy Update:
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.005
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9846, entropy=0.0120, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0002, value_loss=0.9846, entropy=0.0115, kl_div=-0.0553
+
+=== Surrogate Model Training ===
+Total samples: 6450
+
+Training on 6280 samples (removed 170 outliers)
+Reward range: [9.39, 19.24], mean: 14.45
+  Created 13 candidate models for data size 6280
+Current R2 threshold: 0.2
+  rf-tuned-l: R2 = 0.285 (std: 0.158)
+  rf-tuned-xl: R2 = 0.283 (std: 0.158)
+  gb-tuned-l: R2 = 0.319 (std: 0.140)
+  gb-tuned-xl: R2 = 0.319 (std: 0.140)
+  xgb-xl: R2 = 0.273 (std: 0.151)
+  xgb-l: R2 = 0.273 (std: 0.151)
+  mlp-adaptive-xl: R2 = 0.318 (std: 0.148)
+  mlp-l: R2 = 0.328 (std: 0.157)
+  svr-rbf-xl: R2 = 0.347 (std: 0.142)
+  svr-poly-l: R2 = 0.347 (std: 0.142)
+  knn-tuned-sqrt: R2 = 0.244 (std: 0.162)
+  knn-tuned-l: R2 = 0.244 (std: 0.162)
+  ridge: R2 = 0.225 (std: 0.146)
+
+Model-based training with 13 models
+Best R2: 0.347, Mean R2: 0.293
+Running 5 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.080 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.10, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=46570.6328, entropy=0.0086, kl_div=0.0000
+    Epoch 1: policy_loss=0.0159, value_loss=46570.6758, entropy=0.0056, kl_div=0.0406
+  Round 1/5: Mean predicted reward = -102.055
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.080 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9846, entropy=0.0026, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0590
+  Round 2/5: Mean predicted reward = 14.977
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.080 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9846, entropy=0.0050, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1338
+  Round 3/5: Mean predicted reward = 14.906
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.080 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=0.0000, value_loss=0.9846, entropy=0.0071, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0034, value_loss=0.9846, entropy=0.0073, kl_div=0.0422
+  Round 4/5: Mean predicted reward = 14.879
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-tuned-l:0.076 rf-tuned-xl:0.076 gb-tuned-l:0.079 gb-tuned-xl:0.079 xgb-xl:0.075 xgb-l:0.075 mlp-adaptive-xl:0.079 mlp-l:0.080 svr-rbf-xl:0.081 svr-poly-l:0.081 knn-tuned-sqrt:0.073 knn-tuned-l:0.073 ridge:0.072 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.003
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9846, entropy=0.0045, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0119, value_loss=0.9846, entropy=0.0047, kl_div=0.0379
+  Round 5/5: Mean predicted reward = 14.992
+
+  === Progress Analysis ===
+  Status: NORMAL
+  • Reward trend declining. Consider resetting exploration parameters.
+
+--- Round 100 Results ---
+  Mean Oracle Reward: 14.894
+  Min Oracle Reward: 7.263
+  Max Oracle Reward: 17.896
+  Std Oracle Reward: 2.283
+  Sequence Diversity: 0.703
+  Models Used: 13
+  Model R2 - Mean: 0.293, Max: 0.347, Count: 13
+  Total Sequences Evaluated: 6450
+    Oracle Count: 6400 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 17.878697618156487}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 5, 'cumulative_calls': 320, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 6, 'cumulative_calls': 384, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 7, 'cumulative_calls': 448, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 8, 'cumulative_calls': 512, 'new_calls': 64, 'best_reward_so_far': 18.60122847203668}, {'round': 9, 'cumulative_calls': 576, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 10, 'cumulative_calls': 640, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 11, 'cumulative_calls': 704, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 12, 'cumulative_calls': 768, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 13, 'cumulative_calls': 832, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 14, 'cumulative_calls': 896, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 15, 'cumulative_calls': 960, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 16, 'cumulative_calls': 1024, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 17, 'cumulative_calls': 1088, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 18, 'cumulative_calls': 1152, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 19, 'cumulative_calls': 1216, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 20, 'cumulative_calls': 1280, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 21, 'cumulative_calls': 1344, 'new_calls': 64, 'best_reward_so_far': 19.28250012960932}, {'round': 22, 'cumulative_calls': 1408, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 23, 'cumulative_calls': 1472, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 24, 'cumulative_calls': 1536, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 25, 'cumulative_calls': 1600, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 26, 'cumulative_calls': 1664, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 27, 'cumulative_calls': 1728, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 28, 'cumulative_calls': 1792, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 29, 'cumulative_calls': 1856, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 30, 'cumulative_calls': 1920, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 31, 'cumulative_calls': 1984, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 32, 'cumulative_calls': 2048, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 33, 'cumulative_calls': 2112, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 34, 'cumulative_calls': 2176, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 35, 'cumulative_calls': 2240, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 36, 'cumulative_calls': 2304, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 37, 'cumulative_calls': 2368, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 38, 'cumulative_calls': 2432, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 39, 'cumulative_calls': 2496, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 40, 'cumulative_calls': 2560, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 41, 'cumulative_calls': 2624, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 42, 'cumulative_calls': 2688, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 43, 'cumulative_calls': 2752, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 44, 'cumulative_calls': 2816, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 45, 'cumulative_calls': 2880, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 46, 'cumulative_calls': 2944, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 47, 'cumulative_calls': 3008, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 48, 'cumulative_calls': 3072, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 49, 'cumulative_calls': 3136, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 50, 'cumulative_calls': 3200, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 51, 'cumulative_calls': 3264, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 52, 'cumulative_calls': 3328, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 53, 'cumulative_calls': 3392, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 54, 'cumulative_calls': 3456, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 55, 'cumulative_calls': 3520, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 56, 'cumulative_calls': 3584, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 57, 'cumulative_calls': 3648, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 58, 'cumulative_calls': 3712, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 59, 'cumulative_calls': 3776, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 60, 'cumulative_calls': 3840, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 61, 'cumulative_calls': 3904, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 62, 'cumulative_calls': 3968, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 63, 'cumulative_calls': 4032, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 64, 'cumulative_calls': 4096, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 65, 'cumulative_calls': 4160, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 66, 'cumulative_calls': 4224, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 67, 'cumulative_calls': 4288, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 68, 'cumulative_calls': 4352, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 69, 'cumulative_calls': 4416, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 70, 'cumulative_calls': 4480, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 71, 'cumulative_calls': 4544, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 72, 'cumulative_calls': 4608, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 73, 'cumulative_calls': 4672, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 74, 'cumulative_calls': 4736, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 75, 'cumulative_calls': 4800, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 76, 'cumulative_calls': 4864, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 77, 'cumulative_calls': 4928, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 78, 'cumulative_calls': 4992, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 79, 'cumulative_calls': 5056, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 80, 'cumulative_calls': 5120, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 81, 'cumulative_calls': 5184, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 82, 'cumulative_calls': 5248, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 83, 'cumulative_calls': 5312, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 84, 'cumulative_calls': 5376, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 85, 'cumulative_calls': 5440, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 86, 'cumulative_calls': 5504, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 87, 'cumulative_calls': 5568, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 88, 'cumulative_calls': 5632, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 89, 'cumulative_calls': 5696, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 90, 'cumulative_calls': 5760, 'new_calls': 64, 'best_reward_so_far': 20.21559898139278}, {'round': 91, 'cumulative_calls': 5824, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 92, 'cumulative_calls': 5888, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 93, 'cumulative_calls': 5952, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 94, 'cumulative_calls': 6016, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 95, 'cumulative_calls': 6080, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 96, 'cumulative_calls': 6144, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 97, 'cumulative_calls': 6208, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 98, 'cumulative_calls': 6272, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 99, 'cumulative_calls': 6336, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}, {'round': 100, 'cumulative_calls': 6400, 'new_calls': 64, 'best_reward_so_far': 20.336098346531912}]
+
+======================================================================
+DyNA PPO ALGORITHM COMPLETE! Time used 6404.48 seconds
+======================================================================
+Total rounds executed: 100
+Total sequences evaluated: 6450
+Best mean reward: 15.297 (achieved at round 70)
+
+==================================================
+TRAINING SUMMARY
+==================================================
+Total Rounds: 100
+Final Mean Reward: 14.8945
+Best Mean Reward: 15.2972
+Best Max Reward: 20.2733
+Initial Lr: 0.0003
+Final Lr: 0.0003
+Total Updates: 630
+Final Diversity: 0.7031
+Convergence Round: 5
+==================================================
+
+Generating learning curves...
+Learning curves saved to experiments/20250924191508_r100_b64_l20_weighted_dynamic/metrices_plot_weighted_r100_b64_l20.png
+Saving training metrics...
+Metrics saved to experiments/20250924191508_r100_b64_l20_weighted_dynamic/metrices_data_weighted_r100_b64_l20.json
+
+======================================================================
+FINAL OPTIMIZED SEQUENCES
+======================================================================
+
+Deterministic (Exploitation):
+  GGGGGCGGCCGGCCGGCCGG: 17.393
+  GGGGGCGGCCGGCCGGCCGG: 17.404
+  GGGGGCGGCCGGCCGGCCGG: 17.277
+  GGGGGCGGCCGGCCGGCCGG: 17.324
+  GGGGGCGGCCGGCCGGCCGG: 17.217
+
+Stochastic (Exploration):
+  GGGGGCGGCCGGCCGGCCGG: 17.438
+  GGGGGCGGCCGGCCGGCCGG: 16.981
+  GGGGGCGGCCGGCCGGCCGG: 17.489
+  GGGGGCGGCCGGCCGGCCGG: 17.420
+  GGGGGCGGCCGGCCGGCCGG: 17.280
+
+Final Performance:
+  Mean reward: 17.322
+  Max reward: 17.489
+  Std reward: 0.139
+
+Best sequence found: GGGGGCGGCCGGCCGGCCGG
+   Reward: 17.489
+
+======================================================================
+Training complete! Check 'learning_curves.png' and 'training_metrics.json'
+======================================================================
+
+=== Model Weight Evolution Analysis ===
+Model evolution plot saved to experiments/20250924191508_r100_b64_l20_weighted_dynamic/model_evolution_r100_b64_l20.png
+
+=== Model Performance Summary ===
+
+Final weight distribution (Round 100):
+  svr: 0.811
+  mlp: 0.792
+  gb: 0.789
+  rf: 0.762
+  xgb: 0.754
+  knn: 0.732
+  ridge: 0.359
+
+Overall model importance (average weight across all rounds):
+  svr: 0.781
+  gb: 0.606
+  mlp: 0.536
+  rf: 0.534
+  knn: 0.372
+  xgb: 0.364
+  ridge: 0.167
+Detailed performance data saved to model_performance_details.csv

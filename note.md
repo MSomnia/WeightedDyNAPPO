@@ -381,12 +381,8 @@ configurations = [
 ]
 Create a table showing performance drop when each component is removed.
 
-3. Data Efficiency Analysis
-oracle_budgets = [100, 200, 500, 1000]
-Compare how well each method uses limited oracle calls.
-Plot oracle efficiency curves.
 
-4. Model Contribution Analysis
+3. Model Contribution Analysis
 Track which models contribute most:
 For each round, log:
 - Individual model R² scores

@@ -1,0 +1,144 @@
+\documentclass[conference]{IEEEtran}
+
+% --- Packages you might need ---
+\usepackage[utf8]{inputenc}   % Encoding
+\usepackage{amsmath,amssymb}  % Math symbols
+\usepackage{graphicx}         % Figures
+\usepackage{cite}             % Better citations
+\usepackage{hyperref}         % Clickable links
+
+% --- Title and author ---
+\title{Exploration of DyNA PPO with Dynamic Ensemble}
+
+\author{
+    \IEEEauthorblockN{Leihao (Eric) Lin\IEEEauthorrefmark{1}}
+    \IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Computer Science, Western University \\
+    Email: llin286@uwo.ca}
+}
+
+\begin{document}
+
+\maketitle
+
+% Abstract
+\begin{abstract}
+This is the abstract of the paper. 
+\end{abstract}
+
+
+% introduction
+\section{Introduction}
+Introduction of the project
+...
+
+
+
+%Background and Related Works
+\section{Backgrounds and Related Works}
+Using PPO, a stable policy-gradient RL method to solve the black box optimization of biological sequence design. 
+It proposes DyNA PPO, a variant of Proximal Policy Optimization:
+\begin{itemize}
+	\item Learns a surrogate reward model through supervised regression on data collected.
+	\item Using cross validated R2, selects from a pool of candidate regressors whose predictions are above a threshold, and uses their ensemble average as a simulator for policy updates.
+	\item Falls back to model-free PPO when no accurate surrogate is available, avoiding model bias.
+	\item Adds exploration bonus penalizing proposals too similar to past sequences to encourage diversity.
+\end{itemize}
+
+
+% Goal and Objectives
+\section{Goal and Objectives}
+\begin{enumerate}
+    \item Reproduce the standard DyNA PPO from the original paper.
+    
+    \item Formulate the surrogate ensemble reward $r'(x)$ with weights $w_i$ chosen to minimize a combination of surrogate bias and variance under cross-validation estimates. 
+    
+    \item Combine several surrogate models into one reward function:
+    \[
+        r'(x) = \sum_{i=1}^K w_i f'_i(x).
+    \]
+    
+    \item Prove a bound on the regret of the model-based policy update step that decomposes into:
+    \begin{enumerate}
+        \item model bias terms, and 
+        \item policy-optimization error,
+    \end{enumerate}
+    showing conditions under which weighted ensembling strictly improves sample efficiency over uniform averaging.
+    
+    \item Define regret as the loss in reward by following the approximate surrogate-based policy update, compared to using the true fitness function at every step. 
+    
+    \item Decompose regret into:
+    \begin{itemize}
+        \item How wrong the surrogate is, and 
+        \item How imperfect our policy update on that surrogate is.
+    \end{itemize}
+    
+    This allows us to optimally choose model weights to shrink model bias, rather than equally averaging all models. As a result, the overall regret is smaller and fewer real samples are needed to learn an effective policy.
+    
+    \item Implement the weighted DyNA PPO algorithm, integrating it into the existing PPO plus surrogate loop. Re-estimate weights each round automatically via a small convex optimization step.
+    
+    \item Add an extra optimization step each round to resolve for the best ensemble weights.
+    
+    \item Empirically compare the weighted DyNA PPO against the standard DyNA PPO on benchmark tasks.
+\end{enumerate}
+
+\section{Methodology}
+
+
+
+
+% Experiments and Results
+\section{Experiments and Results}
+
+\subsection{Base Comparison}
+We compare the following approaches:
+\begin{itemize}
+    \item Standard with average ensemble
+    \item R\textsuperscript{2}-based weighted ensemble
+    \item Dynamic optimal ensemble
+    \item Pure PPO
+\end{itemize}
+
+Metrics to track:
+\begin{itemize}
+    \item Final best reward achieved
+    \item Convergence speed (rounds to reach 90\% of best)
+    \item Reward Variance
+\end{itemize}
+
+\subsection{Ablation Study}
+We test the importance of each component by removing them individually.  
+Configurations:
+\begin{itemize}
+    \item no\_warmup
+    \item no\_diversity\_penalty
+    \item fixed\_threshold
+    \item uniform\_weights\_only
+    \item no\_context\_encoding
+\end{itemize}
+
+
+
+\subsection{Model Contribution Analysis}
+We analyze the contribution of each model over time.  
+For each round, we log:
+\begin{itemize}
+    \item Individual model R\textsuperscript{2} scores
+    \item Assigned weights
+    \item Prediction accuracy
+\end{itemize}
+
+Visualization: stacked area charts will show the weight distribution over time.
+
+
+
+
+
+
+% Conclusion
+\section{Conclusion}
+Your conclusion goes here.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references} % You can create a references.bib file
+
+\end{document}
