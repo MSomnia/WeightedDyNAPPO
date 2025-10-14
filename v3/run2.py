@@ -13,11 +13,11 @@ import sys
 from DyNAPPO import DyNAPPO
 from LearningRateTracker import LearningMetricsTracker
 
-input_l = 20
-input_r = 100
-input_b = 64
-input_m = "average"        # # ['average', 'weighted', 'dynamic']
-input_ty = "dynamic"
+input_l = 10
+input_r = 200
+input_b = 32
+input_m = "weighted"        # # ['average', 'weighted', 'dynamic']
+input_ty = "dynamic"    # threshold mode
 
 time_str = datetime.now().strftime("%Y%m%d%H%M%S")
 base_dir = Path("experiments")

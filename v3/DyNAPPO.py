@@ -896,7 +896,7 @@ class DyNAPPO:
                 else:
                     return [0.0] * len(sequences)
             
-            # ============ OPTIMAL WEIGHT LEARNING ============
+            # ============ Weighted and OPTIMAL WEIGHT LEARNING ============
             predictions = np.array(predictions)
             
             # Initialize weight learner if not exists
@@ -914,11 +914,14 @@ class DyNAPPO:
                 X_val = self.context_window_encoding(X_val_sequences, context_window=8, embed_dim=16)
                 
 
+                # ============ Weighted LEARNING ============
                 # OPTION1: R2 Performance-based weights
                 if method == 'weighted':
                     weights = self.weight_learner.learn_weights_performance(models)
                     print(f"    Using performance-based weights")
 
+
+                # ============ OPTIMAL WEIGHT LEARNING ============
                 else:
                     # OPTION 2: Dynamic weight methods
                     # Choose weight learning method based on round

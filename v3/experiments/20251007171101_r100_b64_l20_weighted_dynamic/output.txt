@@ -1,0 +1,430 @@
+======================================================================
+RUNNING IMPROVED DyNA PPO WITH BETTER SURROGATE LEARNING
+======================================================================
+======================================================================
+IMPROVED DyNA PPO ALGORITHM
+======================================================================
+Configuration:
+  Number of experiment rounds N = 100
+  Number of model-based training rounds M = 5
+  Minimum model score τ = 0.2
+  Batch size B = 64
+  Warm-up phase: True
+  Surrogate model method: weighted
+======================================================================
+
+=== WARM-UP PHASE ===
+Generating 50 warm-up samples...
+Warm-up statistics:
+  Mean reward: 11.299
+  Std reward: 4.211
+  Min/Max: 0.000 / 15.892
+
+Pre-training surrogate models on warm-up data...
+
+Training on 44 samples (removed 6 outliers)
+Reward range: [7.46, 15.89], mean: 12.69
+  Created 8 candidate models for data size 44
+Current R2 threshold: -0.3
+  rf-xs: R2 = -0.051 (std: 0.153)
+  rf-s: R2 = -0.026 (std: 0.193)
+  knn-xs: R2 = 0.174 (std: 0.216)
+  knn-s: R2 = 0.174 (std: 0.216)
+  ridge: R2 = 0.310 (std: 0.124)
+  gb-xs: R2 = -0.125 (std: 0.301)
+  gp: R2 = -50.300 (std: 10.539)
+  svr-rbf-s: R2 = 0.175 (std: 0.187)
+Initial models trained: 7
+Initial R2 scores - Mean: -6.209, Max: 0.310
+
+======================================================================
+EXPERIMENT ROUND 1/100
+======================================================================
+Learning Rate: 0.000272
+Exploration Rate: 0.300
+Total data collected: 50
+
+--- Round 1 Configuration ---
+Learning rate: 0.000272
+Entropy coefficient: 0.0200
+Exploration rate: 0.300
+
+--- Generated Sequences (Diversity: 1.000) ---
+  ACGAAAGAAGCAACCCCTTC
+  CGAGCAGCATAACATCAACC
+  ACGCAATGTGCGAGTTATAT
+  ACTAGAGTTCTAAAAATGGA
+  AGGTCCACGTTCTTAGCAAG
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 12.850
+  Max reward: 15.778
+  With intrinsic bonuses: 12.840
+
+Policy Update:
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.020
+    Epoch 0: policy_loss=0.0000, value_loss=1.0015, entropy=1.3737, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0955
+
+=== Surrogate Model Training ===
+Total samples: 114
+
+Training on 108 samples (removed 6 outliers)
+Reward range: [7.46, 15.89], mean: 12.77
+  Created 11 candidate models for data size 108
+Current R2 threshold: -0.3
+  rf-m: R2 = -0.048 (std: 0.163)
+  rf-l: R2 = -0.057 (std: 0.164)
+  gb-m: R2 = -0.031 (std: 0.213)
+  gb-l: R2 = -0.047 (std: 0.219)
+  xgb-m: R2 = -0.241 (std: 0.244)
+  knn-m: R2 = -0.058 (std: 0.271)
+  knn-tuned: R2 = -0.058 (std: 0.271)
+  mlp-m: R2 = -2.918 (std: 1.549)
+  svr-rbf: R2 = 0.112 (std: 0.122)
+  svr-poly: R2 = 0.112 (std: 0.122)
+  ridge: R2 = 0.128 (std: 0.186)
+
+Model-based training with 10 models
+Best R2: 0.128, Mean R2: -0.282
+Running 3 virtual training rounds
+Current Method: weighted
+    Using uniform weights (insufficient data)
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=0.0000, value_loss=0.9905, entropy=1.3707, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0941
+  Round 1/3: Mean predicted reward = 12.845
+Current Method: weighted
+    Using uniform weights (insufficient data)
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9909, entropy=1.3673, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0784
+  Round 2/3: Mean predicted reward = 12.808
+Current Method: weighted
+    Using uniform weights (insufficient data)
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=0.0000, value_loss=0.9903, entropy=1.3616, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1494
+  Round 3/3: Mean predicted reward = 12.806
+
+  === Progress Analysis ===
+  Status: NORMAL
+
+--- Round 1 Results ---
+  Mean Oracle Reward: 12.833
+  Min Oracle Reward: 8.287
+  Max Oracle Reward: 15.608
+  Std Oracle Reward: 1.696
+  Sequence Diversity: 1.000
+  Models Used: 10
+  Model R2 - Mean: -0.282, Max: 0.128, Count: 11
+  New best mean reward!
+  Total Sequences Evaluated: 114
+    Oracle Count: 64 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 15.892417007954919}]
+
+======================================================================
+EXPERIMENT ROUND 2/100
+======================================================================
+Learning Rate: 0.000200
+Exploration Rate: 0.300
+Total data collected: 114
+
+--- Round 2 Configuration ---
+Learning rate: 0.000200
+Entropy coefficient: 0.0200
+Exploration rate: 0.300
+
+--- Generated Sequences (Diversity: 1.000) ---
+  AAGCTATGTCGCTCGAGCAG
+  CACGACTATGCCTTTGACGC
+  CGACTGTGGTACAGCGTAGT
+  CTGGTGAACCAGTTACGTGA
+  CTATGCCGCACGAAATTGGC
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 13.323
+  Max reward: 16.068
+  With intrinsic bonuses: 13.337
+
+Policy Update:
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.020
+    Epoch 0: policy_loss=0.0000, value_loss=0.9932, entropy=1.3538, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1346
+
+=== Surrogate Model Training ===
+Total samples: 178
+
+Training on 170 samples (removed 8 outliers)
+Reward range: [8.19, 15.90], mean: 13.04
+  Created 11 candidate models for data size 170
+Current R2 threshold: -0.3
+  rf-m: R2 = -0.084 (std: 0.185)
+  rf-l: R2 = -0.096 (std: 0.148)
+  gb-m: R2 = -0.193 (std: 0.130)
+  gb-l: R2 = -0.188 (std: 0.128)
+  xgb-m: R2 = -0.328 (std: 0.205)
+  knn-m: R2 = -0.103 (std: 0.225)
+  knn-tuned: R2 = -0.103 (std: 0.225)
+  mlp-m: R2 = -2.195 (std: 0.841)
+  svr-rbf: R2 = 0.022 (std: 0.095)
+  svr-poly: R2 = 0.022 (std: 0.095)
+  ridge: R2 = 0.056 (std: 0.113)
+
+Model-based training with 9 models
+Best R2: 0.056, Mean R2: -0.290
+Running 3 virtual training rounds
+Current Method: weighted
+    Using uniform weights (insufficient data)
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=0.0000, value_loss=0.9924, entropy=1.3466, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1061
+  Round 1/3: Mean predicted reward = 13.188
+Current Method: weighted
+    Using uniform weights (insufficient data)
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9940, entropy=1.3364, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1178
+  Round 2/3: Mean predicted reward = 13.198
+Current Method: weighted
+    Using uniform weights (insufficient data)
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=0.0000, value_loss=0.9942, entropy=1.3235, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.1351
+  Round 3/3: Mean predicted reward = 13.345
+
+  === Progress Analysis ===
+  Status: NORMAL
+
+--- Round 2 Results ---
+  Mean Oracle Reward: 13.327
+  Min Oracle Reward: 7.014
+  Max Oracle Reward: 15.927
+  Std Oracle Reward: 1.590
+  Sequence Diversity: 1.000
+  Models Used: 9
+  Model R2 - Mean: -0.290, Max: 0.056, Count: 11
+  New best mean reward!
+  Total Sequences Evaluated: 178
+    Oracle Count: 128 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 15.892417007954919}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 15.90351799999221}]
+
+======================================================================
+EXPERIMENT ROUND 3/100
+======================================================================
+Learning Rate: 0.000110
+Exploration Rate: 0.300
+Total data collected: 178
+
+--- Round 3 Configuration ---
+Learning rate: 0.000110
+Entropy coefficient: 0.0200
+Exploration rate: 0.300
+
+--- Generated Sequences (Diversity: 1.000) ---
+  GCCGACATGAACCGTATGTG
+  CCGGCGGTCAGGGCCCACAT
+  CACCAGGGGACCCCGGAGCT
+  CCGGCTTTCGGTCCCCTCCC
+  GTGGCACTGCGGAGCACCGG
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 13.670
+  Max reward: 18.785
+  With intrinsic bonuses: 13.836
+
+Policy Update:
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.020
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9932, entropy=1.3076, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0809
+
+=== Surrogate Model Training ===
+Total samples: 242
+
+Training on 230 samples (removed 12 outliers)
+Reward range: [8.57, 16.53], mean: 13.23
+  Created 11 candidate models for data size 230
+Current R2 threshold: -0.3
+  rf-m: R2 = -0.127 (std: 0.133)
+  rf-l: R2 = -0.080 (std: 0.177)
+  gb-m: R2 = -0.184 (std: 0.220)
+  gb-l: R2 = -0.186 (std: 0.221)
+  xgb-m: R2 = -0.489 (std: 0.345)
+  knn-m: R2 = -0.167 (std: 0.297)
+  knn-tuned: R2 = -0.167 (std: 0.297)
+  mlp-m: R2 = -2.703 (std: 0.940)
+  svr-rbf: R2 = -0.024 (std: 0.066)
+  svr-poly: R2 = -0.024 (std: 0.066)
+  ridge: R2 = -0.002 (std: 0.104)
+
+Model-based training with 9 models
+Best R2: -0.002, Mean R2: -0.378
+Running 2 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-m:0.071 rf-l:0.113 gb-m:0.040 gb-l:0.039 knn-m:0.047 knn-tuned:0.047 svr-rbf:0.198 svr-poly:0.198 ridge:0.245 
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=0.0000, value_loss=0.9958, entropy=1.3002, kl_div=0.0000
+  Round 1/2: Mean predicted reward = 13.822
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-m:0.071 rf-l:0.113 gb-m:0.040 gb-l:0.039 knn-m:0.047 knn-tuned:0.047 svr-rbf:0.198 svr-poly:0.198 ridge:0.245 
+  Adaptive update: clip_ratio=0.30, entropy_coef=0.010
+    Epoch 0: policy_loss=0.0000, value_loss=0.9967, entropy=1.2915, kl_div=0.0000
+  Round 2/2: Mean predicted reward = 13.908
+
+  === Progress Analysis ===
+  Status: WARNING
+  • R2 scores negative. Models struggling to learn. Try collecting more diverse data.
+
+--- Round 3 Results ---
+  Mean Oracle Reward: 13.676
+  Min Oracle Reward: 3.743
+  Max Oracle Reward: 18.870
+  Std Oracle Reward: 1.974
+  Sequence Diversity: 1.000
+  Models Used: 9
+  Model R2 - Mean: -0.378, Max: -0.002, Count: 11
+  New best mean reward!
+  Total Sequences Evaluated: 242
+    Oracle Count: 192 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 15.892417007954919}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 15.90351799999221}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 19.218460400764116}]
+
+======================================================================
+EXPERIMENT ROUND 4/100
+======================================================================
+Learning Rate: 0.000038
+Exploration Rate: 0.280
+Total data collected: 242
+  Consistent improvement, increasing LR to 0.000045
+
+--- Round 4 Configuration ---
+Learning rate: 0.000045
+Entropy coefficient: 0.0100
+Exploration rate: 0.280
+
+--- Generated Sequences (Diversity: 1.000) ---
+  CTCCGTGCGTACCGAGAAGG
+  CGCGTGGCCGATAACTGTAC
+  ATGTGGGCCATAAGCTACGC
+  TCCTCACCGAGTTACAGGGG
+  GAAGGTTCTAGCACCCTGGC
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 13.759
+  Max reward: 17.340
+  With intrinsic bonuses: 13.846
+
+Policy Update:
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.010
+    Epoch 0: policy_loss=-0.0000, value_loss=0.9947, entropy=1.2810, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0225, value_loss=0.9947, entropy=1.2772, kl_div=0.0488
+    Early stopping at epoch 2: KL divergence = 0.0989
+
+=== Surrogate Model Training ===
+Total samples: 306
+
+Training on 292 samples (removed 14 outliers)
+Reward range: [9.07, 17.05], mean: 13.37
+  Created 11 candidate models for data size 292
+Current R2 threshold: -0.3
+  rf-m: R2 = 0.004 (std: 0.161)
+  rf-l: R2 = 0.009 (std: 0.161)
+  gb-m: R2 = -0.021 (std: 0.182)
+  gb-l: R2 = -0.021 (std: 0.182)
+  xgb-m: R2 = -0.118 (std: 0.213)
+  knn-m: R2 = -0.089 (std: 0.129)
+  knn-tuned: R2 = -0.089 (std: 0.129)
+  mlp-m: R2 = -0.646 (std: 0.162)
+  svr-rbf: R2 = 0.075 (std: 0.109)
+  svr-poly: R2 = 0.075 (std: 0.109)
+  ridge: R2 = 0.090 (std: 0.140)
+
+Model-based training with 10 models
+Best R2: 0.090, Mean R2: -0.066
+Running 3 virtual training rounds
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-m:0.089 rf-l:0.094 gb-m:0.070 gb-l:0.070 xgb-m:0.026 knn-m:0.035 knn-tuned:0.035 svr-rbf:0.183 svr-poly:0.183 ridge:0.212 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9951, entropy=1.2736, kl_div=0.0000
+    Epoch 1: policy_loss=-0.0289, value_loss=0.9950, entropy=1.2697, kl_div=0.0446
+  Round 1/3: Mean predicted reward = 13.490
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-m:0.089 rf-l:0.094 gb-m:0.070 gb-l:0.070 xgb-m:0.026 knn-m:0.035 knn-tuned:0.035 svr-rbf:0.183 svr-poly:0.183 ridge:0.212 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9960, entropy=1.2640, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0688
+  Round 2/3: Mean predicted reward = 13.310
+Current Method: weighted
+    Using performance-based weights
+    Model weights: rf-m:0.089 rf-l:0.094 gb-m:0.070 gb-l:0.070 xgb-m:0.026 knn-m:0.035 knn-tuned:0.035 svr-rbf:0.183 svr-poly:0.183 ridge:0.212 
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.005
+    Epoch 0: policy_loss=0.0000, value_loss=0.9943, entropy=1.2605, kl_div=0.0000
+    Early stopping at epoch 1: KL divergence = 0.0582
+  Round 3/3: Mean predicted reward = 13.463
+
+  === Progress Analysis ===
+  Status: NORMAL
+
+--- Round 4 Results ---
+  Mean Oracle Reward: 13.722
+  Min Oracle Reward: 8.586
+  Max Oracle Reward: 16.968
+  Std Oracle Reward: 1.634
+  Sequence Diversity: 1.000
+  Models Used: 10
+  Model R2 - Mean: -0.066, Max: 0.090, Count: 11
+  New best mean reward!
+  Total Sequences Evaluated: 306
+    Oracle Count: 256 [{'round': 1, 'cumulative_calls': 64, 'new_calls': 64, 'best_reward_so_far': 15.892417007954919}, {'round': 2, 'cumulative_calls': 128, 'new_calls': 64, 'best_reward_so_far': 15.90351799999221}, {'round': 3, 'cumulative_calls': 192, 'new_calls': 64, 'best_reward_so_far': 19.218460400764116}, {'round': 4, 'cumulative_calls': 256, 'new_calls': 64, 'best_reward_so_far': 19.218460400764116}]
+
+======================================================================
+EXPERIMENT ROUND 5/100
+======================================================================
+Learning Rate: 0.000300
+Exploration Rate: 0.250
+Total data collected: 306
+  Consistent improvement, increasing LR to 0.000360
+
+--- Round 5 Configuration ---
+Learning rate: 0.000300
+Entropy coefficient: 0.0100
+Exploration rate: 0.250
+
+--- Generated Sequences (Diversity: 1.000) ---
+  AAGGCTCTCTTGAGGAGCCC
+  TGGAGCCGATACATGCCCGG
+  ATCGCGCGTTGTACCGGCAA
+  TGGACGTAGGACAATGCCCT
+  GAACCACGCTCTTGGCATGG
+  ... (64 total)
+
+Oracle Evaluation:
+  Mean reward: 13.702
+  Max reward: 16.842
+  With intrinsic bonuses: 13.748
+
+Policy Update:
+  Adaptive update: clip_ratio=0.20, entropy_coef=0.010
+Traceback (most recent call last):
+  File "/Users/msomnia/Desktop/project/WeightedDyNAPPO/v3/run2.py", line 401, in <module>
+    trained_dyna_ppo = run_dyna_ppo_algorithm(
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/msomnia/Desktop/project/WeightedDyNAPPO/v3/run2.py", line 200, in run_dyna_ppo_algorithm
+    results = dyna_ppo.train_round(oracle_fn, metrics_tracker, N, n, exploration_rate, 
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/msomnia/Desktop/project/WeightedDyNAPPO/v3/DyNAPPO.py", line 1442, in train_round
+    self.adaptive_policy_update(
+  File "/Users/msomnia/Desktop/project/WeightedDyNAPPO/v3/DyNAPPO.py", line 756, in adaptive_policy_update
+    total_loss.backward()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/_tensor.py", line 581, in backward
+    torch.autograd.backward(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/autograd/__init__.py", line 347, in backward
+    _engine_run_backward(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/torch/autograd/graph.py", line 825, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

@@ -121,19 +121,27 @@ class OptimalEnsembleWeights:
     Simple performance-based weighting. 
     Models with higher R2 scores get exponentially higher weights. 
     """
-    def learn_weights_performance(self, models: List) -> np.ndarray:
+    # def learn_weights_performance(self, models: List) -> np.ndarray:
 
-        scores = []
-        for _, _, score in models:
-            # Transform R2 score to weight (handle negative R2)
-            # Use exponential to emphasize good models
-            weight = np.exp(max(0, score + 0.5))
-            scores.append(weight)
+    #     scores = []
+    #     for _, _, score in models:
+    #         # Transform R2 score to weight (handle negative R2)
+    #         # Use exponential to emphasize good models
+    #         weight = np.exp(max(0, score + 0.5))
+    #         scores.append(weight)
         
-        scores = np.array(scores)
-        # Normalize weights to sum to 1
-        weights = scores / scores.sum()
+    #     scores = np.array(scores)
+    #     # Normalize weights to sum to 1
+    #     weights = scores / scores.sum()
         
+    #     return weights
+    
+    def learn_weights_performance(self, models: List, temperature: float = 0.1) -> np.ndarray:
+        scores = np.array([score for _, _, score in models])
+        # Lower temperature → more extreme differences
+        # Higher temperature → more uniform weights
+        exp_scores = np.exp(scores / temperature)
+        weights = exp_scores / exp_scores.sum()
         return weights
     
 
