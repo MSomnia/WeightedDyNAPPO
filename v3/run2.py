@@ -16,7 +16,7 @@ from LearningRateTracker import LearningMetricsTracker
 input_l = 10
 input_r = 200
 input_b = 32
-input_m = "weighted"        # # ['average', 'weighted', 'dynamic']
+input_m = "dynamic"        # # ['average', 'weighted', 'dynamic']
 input_ty = "dynamic"    # threshold mode
 
 time_str = datetime.now().strftime("%Y%m%d%H%M%S")
