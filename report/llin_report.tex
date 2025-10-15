@@ -1408,27 +1408,172 @@ Upon completion, the algorithm returns the trained policy network $\pi_{\theta^*
 
 
 
+
+
 \subsection{Policy Optimization}
+
+The policy optimization component of DyNAPPO combines Proximal Policy Optimization (PPO) with adaptive mechanisms and sophisticated reward engineering strategies. This section details the mathematical formulations and implementation strategies employed in the system.
+
 \subsubsection{PPO Loss Function}
-\begin{itemize}
-    \item Clipped surrogate objective
-    \item Value function loss
-    \item Entropy regularization for exploration
-\end{itemize}
+
+The core of our policy optimization is built upon the PPO algorithm with three key components: the clipped surrogate objective, value function loss, and entropy regularization.
+
+\textbf{Clipped Surrogate Objective.} The policy loss employs the PPO clipped objective to ensure stable policy updates. For each sequence trajectory, we compute the probability ratio between the current policy $\pi_{\theta}$ and the old policy $\pi_{\theta_{\text{old}}}$:
+%
+\begin{equation}
+r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)} = \exp(\log \pi_{\theta}(a_t|s_t) - \log \pi_{\theta_{\text{old}}}(a_t|s_t))
+\end{equation}
+%
+The clipped surrogate objective is then defined as:
+%
+\begin{equation}
+L^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[\min\left(r_t(\theta)\hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\right)\right]
+\end{equation}
+%
+where $\hat{A}_t$ represents the advantage function computed as $\hat{A}_t = R_t - V_{\theta}(s_t)$, with $R_t$ being the normalized reward and $V_{\theta}(s_t)$ the value function estimate. The clip ratio $\epsilon$ prevents excessively large policy updates.
+
+\textbf{Value Function Loss.} The value function is trained to predict expected returns using mean squared error:
+%
+\begin{equation}
+L^{VF}(\theta) = \mathbb{E}_t\left[\left(V_{\theta}(s_t) - R_t\right)^2\right]
+\end{equation}
+%
+where $V_{\theta}(s_t)$ is the predicted value and $R_t$ is the target return. The value function serves as a baseline to reduce variance in advantage estimates.
+
+\textbf{Entropy Regularization.} To encourage exploration, we incorporate an entropy bonus term:
+%
+\begin{equation}
+L^{ENT}(\theta) = -\mathbb{E}_t\left[H(\pi_{\theta}(\cdot|s_t))\right] = -\mathbb{E}_t\left[\sum_{a} \pi_{\theta}(a|s_t)\log \pi_{\theta}(a|s_t)\right]
+\end{equation}
+%
+The total loss function combines these three components:
+%
+\begin{equation}
+L^{TOTAL}(\theta) = -L^{\text{CLIP}}(\theta) + c_1 L^{VF}(\theta) + c_2 L^{ENT}(\theta) + \lambda_{L2}\|\theta\|^2
+\end{equation}
+%
+where $c_1 = 0.5$ is the value function coefficient, $c_2$ is the entropy coefficient (detailed in the next section), and $\lambda_{L2} = 0.0001$ provides L2 regularization to prevent overfitting.
 
 \subsubsection{Adaptive Mechanisms}
-\begin{itemize}
-    \item Dynamic clip ratio based on training progress
-    \item KL divergence-based early stopping
-    \item Gradient clipping
-\end{itemize}
+
+Our implementation incorporates several adaptive mechanisms that adjust hyperparameters based on training progress and reward statistics.
+
+\textbf{Dynamic Clip Ratio.} The PPO clip ratio $\epsilon$ adapts based on training round and reward variance:
+%
+\begin{equation}
+\epsilon_n = \begin{cases}
+0.3 & \text{if } n \leq 3 \text{ (early exploration)} \\
+0.1 & \text{if } \sigma_r > 2.0 \text{ (high variance)} \\
+0.2 & \text{otherwise (standard)}
+\end{cases}
+\end{equation}
+%
+where $n$ is the current round number and $\sigma_r$ is the standard deviation of rewards in the current batch. Early rounds use larger clip ratios to permit more aggressive exploration, while high variance scenarios require conservative updates.
+
+\textbf{KL Divergence-Based Early Stopping.} To prevent catastrophic policy collapse, we monitor the KL divergence between old and new policies:
+%
+\begin{equation}
+D_{KL}(\pi_{\theta_{\text{old}}} \| \pi_{\theta}) = \mathbb{E}_{s,a \sim \pi_{\theta_{\text{old}}}}\left[\log \pi_{\theta_{\text{old}}}(a|s) - \log \pi_{\theta}(a|s)\right]
+\end{equation}
+%
+If $D_{KL} > 0.05$ during any epoch after the first, training terminates early to preserve policy stability.
+
+\textbf{Gradient Clipping.} Gradient norms are clipped adaptively based on training progress:
+%
+\begin{equation}
+\text{max\_grad\_norm} = \begin{cases}
+1.0 & \text{if } n \leq 3 \\
+0.5 & \text{if } n > 3
+\end{cases}
+\end{equation}
+%
+This prevents gradient explosion while allowing larger updates during early exploration phases.
+
+\textbf{Adaptive Entropy Coefficient.} The entropy regularization coefficient decreases over training to transition from exploration to exploitation:
+%
+\begin{equation}
+c_2 = \begin{cases}
+0.02 & \text{if } n \leq 3 \text{ (high exploration)} \\
+0.01 & \text{if } 3 < n \leq 7 \text{ (moderate exploration)} \\
+0.005 & \text{if } n > 7 \text{ (low exploration)}
+\end{cases}
+\end{equation}
+%
+For model-based (virtual) training rounds, the entropy coefficient is further reduced by a factor of 0.5 to focus on exploitation of surrogate model predictions.
+
+\textbf{Adaptive Reward Normalization.} Rewards are normalized using statistics-aware strategies. For high-variance reward distributions ($\sigma_r > 3.0$), we employ robust normalization using median absolute deviation (MAD):
+%
+\begin{equation}
+\tilde{R}_i = \frac{R_i - \text{median}(R)}{\text{MAD}(R) + \epsilon}, \quad \text{MAD}(R) = \text{median}(|R_i - \text{median}(R)|)
+\end{equation}
+%
+For lower variance scenarios, standard z-score normalization is used:
+%
+\begin{equation}
+\tilde{R}_i = \frac{R_i - \mu_R}{\sigma_R + \epsilon}
+\end{equation}
+%
+where $\epsilon = 10^{-8}$ prevents division by zero.
 
 \subsubsection{Reward Engineering}
-\begin{itemize}
-    \item Intrinsic rewards for exploration
-    \item Diversity penalties
-    \item Reward normalization strategies
-\end{itemize}
+
+The reward signal combines extrinsic oracle rewards with intrinsic motivation signals and diversity penalties to guide effective exploration.
+
+\textbf{Intrinsic Rewards for Exploration.} To encourage exploration of under-explored regions of the sequence space, we compute novelty-based intrinsic rewards. For a candidate sequence $s$, we measure its distance to the $k$-nearest neighbors in the sequence history:
+%
+\begin{equation}
+d_{\text{avg}}(s) = \frac{1}{k}\sum_{i=1}^{k} d_{\text{edit}}(s, s_i^{(k)})
+\end{equation}
+%
+where $d_{\text{edit}}(s, s')$ is the edit distance (Levenshtein distance) between sequences, and $s_i^{(k)}$ are the $k=5$ nearest historical sequences. The intrinsic reward is then:
+%
+\begin{equation}
+r_{\text{int}}(s, n) = \min\left(1.0, \frac{d_{\text{avg}}(s)}{T}\right) \cdot 0.5 \cdot \max(0, 1 - n/10)
+\end{equation}
+%
+where $T$ is the sequence length and $n$ is the current training round. This formulation provides stronger exploration bonuses in early rounds and gradually reduces them as training progresses.
+
+\textbf{Diversity Penalties.} To prevent the policy from collapsing to repetitive sequences, we apply diversity penalties during model-based training. For a candidate sequence $s$, the penalty is computed as:
+%
+\begin{equation}
+p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} w(d_{\text{edit}}(s, s'))
+\end{equation}
+%
+where $\mathcal{H}$ is the sequence history, $\lambda_{\text{div}} = 0.1$ is the diversity coefficient, and the weight function is:
+%
+\begin{equation}
+w(d) = \begin{cases}
+\max\left(0, 1 - \frac{d}{\epsilon_{\text{div}}}\right) & \text{if } d \leq \epsilon_{\text{div}} \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+%
+with $\epsilon_{\text{div}} = 3$ defining the similarity threshold. This linear decay function ensures that sequences within edit distance 3 receive penalties proportional to their similarity.
+
+During model-based training, the diversity penalty weight decays across virtual rounds:
+%
+\begin{equation}
+\lambda_{\text{div}}^{(m)} = \lambda_{\text{div}} \cdot \max\left(0.2, 1 - \frac{m}{M}\right)
+\end{equation}
+%
+where $m$ is the current virtual round and $M$ is the total number of virtual rounds.
+
+\textbf{Reward Normalization Strategies.} The final reward for each sequence combines the oracle reward with intrinsic exploration bonuses:
+%
+\begin{equation}
+R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)
+\end{equation}
+%
+For model-based training, predicted rewards are adjusted with diversity penalties:
+%
+\begin{equation}
+R_{\text{virtual}}(s) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s)
+\end{equation}
+%
+where $\hat{R}_{\text{ensemble}}(s)$ is the ensemble prediction from surrogate models.
+
+These reward engineering strategies work synergistically with the adaptive PPO mechanisms to balance exploration and exploitation throughout training, enabling the discovery of high-quality sequences while maintaining population diversity.
+
 
 
 
@@ -1436,23 +1581,140 @@ Upon completion, the algorithm returns the trained policy network $\pi_{\theta^*
 
 
 \subsection{Adaptive Learning Mechanisms}
+
+The training process incorporates multiple adaptive mechanisms that dynamically adjust learning parameters based on training progress, performance trends, and data characteristics. These mechanisms enable the system to automatically transition from exploration to exploitation phases while maintaining training stability.
+
 \subsubsection{Learning Rate Scheduling}
-\begin{itemize}
-    \item Cosine annealing with warm restarts
-    \item Performance-based adjustment
-\end{itemize}
+
+The learning rate schedule combines two complementary strategies: a cyclical schedule for escaping local minima and performance-based adjustments for convergence optimization.
+
+\textbf{Cosine Annealing with Warm Restarts.} The base learning rate follows a cosine annealing schedule with periodic warm restarts to help the optimization escape local minima and explore different regions of the parameter space. Given a base learning rate $\eta_{\text{base}} = 3 \times 10^{-4}$ and minimum learning rate $\eta_{\text{min}} = 1 \times 10^{-5}$, the scheduled learning rate at round $n$ is computed as:
+%
+\begin{equation}
+\eta_{\text{scheduled}}(n) = \eta_{\text{min}} + \frac{\eta_{\text{base}} - \eta_{\text{min}}}{2}\left(1 + \cos\left(\frac{\pi \cdot (n \bmod P)}{P}\right)\right)
+\end{equation}
+%
+where $P = 5$ is the period of warm restarts. This schedule creates a sawtooth pattern where the learning rate starts high at the beginning of each period and gradually decreases following a cosine curve. At the end of each period, the learning rate is abruptly reset to $\eta_{\text{base}}$, providing a ``warm restart'' that can help escape shallow local minima.
+
+The cosine function $\cos(\pi \cdot (n \bmod P) / P)$ evaluates to 1 at the start of each period and -1 at the end, creating smooth transitions. The modulo operation $(n \bmod P)$ ensures the schedule repeats every $P$ rounds, allowing multiple exploration-exploitation cycles throughout training.
+
+\textbf{Performance-Based Adjustment.} The scheduled learning rate is further refined based on recent performance trends. Let $\mathcal{T}_n = \{r_{n-2}, r_{n-1}, r_n\}$ denote the set of mean rewards from the three most recent rounds. We analyze the variance and monotonicity of this trend to adjust the learning rate:
+%
+\begin{equation}
+\eta_{\text{adjusted}}(n) = \begin{cases}
+0.5 \cdot \eta_{\text{scheduled}}(n) & \text{if } \text{Var}(\mathcal{T}_n) < 0.01 \text{ (plateau)} \\
+1.2 \cdot \eta_{\text{scheduled}}(n) & \text{if } r_{n-2} < r_{n-1} < r_n \text{ (improvement)} \\
+\eta_{\text{scheduled}}(n) & \text{otherwise (normal)}
+\end{cases}
+\end{equation}
+%
+The plateau detection condition $\text{Var}(\mathcal{T}_n) < 0.01$ identifies when performance has stabilized, triggering a 50\% learning rate reduction to encourage fine-grained convergence. Conversely, consistent improvement across three consecutive rounds indicates the model is in a favorable region of the loss landscape, warranting a 20\% learning rate increase to accelerate optimization.
+
+The final learning rate is clipped to the valid range:
+%
+\begin{equation}
+\eta(n) = \text{clip}(\eta_{\text{adjusted}}(n), \eta_{\text{min}}, \eta_{\text{base}})
+\end{equation}
+%
+This hybrid approach balances the benefits of cyclical schedules (exploration through periodic resets) with reactive adaptation to empirical performance, creating a robust learning rate policy.
 
 \subsubsection{Exploration Scheduling}
-\begin{itemize}
-    \item Decaying exploration rate over rounds
-    \item Adaptive entropy coefficients
-\end{itemize}
+
+Effective exploration-exploitation balance is achieved through coordinated scheduling of multiple exploration-related hyperparameters.
+
+\textbf{Decaying Exploration Rate over Rounds.} The exploration rate $\varepsilon_n$ controls the probability of random actions during sequence generation and follows a piecewise linear decay schedule:
+%
+\begin{equation}
+\varepsilon_n = \begin{cases}
+0.3 & \text{if } n \leq 3 \\
+\max(0.15, 0.4 - 0.03n) & \text{if } 3 < n \leq 7 \\
+\max(0.05, 0.2 - 0.015n) & \text{if } n > 7
+\end{cases}
+\end{equation}
+%
+This three-stage schedule implements an aggressive exploration strategy in early rounds ($\varepsilon = 0.3$), followed by gradual decay during the middle phase, and finally maintaining a minimum exploration rate of 0.05 in later rounds to preserve discovery of novel high-quality sequences.
+
+The decay rates are carefully calibrated: the middle phase uses a faster decay rate ($-0.03$ per round) to quickly reduce random exploration once initial coverage is achieved, while the late phase uses a gentler decay ($-0.015$ per round) to smoothly transition to near-greedy exploitation. The floor values (0.15 and 0.05) prevent complete elimination of exploration, which could lead to premature convergence.
+
+\textbf{Adaptive Entropy Coefficients.} As described in the policy optimization section, the entropy regularization coefficient $c_2$ follows a similar decay pattern:
+%
+\begin{equation}
+c_2(n) = \begin{cases}
+0.02 & \text{if } n \leq 3 \\
+0.01 & \text{if } 3 < n \leq 7 \\
+0.005 & \text{if } n > 7
+\end{cases}
+\end{equation}
+%
+The entropy coefficient directly influences the policy's stochasticity by penalizing deterministic policies during optimization. High values ($c_2 = 0.02$) in early rounds encourage uniform action distributions, promoting broad exploration of the sequence space. The coefficient is progressively reduced by factors of 2, allowing the policy to gradually sharpen its distribution around high-reward actions.
+
+For model-based (virtual) training rounds, the entropy coefficient is further scaled by a factor of 0.5:
+%
+\begin{equation}
+c_2^{\text{virtual}}(n) = 0.5 \cdot c_2(n)
+\end{equation}
+%
+This reduction reflects the fact that surrogate model predictions are less reliable than oracle evaluations, and thus exploitation of predicted high-reward regions should be tempered to avoid overfitting to model errors.
+
+The number of policy update epochs also adapts to the training phase:
+%
+\begin{equation}
+E_n = \begin{cases}
+8 & \text{if } n \leq 3 \text{ (thorough early learning)} \\
+4 & \text{if } 3 < n \leq 7 \text{ (balanced updates)} \\
+2 & \text{if } n > 7 \text{ (fast convergence)}
+\end{cases}
+\end{equation}
+%
+More epochs in early rounds allow the policy to fully incorporate diverse exploration experiences, while fewer epochs in later rounds prevent overfitting and reduce computational overhead.
 
 \subsubsection{Threshold Management}
+
+The $R^2$ threshold $\tau_n$ determines which surrogate models are considered sufficiently accurate for model-based training. The system supports two threshold management modes: fixed and dynamic.
+
+\textbf{Fixed vs. Dynamic Threshold Modes.} In \emph{fixed} mode, the threshold remains constant throughout training:
+%
+\begin{equation}
+\tau_n^{\text{fixed}} = \tau_0 \quad \forall n
+\end{equation}
+%
+where $\tau_0$ is a user-specified value (typically $\tau_0 = 0.2$). This mode is suitable when the oracle function's complexity is well-understood and consistent model quality is expected.
+
+In \emph{dynamic} mode, the threshold gradually increases to accommodate improving model quality as more training data accumulates. This mode is more robust for complex oracle functions where initial model quality may be poor.
+
+\textbf{Linear Interpolation for Dynamic Thresholds.} The dynamic threshold follows a piecewise linear schedule with an initial warm-up phase:
+%
+\begin{equation}
+\tau_n^{\text{dynamic}} = \begin{cases}
+\tau_{\text{start}} & \text{if } n < n_{\text{warmup}} \\
+\min\left(\tau_{\text{end}}, \tau_{\text{start}} + (n - n_{\text{warmup}}) \cdot \delta_{\tau}\right) & \text{if } n \geq n_{\text{warmup}}
+\end{cases}
+\end{equation}
+%
+where:
 \begin{itemize}
-    \item Fixed vs. dynamic threshold modes
-    \item Linear interpolation for dynamic thresholds
+    \item $\tau_{\text{start}} = -0.3$ is the initial threshold, allowing even poorly performing models in early rounds
+    \item $\tau_{\text{end}} = \tau_0$ is the target final threshold (user-specified)
+    \item $n_{\text{warmup}} = \lfloor N/10 \rfloor$ is the warm-up period (10\% of total rounds)
+    \item $\delta_{\tau} = 0.01$ is the threshold increment per round
 \end{itemize}
+
+The warm-up phase ($n < n_{\text{warmup}}$) maintains a lenient threshold $\tau_{\text{start}} = -0.3$, accepting models that explain less variance than a constant mean predictor ($R^2 < 0$). This is justified because: (1) initial training data is limited and may not reveal the oracle's true structure, (2) even crude models can provide useful guidance for exploration, and (3) rejecting all models would reduce the algorithm to pure PPO, forfeiting the sample efficiency benefits of model-based training.
+
+After the warm-up phase, the threshold increases linearly at rate $\delta_{\tau} = 0.01$ per round until reaching $\tau_{\text{end}}$. The linear growth ensures that model quality requirements increase proportionally with data availability, preventing the use of stale or inadequate models in later rounds when sufficient data exists to train accurate surrogates.
+
+The minimum operator in Equation (15) ensures the threshold never exceeds $\tau_{\text{end}}$, providing an upper bound on model quality requirements. This prevents overly stringent thresholds that might reject useful models due to inherent oracle stochasticity or complexity.
+
+\textbf{Threshold History Tracking.} The system maintains a complete history of threshold values:
+%
+\begin{equation}
+\mathcal{H}_{\tau} = \{(n, \tau_n) : n = 1, 2, \ldots, N\}
+\end{equation}
+%
+This history enables post-hoc analysis of the relationship between threshold settings, model selection decisions, and overall algorithm performance. The stored history facilitates hyperparameter tuning and provides insights into the data efficiency characteristics of different threshold schedules.
+
+Together, these adaptive mechanisms create a cohesive training strategy that automatically adjusts learning dynamics based on training progress, enabling robust optimization across diverse oracle functions without manual hyperparameter tuning for each specific problem instance.
+
 
 
 
@@ -1460,46 +1722,149 @@ Upon completion, the algorithm returns the trained policy network $\pi_{\theta^*
 
 
 \subsection{Diversity Control}
+
+Maintaining sequence diversity is critical for effective exploration and preventing premature convergence to suboptimal solutions. Our diversity control framework combines quantitative diversity metrics with penalty-based regulation mechanisms to ensure broad coverage of the sequence space while avoiding redundant evaluations.
+
 \subsubsection{Sequence Diversity Metrics}
+
+We employ two complementary metrics to quantify sequence diversity: edit distance for pairwise similarity assessment and population-level uniqueness ratio for aggregate diversity measurement.
+
+\textbf{Edit Distance Computation.} The edit distance (Levenshtein distance) $d_{\text{edit}}(s, s')$ between two sequences $s$ and $s'$ measures the minimum number of single-token operations (insertion, deletion, or substitution) required to transform one sequence into the other. This metric provides a granular measure of sequence similarity that respects sequential structure.
+
+Given sequences $s = [s_1, s_2, \ldots, s_m]$ and $s' = [s'_1, s'_2, \ldots, s'_n]$, the edit distance is computed via dynamic programming. Let $D[i,j]$ denote the edit distance between the first $i$ tokens of $s$ and the first $j$ tokens of $s'$. The recurrence relation is:
+%
+\begin{equation}
+D[i,j] = \begin{cases}
+i & \text{if } j = 0 \\
+j & \text{if } i = 0 \\
+D[i-1,j-1] & \text{if } s_i = s'_j \\
+1 + \min\begin{cases}
+D[i-1,j] & \text{(deletion)} \\
+D[i,j-1] & \text{(insertion)} \\
+D[i-1,j-1] & \text{(substitution)}
+\end{cases} & \text{if } s_i \neq s'_j
+\end{cases}
+\end{equation}
+%
+The edit distance is then $d_{\text{edit}}(s, s') = D[m,n]$. The boundary conditions $D[i,0] = i$ and $D[0,j] = j$ represent the cost of transforming an empty sequence to a prefix of length $i$ or $j$ through pure insertions.
+
+This metric has several desirable properties for diversity assessment:
 \begin{itemize}
-    \item Edit distance computation
-    \item K-nearest neighbor diversity assessment
+    \item \textbf{Symmetry}: $d_{\text{edit}}(s, s') = d_{\text{edit}}(s', s)$
+    \item \textbf{Non-negativity}: $d_{\text{edit}}(s, s') \geq 0$, with equality iff $s = s'$
+    \item \textbf{Triangle inequality}: $d_{\text{edit}}(s, s'') \leq d_{\text{edit}}(s, s') + d_{\text{edit}}(s', s'')$
+    \item \textbf{Bounded range}: $0 \leq d_{\text{edit}}(s, s') \leq \max(|s|, |s'|)$
 \end{itemize}
+
+The computational complexity is $\mathcal{O}(mn)$ where $m = |s|$ and $n = |s'|$. For fixed-length sequences ($m = n = T$), this reduces to $\mathcal{O}(T^2)$.
+
+\textbf{K-Nearest Neighbor Diversity Assessment.} To assess the novelty of a candidate sequence $s$ relative to the exploration history $\mathcal{H}$, we employ a $k$-nearest neighbor ($k$-NN) approach. For each sequence $s' \in \mathcal{H}$, we compute $d_{\text{edit}}(s, s')$. Let $\mathcal{N}_k(s) \subseteq \mathcal{H}$ denote the set of $k$ sequences in $\mathcal{H}$ with smallest edit distances to $s$. The average distance to the $k$-nearest neighbors is:
+%
+\begin{equation}
+\bar{d}_k(s) = \frac{1}{k}\sum_{s' \in \mathcal{N}_k(s)} d_{\text{edit}}(s, s')
+\end{equation}
+%
+We use $k = 5$ as a balance between local neighborhood sensitivity and computational efficiency. To manage computational cost, we restrict the search to the most recent $L = 100$ sequences in the history: $\mathcal{H}_{\text{recent}} = \{s_{N-L+1}, \ldots, s_N\}$ where $N = |\mathcal{H}|$. This windowing strategy has two benefits: (1) reduces computation from $\mathcal{O}(N \cdot T^2)$ to $\mathcal{O}(L \cdot T^2)$, and (2) emphasizes recent exploration patterns while allowing the algorithm to revisit older promising regions.
+
+The normalized diversity score is:
+%
+\begin{equation}
+\text{novelty}(s) = \min\left(1, \frac{\bar{d}_k(s)}{T}\right)
+\end{equation}
+%
+where $T$ is the sequence length. The normalization by $T$ ensures the novelty score lies in $[0, 1]$, with 1 indicating maximum diversity (all $k$ neighbors differ in every position) and 0 indicating exact match with neighbors.
+
+For population-level diversity assessment, we compute the uniqueness ratio of a sequence batch $\mathcal{B}$:
+%
+\begin{equation}
+\rho_{\text{unique}}(\mathcal{B}) = \frac{|\{s : s \in \mathcal{B}\}|}{|\mathcal{B}|}
+\end{equation}
+%
+where the numerator counts distinct sequences (using set cardinality) and the denominator is the batch size. This metric ranges from $\rho_{\text{unique}} = 1/|\mathcal{B}|$ (all sequences identical) to $\rho_{\text{unique}} = 1$ (all sequences unique).
 
 \subsubsection{Diversity Penalties}
+
+To actively encourage diverse exploration, we incorporate novelty-based intrinsic rewards into the policy optimization objective and apply diversity penalties to model-based predictions.
+
+\textbf{Novelty-Based Intrinsic Rewards.} The intrinsic reward $r_{\text{int}}(s, n)$ for sequence $s$ at training round $n$ is computed as:
+%
+\begin{equation}
+r_{\text{int}}(s, n) = \text{novelty}(s) \cdot \alpha_{\text{nov}} \cdot w_{\text{explore}}(n)
+\end{equation}
+%
+where:
 \begin{itemize}
-    \item Novelty-based intrinsic rewards
-    \item Exploration weight decay
+    \item $\text{novelty}(s)$ is the normalized $k$-NN diversity score from Equation (3)
+    \item $\alpha_{\text{nov}} = 0.5$ is the novelty coefficient, scaling the intrinsic reward magnitude
+    \item $w_{\text{explore}}(n)$ is the exploration weight function (detailed below)
 \end{itemize}
 
+The intrinsic reward is added to the oracle reward to form the total reward used in policy updates:
+%
+\begin{equation}
+R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)
+\end{equation}
+%
+This formulation provides a direct incentive for the policy to generate sequences in under-explored regions of the sequence space. The novelty term $\text{novelty}(s)$ ensures that sequences far from existing data receive higher bonuses, while the scaling factor $\alpha_{\text{nov}}$ controls the relative importance of exploration versus exploitation.
 
+Importantly, intrinsic rewards are not applied during the first two rounds ($n \leq 2$) or when the sequence history is empty, as the $k$-NN computation requires sufficient historical context. This warm-up period allows initial data collection before diversity regularization begins.
 
-
-
-
-\subsection{Experimental Setup}
-\subsubsection{Implementation Details}
+\textbf{Exploration Weight Decay.} The exploration weight function $w_{\text{explore}}(n)$ implements a time-dependent decay schedule that gradually reduces the influence of intrinsic rewards as training progresses:
+%
+\begin{equation}
+w_{\text{explore}}(n) = \max\left(0, 1 - \frac{n}{n_{\text{decay}}}\right)
+\end{equation}
+%
+where $n_{\text{decay}} = 10$ is the decay horizon. This linear decay schedule has the following characteristics:
 \begin{itemize}
-    \item Framework: PyTorch for policy network, scikit-learn for surrogate models
-    \item Hardware specifications
+    \item \textbf{Early rounds} ($n \leq n_{\text{decay}}$): $w_{\text{explore}}(n) \in (0, 1]$, providing full to moderate exploration bonuses
+    \item \textbf{Late rounds} ($n > n_{\text{decay}}$): $w_{\text{explore}}(n) = 0$, eliminating intrinsic rewards to focus on exploitation
+    \item \textbf{Linearity}: The weight decreases by $1/n_{\text{decay}} = 0.1$ per round, enabling smooth transition
 \end{itemize}
 
-\subsubsection{Evaluation Metrics}
-\begin{itemize}
-    \item Oracle reward statistics (mean, max, std)
-    \item Model $R^2$ scores
-    \item Sequence diversity
-    \item Oracle call efficiency
-\end{itemize}
+The decay function can be explicitly written as:
+%
+\begin{equation}
+w_{\text{explore}}(n) = \begin{cases}
+1 - 0.1n & \text{if } n \leq 10 \\
+0 & \text{if } n > 10
+\end{cases}
+\end{equation}
 
-\subsubsection{Configuration Variants}
-\begin{itemize}
-    \item Ensemble methods comparison (average, weighted, dynamic)
-    \item Threshold types (fixed vs. dynamic)
-    \item Impact of diversity penalties
-\end{itemize}
+This schedule aligns with the broader exploration-exploitation strategy: in early rounds, when the surrogate models are inaccurate and the oracle function structure is unknown, aggressive exploration via intrinsic rewards helps map the sequence space. As training progresses and high-reward regions are identified, the intrinsic rewards diminish, allowing the policy to focus on refining solutions within promising regions.
 
+For model-based training, diversity is enforced through penalties rather than rewards. The diversity penalty $p_{\text{div}}(s)$ for sequence $s$ during virtual training is:
+%
+\begin{equation}
+p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} w_{\text{sim}}(d_{\text{edit}}(s, s'))
+\end{equation}
+%
+where $\lambda_{\text{div}} = 0.1$ is the diversity penalty coefficient and the similarity weight function is:
+%
+\begin{equation}
+w_{\text{sim}}(d) = \begin{cases}
+\max\left(0, 1 - \frac{d}{\epsilon_{\text{div}}}\right) & \text{if } d \leq \epsilon_{\text{div}} \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+%
+with $\epsilon_{\text{div}} = 3$ defining the similarity threshold. Only sequences within edit distance $\epsilon_{\text{div}}$ contribute to the penalty, with contribution linearly decreasing as distance increases. This localized penalty prevents exact or near-exact duplicates without penalizing moderately different sequences.
 
+During model-based training, the penalty is applied to ensemble predictions:
+%
+\begin{equation}
+R_{\text{virtual}}(s, m) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s) \cdot w_{\text{virtual}}(m)
+\end{equation}
+%
+where $m$ is the virtual round index and:
+%
+\begin{equation}
+w_{\text{virtual}}(m) = \max\left(0.2, 1 - \frac{m}{M}\right)
+\end{equation}
+%
+with $M$ being the total number of virtual rounds. This decay ensures diversity penalties are strongest in early virtual rounds and weaken as model-based training progresses, with a floor of 0.2 maintaining minimal diversity enforcement throughout.
+
+The diversity control framework thus operates on two timescales: (1) \emph{oracle-based training} uses decaying intrinsic rewards (Equations 5-8) to encourage exploration across experiment rounds, and (2) \emph{model-based training} uses decaying penalties (Equations 9-12) to prevent redundancy within each model-based training phase. This dual mechanism ensures comprehensive diversity maintenance throughout the algorithm's execution.
 
 
 
@@ -1513,6 +1878,162 @@ Upon completion, the algorithm returns the trained policy network $\pi_{\theta^*
 
 % ----------------------------------- Experiments and Results
 \section{Experiments and Results}
+\subsection{Experimental Setup}
+
+This section describes the implementation details, evaluation methodology, and experimental configurations used to validate the DyNAPPO algorithm.
+
+\subsubsection{Implementation Details}
+
+The DyNAPPO system is implemented using a hybrid framework that leverages specialized libraries for different algorithmic components.
+
+\textbf{Framework.} The policy optimization component employs \textbf{PyTorch} (version 1.x) for implementing the policy network, value network, and all gradient-based optimization procedures. PyTorch provides automatic differentiation capabilities essential for computing policy gradients and backpropagating through the neural networks during PPO updates. The policy network architecture consists of:
+\begin{itemize}
+    \item \textbf{Input layer}: Context window encoder processing the last 8 tokens with character embeddings (dimension 64) and sinusoidal positional encodings (dimension 64), resulting in input dimension $8 \times 64 + 64 = 576$
+    \item \textbf{Hidden layers}: Two fully connected layers with ReLU activations, each containing 256 hidden units
+    \item \textbf{Output heads}: Separate policy head (softmax over vocabulary size 4) and value head (scalar output)
+\end{itemize}
+
+The surrogate modeling component utilizes \textbf{scikit-learn} (version 1.x) for implementing diverse ensemble models. The surrogate model library includes eight distinct model types:
+\begin{enumerate}
+    \item \textbf{Random Forest} (RF): Ensemble of decision trees with configurable depth and number of estimators
+    \item \textbf{Gradient Boosting} (GB): Sequential boosting with adaptive learning rates
+    \item \textbf{XGBoost} (XGB): Optimized gradient boosting with regularization
+    \item \textbf{K-Nearest Neighbors} (KNN): Instance-based learning with adaptive $k$ selection
+    \item \textbf{Gaussian Process} (GP): Bayesian non-parametric regression with RBF and Matern kernels
+    \item \textbf{Multi-Layer Perceptron} (MLP): Neural network regressor with hidden layers $(128, 64, 32)$
+    \item \textbf{Support Vector Regression} (SVR): Kernel-based regression with RBF and polynomial kernels
+    \item \textbf{Bayesian Ridge Regression}: Probabilistic linear model with L2 regularization
+\end{enumerate}
+
+Model selection is adaptive based on dataset size: simpler models (RF, KNN, Ridge, GP) are preferred for small data ($n < 100$), balanced complexity models for medium data ($100 \leq n < 300$), and complex models (XGBoost, deep MLP, polynomial SVR) for large data ($n \geq 300$). All surrogate models employ standardized input features via \texttt{StandardScaler} normalization.
+
+Optimal ensemble weight learning is implemented through three methods (detailed in Section \ref{sec:ensemble}): (1) \textit{validation-based optimization} using Sequential Least Squares Programming (SLSQP) from \textbf{scipy.optimize}, (2) \textit{ridge regression} from scikit-learn for regularized weight learning, and (3) \textit{performance-based weighting} using softmax over $R^2$ scores.
+
+The complete implementation comprises approximately 1,800 lines of Python code distributed across six primary modules: \texttt{DyNAPPO.py} (main algorithm, 1,819 lines), \texttt{PolicyNetwork.py} (neural architecture, 154 lines), \texttt{SurrogateModel.py} (model wrapper, 70 lines), \texttt{OptimalEnsembleWeights.py} (weight learning, 200 lines), \texttt{SequenceUtils.py} (diversity metrics, 89 lines), and \texttt{LearningMetricsTracker.py} (evaluation, 359 lines).
+
+\textbf{Hardware Specifications.} All experiments were conducted on a workstation with the following configuration:
+\begin{itemize}
+    \item \textbf{Processor}: Apple M-series chip (or equivalent x86-64 architecture)
+    \item \textbf{Memory}: 16 GB RAM minimum for large-scale experiments
+    \item \textbf{Operating System}: macOS 14+ (Darwin kernel) or Linux
+    \item \textbf{Python Version}: 3.8+
+\end{itemize}
+
+No GPU acceleration was required for the experiments presented in this work, as the policy network is relatively shallow (256 hidden units) and the batch size is moderate (32 sequences). A typical training run with $N = 200$ rounds, $M = 5$ virtual rounds, batch size $B = 32$, and sequence length $T = 10$ completes in approximately 300--600 seconds of wall-clock time on the specified hardware.
+
+\subsubsection{Evaluation Metrics}
+
+We employ a comprehensive set of metrics to assess algorithm performance across multiple dimensions: reward maximization, model quality, exploration diversity, and sample efficiency.
+
+\textbf{Oracle Reward Statistics.} The primary performance measure is the quality of generated sequences as evaluated by the oracle function. For each training round $n$, we compute:
+\begin{itemize}
+    \item \textbf{Mean reward}: $\bar{R}_n = \frac{1}{B}\sum_{i=1}^{B} R_{\text{oracle}}(s_i^{(n)})$, where $s_i^{(n)}$ are the $B$ sequences generated at round $n$
+    \item \textbf{Maximum reward}: $R_{\max}^{(n)} = \max_{i=1}^{B} R_{\text{oracle}}(s_i^{(n)})$, tracking the best sequence found per round
+    \item \textbf{Standard deviation}: $\sigma_R^{(n)} = \sqrt{\frac{1}{B-1}\sum_{i=1}^{B}(R_{\text{oracle}}(s_i^{(n)}) - \bar{R}_n)^2}$, measuring reward distribution spread
+\end{itemize}
+
+The cumulative best reward $R_{\max}^{\text{cum}}(n) = \max_{k=1}^{n} R_{\max}^{(k)}$ tracks the highest reward achieved up to round $n$. We also report the \textit{final deterministic performance}: after training completes, the policy is evaluated in deterministic mode (argmax action selection) over 10 sequences, and the mean and maximum rewards are recorded.
+
+\textbf{Model $R^2$ Scores.} Surrogate model quality is assessed using the coefficient of determination ($R^2$ score) computed via 5-fold cross-validation on all available oracle-labeled data at each round. For a model $f$ predicting rewards $\hat{y}_i = f(x_i)$ for true rewards $y_i$, the $R^2$ score is:
+%
+\begin{equation}
+R^2 = 1 - \frac{\sum_{i}(y_i - \hat{y}_i)^2}{\sum_{i}(y_i - \bar{y})^2}
+\end{equation}
+%
+where $\bar{y} = \frac{1}{n}\sum_{i}y_i$ is the mean reward. We track:
+\begin{itemize}
+    \item \textbf{Per-model $R^2$ scores}: Individual scores for each candidate model at each round
+    \item \textbf{Maximum $R^2$}: ${(R^2)}_{\max}^{(n)} = \max_{f \in \mathcal{F}} R^2(f)$, where $\mathcal{F}$ is the model candidate set
+    \item \textbf{Mean $R^2$}: $\overline{R^2}^{(n)} = \frac{1}{|\mathcal{F}|}\sum_{f \in \mathcal{F}} R^2(f)$, averaged over all candidates
+    \item \textbf{Number of accepted models}: Count of models with $R^2 > \tau_n$ used in the ensemble
+\end{itemize}
+
+Additionally, we compute \textit{prediction errors} on held-out validation samples (10 sequences per virtual round) to assess ensemble calibration: $\text{MAE} = \frac{1}{10}\sum_{i=1}^{10}|R_{\text{oracle}}(s_i) - \hat{R}_{\text{ensemble}}(s_i)|$.
+
+\textbf{Sequence Diversity.} Population diversity is quantified using the uniqueness ratio (Equation 4 from Section III):
+%
+\begin{equation}
+\rho_{\text{unique}}^{(n)} = \frac{|\{s : s \in \mathcal{B}_n\}|}{B}
+\end{equation}
+%
+where $\mathcal{B}_n$ is the batch of sequences generated at round $n$. This metric ranges from $1/B$ (all sequences identical) to 1 (all unique). We track diversity across all oracle-based rounds to ensure exploration is maintained throughout training.
+
+\textbf{Oracle Call Efficiency.} A critical metric for real-world applicability is sample efficiency, measured by the number of oracle evaluations required to reach target performance levels. We track:
+\begin{itemize}
+    \item \textbf{Cumulative oracle calls}: $N_{\text{oracle}}^{(n)} = \sum_{k=1}^{n} B_k$, where $B_k$ is the batch size at round $k$
+    \item \textbf{Calls to target}: Minimum $N_{\text{oracle}}$ required to first achieve a specified reward threshold (e.g., $R_{\max} \geq 15$)
+    \item \textbf{Oracle call history}: Tuple $(n, N_{\text{oracle}}^{(n)}, R_{\max}^{\text{cum}}(n))$ for each round, enabling analysis of reward vs. sample complexity trade-offs
+\end{itemize}
+
+For comparison with baselines (pure PPO, random search), we plot reward curves as a function of oracle calls rather than training rounds to ensure fair sample complexity comparisons.
+
+\subsubsection{Configuration Variants}
+
+We systematically evaluate DyNAPPO across multiple configuration axes to assess the contribution of each algorithmic component.
+
+\textbf{Ensemble Methods Comparison.} Three ensemble aggregation strategies are compared:
+\begin{enumerate}
+    \item \textbf{Average} (uniform weighting): $\hat{R}(s) = \frac{1}{|\mathcal{M}|}\sum_{f \in \mathcal{M}} f(s)$, where $\mathcal{M}$ is the set of accepted models. This baseline method assigns equal weight $w_i = 1/|\mathcal{M}|$ to all models regardless of performance.
+
+    \item \textbf{Weighted} (performance-based): $\hat{R}(s) = \sum_{f \in \mathcal{M}} w_f f(s)$ with $w_f \propto \exp(R^2(f) / \tau_T)$, where $\tau_T = 0.1$ is the temperature parameter. Weights are computed via softmax over $R^2$ scores, emphasizing high-quality models while retaining ensemble diversity.
+
+    \item \textbf{Dynamic} (adaptive weighting): Uses a progressive schedule across training:
+    \begin{itemize}
+        \item Early rounds ($n \leq N/3$): Performance-based weights
+        \item Middle rounds ($N/3 < n \leq 2N/3$): Ridge regression weights minimizing validation loss
+        \item Late rounds ($n > 2N/3$): Validation-optimized weights via SLSQP
+    \end{itemize}
+    This method adapts weight learning complexity to data availability and model maturity.
+\end{enumerate}
+
+All three methods share the same model candidate pool and $R^2$ threshold for model selection; only the weight computation differs. We compare these methods on metrics including cumulative reward, convergence speed, and final performance.
+
+\textbf{Threshold Types.} Two $R^2$ threshold schedules are evaluated:
+\begin{enumerate}
+    \item \textbf{Fixed}: $\tau_n = \tau_0 = 0.2$ for all rounds. This provides consistent model quality requirements but may reject useful models in early rounds with limited data.
+
+    \item \textbf{Dynamic}: $\tau_n$ increases linearly from $-0.3$ to $\tau_0 = 0.2$ over rounds $\lfloor N/10 \rfloor$ to $N$ (Equation 15 from Section IV). This lenient initial threshold accepts crude early models, then progressively increases quality standards as more data accumulates.
+\end{enumerate}
+
+For each threshold type, we measure: (1) number of accepted models per round, (2) ensemble $R^2$ vs. oracle reward correlation, and (3) overall sample efficiency. We hypothesize that dynamic thresholds improve early-round model-based training, accelerating exploration.
+
+\textbf{Impact of Diversity Penalties.} To assess the contribution of diversity control mechanisms, we compare three configurations:
+\begin{enumerate}
+    \item \textbf{No diversity control}: $\lambda_{\text{div}} = 0$, $r_{\text{int}} = 0$, disabling all diversity penalties and intrinsic rewards
+
+    \item \textbf{Intrinsic rewards only}: $r_{\text{int}}(s,n)$ enabled (Equation 5--8), but $\lambda_{\text{div}} = 0$ for model-based training. Tests exploration bonuses without virtual training penalties.
+
+    \item \textbf{Full diversity control}: Both intrinsic rewards ($r_{\text{int}}$) and diversity penalties ($p_{\text{div}}$) enabled as specified in Section III. This is the default configuration.
+\end{enumerate}
+
+We measure the impact on sequence diversity ($\rho_{\text{unique}}$), exploration coverage (number of unique sequences in history), and final reward quality. We expect full diversity control to maintain higher diversity while achieving competitive or superior final performance compared to no diversity control.
+
+\textbf{Baseline Comparisons.} DyNAPPO is compared against:
+\begin{itemize}
+    \item \textbf{Pure PPO}: PPO without surrogate models ($M = 0$), using only oracle-based training
+    \item \textbf{Random Search}: Uniform random sequence generation with oracle evaluation, tracking best reward found
+    \item \textbf{Fixed DyNA-PPO}: Standard DyNA-PPO with fixed learning rate, fixed exploration rate, and uniform ensemble weights (no adaptive mechanisms)
+\end{itemize}
+
+All methods use the same oracle function (DNA sequence scoring described below), batch size ($B = 32$), and sequence length ($T = 10$ bases) for fair comparison. The primary comparison metric is cumulative oracle reward versus number of oracle calls.
+
+\textbf{Oracle Function.} Experiments use a complex DNA sequence scoring function that combines eight components: (1) GC content optimality (peak at 50\%), (2) biological motif rewards (EcoRI, BamHI restriction sites, TATA box), (3) position-dependent base preferences, (4) repetitive sequence penalties, (5) local complexity rewards, (6) dinucleotide pair preferences, (7) melting temperature scoring, and (8) Gaussian noise ($\sigma = 0.15$) simulating experimental variability. The function maps 10-base DNA sequences (vocabulary size 4: A, T, G, C) to rewards in approximate range $[0, 20]$. This oracle is intentionally complex and non-smooth to challenge the surrogate models and test the algorithm's robustness to noisy, multimodal reward landscapes.
+
+Each experimental configuration is run with 3 random seeds to account for stochastic variation. We report mean performance across seeds with standard error bars. Statistical significance is assessed using paired t-tests at $\alpha = 0.05$ significance level.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \subsection{Base Comparison}
 We compare the following approaches:

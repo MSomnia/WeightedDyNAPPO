@@ -1,0 +1,144 @@
+\subsection{Diversity Control}
+
+Maintaining sequence diversity is critical for effective exploration and preventing premature convergence to suboptimal solutions. Our diversity control framework combines quantitative diversity metrics with penalty-based regulation mechanisms to ensure broad coverage of the sequence space while avoiding redundant evaluations.
+
+\subsubsection{Sequence Diversity Metrics}
+
+We employ two complementary metrics to quantify sequence diversity: edit distance for pairwise similarity assessment and population-level uniqueness ratio for aggregate diversity measurement.
+
+\textbf{Edit Distance Computation.} The edit distance (Levenshtein distance) $d_{\text{edit}}(s, s')$ between two sequences $s$ and $s'$ measures the minimum number of single-token operations (insertion, deletion, or substitution) required to transform one sequence into the other. This metric provides a granular measure of sequence similarity that respects sequential structure.
+
+Given sequences $s = [s_1, s_2, \ldots, s_m]$ and $s' = [s'_1, s'_2, \ldots, s'_n]$, the edit distance is computed via dynamic programming. Let $D[i,j]$ denote the edit distance between the first $i$ tokens of $s$ and the first $j$ tokens of $s'$. The recurrence relation is:
+%
+\begin{equation}
+D[i,j] = \begin{cases}
+i & \text{if } j = 0 \\
+j & \text{if } i = 0 \\
+D[i-1,j-1] & \text{if } s_i = s'_j \\
+1 + \min\begin{cases}
+D[i-1,j] & \text{(deletion)} \\
+D[i,j-1] & \text{(insertion)} \\
+D[i-1,j-1] & \text{(substitution)}
+\end{cases} & \text{if } s_i \neq s'_j
+\end{cases}
+\end{equation}
+%
+The edit distance is then $d_{\text{edit}}(s, s') = D[m,n]$. The boundary conditions $D[i,0] = i$ and $D[0,j] = j$ represent the cost of transforming an empty sequence to a prefix of length $i$ or $j$ through pure insertions.
+
+This metric has several desirable properties for diversity assessment:
+\begin{itemize}
+    \item \textbf{Symmetry}: $d_{\text{edit}}(s, s') = d_{\text{edit}}(s', s)$
+    \item \textbf{Non-negativity}: $d_{\text{edit}}(s, s') \geq 0$, with equality iff $s = s'$
+    \item \textbf{Triangle inequality}: $d_{\text{edit}}(s, s'') \leq d_{\text{edit}}(s, s') + d_{\text{edit}}(s', s'')$
+    \item \textbf{Bounded range}: $0 \leq d_{\text{edit}}(s, s') \leq \max(|s|, |s'|)$
+\end{itemize}
+
+The computational complexity is $\mathcal{O}(mn)$ where $m = |s|$ and $n = |s'|$. For fixed-length sequences ($m = n = T$), this reduces to $\mathcal{O}(T^2)$.
+
+\textbf{K-Nearest Neighbor Diversity Assessment.} To assess the novelty of a candidate sequence $s$ relative to the exploration history $\mathcal{H}$, we employ a $k$-nearest neighbor ($k$-NN) approach. For each sequence $s' \in \mathcal{H}$, we compute $d_{\text{edit}}(s, s')$. Let $\mathcal{N}_k(s) \subseteq \mathcal{H}$ denote the set of $k$ sequences in $\mathcal{H}$ with smallest edit distances to $s$. The average distance to the $k$-nearest neighbors is:
+%
+\begin{equation}
+\bar{d}_k(s) = \frac{1}{k}\sum_{s' \in \mathcal{N}_k(s)} d_{\text{edit}}(s, s')
+\end{equation}
+%
+We use $k = 5$ as a balance between local neighborhood sensitivity and computational efficiency. To manage computational cost, we restrict the search to the most recent $L = 100$ sequences in the history: $\mathcal{H}_{\text{recent}} = \{s_{N-L+1}, \ldots, s_N\}$ where $N = |\mathcal{H}|$. This windowing strategy has two benefits: (1) reduces computation from $\mathcal{O}(N \cdot T^2)$ to $\mathcal{O}(L \cdot T^2)$, and (2) emphasizes recent exploration patterns while allowing the algorithm to revisit older promising regions.
+
+The normalized diversity score is:
+%
+\begin{equation}
+\text{novelty}(s) = \min\left(1, \frac{\bar{d}_k(s)}{T}\right)
+\end{equation}
+%
+where $T$ is the sequence length. The normalization by $T$ ensures the novelty score lies in $[0, 1]$, with 1 indicating maximum diversity (all $k$ neighbors differ in every position) and 0 indicating exact match with neighbors.
+
+For population-level diversity assessment, we compute the uniqueness ratio of a sequence batch $\mathcal{B}$:
+%
+\begin{equation}
+\rho_{\text{unique}}(\mathcal{B}) = \frac{|\{s : s \in \mathcal{B}\}|}{|\mathcal{B}|}
+\end{equation}
+%
+where the numerator counts distinct sequences (using set cardinality) and the denominator is the batch size. This metric ranges from $\rho_{\text{unique}} = 1/|\mathcal{B}|$ (all sequences identical) to $\rho_{\text{unique}} = 1$ (all sequences unique).
+
+\subsubsection{Diversity Penalties}
+
+To actively encourage diverse exploration, we incorporate novelty-based intrinsic rewards into the policy optimization objective and apply diversity penalties to model-based predictions.
+
+\textbf{Novelty-Based Intrinsic Rewards.} The intrinsic reward $r_{\text{int}}(s, n)$ for sequence $s$ at training round $n$ is computed as:
+%
+\begin{equation}
+r_{\text{int}}(s, n) = \text{novelty}(s) \cdot \alpha_{\text{nov}} \cdot w_{\text{explore}}(n)
+\end{equation}
+%
+where:
+\begin{itemize}
+    \item $\text{novelty}(s)$ is the normalized $k$-NN diversity score from Equation (3)
+    \item $\alpha_{\text{nov}} = 0.5$ is the novelty coefficient, scaling the intrinsic reward magnitude
+    \item $w_{\text{explore}}(n)$ is the exploration weight function (detailed below)
+\end{itemize}
+
+The intrinsic reward is added to the oracle reward to form the total reward used in policy updates:
+%
+\begin{equation}
+R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)
+\end{equation}
+%
+This formulation provides a direct incentive for the policy to generate sequences in under-explored regions of the sequence space. The novelty term $\text{novelty}(s)$ ensures that sequences far from existing data receive higher bonuses, while the scaling factor $\alpha_{\text{nov}}$ controls the relative importance of exploration versus exploitation.
+
+Importantly, intrinsic rewards are not applied during the first two rounds ($n \leq 2$) or when the sequence history is empty, as the $k$-NN computation requires sufficient historical context. This warm-up period allows initial data collection before diversity regularization begins.
+
+\textbf{Exploration Weight Decay.} The exploration weight function $w_{\text{explore}}(n)$ implements a time-dependent decay schedule that gradually reduces the influence of intrinsic rewards as training progresses:
+%
+\begin{equation}
+w_{\text{explore}}(n) = \max\left(0, 1 - \frac{n}{n_{\text{decay}}}\right)
+\end{equation}
+%
+where $n_{\text{decay}} = 10$ is the decay horizon. This linear decay schedule has the following characteristics:
+\begin{itemize}
+    \item \textbf{Early rounds} ($n \leq n_{\text{decay}}$): $w_{\text{explore}}(n) \in (0, 1]$, providing full to moderate exploration bonuses
+    \item \textbf{Late rounds} ($n > n_{\text{decay}}$): $w_{\text{explore}}(n) = 0$, eliminating intrinsic rewards to focus on exploitation
+    \item \textbf{Linearity}: The weight decreases by $1/n_{\text{decay}} = 0.1$ per round, enabling smooth transition
+\end{itemize}
+
+The decay function can be explicitly written as:
+%
+\begin{equation}
+w_{\text{explore}}(n) = \begin{cases}
+1 - 0.1n & \text{if } n \leq 10 \\
+0 & \text{if } n > 10
+\end{cases}
+\end{equation}
+
+This schedule aligns with the broader exploration-exploitation strategy: in early rounds, when the surrogate models are inaccurate and the oracle function structure is unknown, aggressive exploration via intrinsic rewards helps map the sequence space. As training progresses and high-reward regions are identified, the intrinsic rewards diminish, allowing the policy to focus on refining solutions within promising regions.
+
+For model-based training, diversity is enforced through penalties rather than rewards. The diversity penalty $p_{\text{div}}(s)$ for sequence $s$ during virtual training is:
+%
+\begin{equation}
+p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} w_{\text{sim}}(d_{\text{edit}}(s, s'))
+\end{equation}
+%
+where $\lambda_{\text{div}} = 0.1$ is the diversity penalty coefficient and the similarity weight function is:
+%
+\begin{equation}
+w_{\text{sim}}(d) = \begin{cases}
+\max\left(0, 1 - \frac{d}{\epsilon_{\text{div}}}\right) & \text{if } d \leq \epsilon_{\text{div}} \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+%
+with $\epsilon_{\text{div}} = 3$ defining the similarity threshold. Only sequences within edit distance $\epsilon_{\text{div}}$ contribute to the penalty, with contribution linearly decreasing as distance increases. This localized penalty prevents exact or near-exact duplicates without penalizing moderately different sequences.
+
+During model-based training, the penalty is applied to ensemble predictions:
+%
+\begin{equation}
+R_{\text{virtual}}(s, m) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s) \cdot w_{\text{virtual}}(m)
+\end{equation}
+%
+where $m$ is the virtual round index and:
+%
+\begin{equation}
+w_{\text{virtual}}(m) = \max\left(0.2, 1 - \frac{m}{M}\right)
+\end{equation}
+%
+with $M$ being the total number of virtual rounds. This decay ensures diversity penalties are strongest in early virtual rounds and weaken as model-based training progresses, with a floor of 0.2 maintaining minimal diversity enforcement throughout.
+
+The diversity control framework thus operates on two timescales: (1) \emph{oracle-based training} uses decaying intrinsic rewards (Equations 5-8) to encourage exploration across experiment rounds, and (2) \emph{model-based training} uses decaying penalties (Equations 9-12) to prevent redundancy within each model-based training phase. This dual mechanism ensures comprehensive diversity maintenance throughout the algorithm's execution.

@@ -1,0 +1,163 @@
+\subsection{Policy Optimization}
+
+The policy optimization component of DyNAPPO combines Proximal Policy Optimization (PPO) with adaptive mechanisms and sophisticated reward engineering strategies. This section details the mathematical formulations and implementation strategies employed in the system.
+
+\subsubsection{PPO Loss Function}
+
+The core of our policy optimization is built upon the PPO algorithm with three key components: the clipped surrogate objective, value function loss, and entropy regularization.
+
+\textbf{Clipped Surrogate Objective.} The policy loss employs the PPO clipped objective to ensure stable policy updates. For each sequence trajectory, we compute the probability ratio between the current policy $\pi_{\theta}$ and the old policy $\pi_{\theta_{\text{old}}}$:
+%
+\begin{equation}
+r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)} = \exp(\log \pi_{\theta}(a_t|s_t) - \log \pi_{\theta_{\text{old}}}(a_t|s_t))
+\end{equation}
+%
+The clipped surrogate objective is then defined as:
+%
+\begin{equation}
+L^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[\min\left(r_t(\theta)\hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\right)\right]
+\end{equation}
+%
+where $\hat{A}_t$ represents the advantage function computed as $\hat{A}_t = R_t - V_{\theta}(s_t)$, with $R_t$ being the normalized reward and $V_{\theta}(s_t)$ the value function estimate. The clip ratio $\epsilon$ prevents excessively large policy updates.
+
+\textbf{Value Function Loss.} The value function is trained to predict expected returns using mean squared error:
+%
+\begin{equation}
+L^{VF}(\theta) = \mathbb{E}_t\left[\left(V_{\theta}(s_t) - R_t\right)^2\right]
+\end{equation}
+%
+where $V_{\theta}(s_t)$ is the predicted value and $R_t$ is the target return. The value function serves as a baseline to reduce variance in advantage estimates.
+
+\textbf{Entropy Regularization.} To encourage exploration, we incorporate an entropy bonus term:
+%
+\begin{equation}
+L^{ENT}(\theta) = -\mathbb{E}_t\left[H(\pi_{\theta}(\cdot|s_t))\right] = -\mathbb{E}_t\left[\sum_{a} \pi_{\theta}(a|s_t)\log \pi_{\theta}(a|s_t)\right]
+\end{equation}
+%
+The total loss function combines these three components:
+%
+\begin{equation}
+L^{TOTAL}(\theta) = -L^{\text{CLIP}}(\theta) + c_1 L^{VF}(\theta) + c_2 L^{ENT}(\theta) + \lambda_{L2}\|\theta\|^2
+\end{equation}
+%
+where $c_1 = 0.5$ is the value function coefficient, $c_2$ is the entropy coefficient (detailed in the next section), and $\lambda_{L2} = 0.0001$ provides L2 regularization to prevent overfitting.
+
+\subsubsection{Adaptive Mechanisms}
+
+Our implementation incorporates several adaptive mechanisms that adjust hyperparameters based on training progress and reward statistics.
+
+\textbf{Dynamic Clip Ratio.} The PPO clip ratio $\epsilon$ adapts based on training round and reward variance:
+%
+\begin{equation}
+\epsilon_n = \begin{cases}
+0.3 & \text{if } n \leq 3 \text{ (early exploration)} \\
+0.1 & \text{if } \sigma_r > 2.0 \text{ (high variance)} \\
+0.2 & \text{otherwise (standard)}
+\end{cases}
+\end{equation}
+%
+where $n$ is the current round number and $\sigma_r$ is the standard deviation of rewards in the current batch. Early rounds use larger clip ratios to permit more aggressive exploration, while high variance scenarios require conservative updates.
+
+\textbf{KL Divergence-Based Early Stopping.} To prevent catastrophic policy collapse, we monitor the KL divergence between old and new policies:
+%
+\begin{equation}
+D_{KL}(\pi_{\theta_{\text{old}}} \| \pi_{\theta}) = \mathbb{E}_{s,a \sim \pi_{\theta_{\text{old}}}}\left[\log \pi_{\theta_{\text{old}}}(a|s) - \log \pi_{\theta}(a|s)\right]
+\end{equation}
+%
+If $D_{KL} > 0.05$ during any epoch after the first, training terminates early to preserve policy stability.
+
+\textbf{Gradient Clipping.} Gradient norms are clipped adaptively based on training progress:
+%
+\begin{equation}
+\text{max\_grad\_norm} = \begin{cases}
+1.0 & \text{if } n \leq 3 \\
+0.5 & \text{if } n > 3
+\end{cases}
+\end{equation}
+%
+This prevents gradient explosion while allowing larger updates during early exploration phases.
+
+\textbf{Adaptive Entropy Coefficient.} The entropy regularization coefficient decreases over training to transition from exploration to exploitation:
+%
+\begin{equation}
+c_2 = \begin{cases}
+0.02 & \text{if } n \leq 3 \text{ (high exploration)} \\
+0.01 & \text{if } 3 < n \leq 7 \text{ (moderate exploration)} \\
+0.005 & \text{if } n > 7 \text{ (low exploration)}
+\end{cases}
+\end{equation}
+%
+For model-based (virtual) training rounds, the entropy coefficient is further reduced by a factor of 0.5 to focus on exploitation of surrogate model predictions.
+
+\textbf{Adaptive Reward Normalization.} Rewards are normalized using statistics-aware strategies. For high-variance reward distributions ($\sigma_r > 3.0$), we employ robust normalization using median absolute deviation (MAD):
+%
+\begin{equation}
+\tilde{R}_i = \frac{R_i - \text{median}(R)}{\text{MAD}(R) + \epsilon}, \quad \text{MAD}(R) = \text{median}(|R_i - \text{median}(R)|)
+\end{equation}
+%
+For lower variance scenarios, standard z-score normalization is used:
+%
+\begin{equation}
+\tilde{R}_i = \frac{R_i - \mu_R}{\sigma_R + \epsilon}
+\end{equation}
+%
+where $\epsilon = 10^{-8}$ prevents division by zero.
+
+\subsubsection{Reward Engineering}
+
+The reward signal combines extrinsic oracle rewards with intrinsic motivation signals and diversity penalties to guide effective exploration.
+
+\textbf{Intrinsic Rewards for Exploration.} To encourage exploration of under-explored regions of the sequence space, we compute novelty-based intrinsic rewards. For a candidate sequence $s$, we measure its distance to the $k$-nearest neighbors in the sequence history:
+%
+\begin{equation}
+d_{\text{avg}}(s) = \frac{1}{k}\sum_{i=1}^{k} d_{\text{edit}}(s, s_i^{(k)})
+\end{equation}
+%
+where $d_{\text{edit}}(s, s')$ is the edit distance (Levenshtein distance) between sequences, and $s_i^{(k)}$ are the $k=5$ nearest historical sequences. The intrinsic reward is then:
+%
+\begin{equation}
+r_{\text{int}}(s, n) = \min\left(1.0, \frac{d_{\text{avg}}(s)}{T}\right) \cdot 0.5 \cdot \max(0, 1 - n/10)
+\end{equation}
+%
+where $T$ is the sequence length and $n$ is the current training round. This formulation provides stronger exploration bonuses in early rounds and gradually reduces them as training progresses.
+
+\textbf{Diversity Penalties.} To prevent the policy from collapsing to repetitive sequences, we apply diversity penalties during model-based training. For a candidate sequence $s$, the penalty is computed as:
+%
+\begin{equation}
+p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} w(d_{\text{edit}}(s, s'))
+\end{equation}
+%
+where $\mathcal{H}$ is the sequence history, $\lambda_{\text{div}} = 0.1$ is the diversity coefficient, and the weight function is:
+%
+\begin{equation}
+w(d) = \begin{cases}
+\max\left(0, 1 - \frac{d}{\epsilon_{\text{div}}}\right) & \text{if } d \leq \epsilon_{\text{div}} \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+%
+with $\epsilon_{\text{div}} = 3$ defining the similarity threshold. This linear decay function ensures that sequences within edit distance 3 receive penalties proportional to their similarity.
+
+During model-based training, the diversity penalty weight decays across virtual rounds:
+%
+\begin{equation}
+\lambda_{\text{div}}^{(m)} = \lambda_{\text{div}} \cdot \max\left(0.2, 1 - \frac{m}{M}\right)
+\end{equation}
+%
+where $m$ is the current virtual round and $M$ is the total number of virtual rounds.
+
+\textbf{Reward Normalization Strategies.} The final reward for each sequence combines the oracle reward with intrinsic exploration bonuses:
+%
+\begin{equation}
+R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)
+\end{equation}
+%
+For model-based training, predicted rewards are adjusted with diversity penalties:
+%
+\begin{equation}
+R_{\text{virtual}}(s) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s)
+\end{equation}
+%
+where $\hat{R}_{\text{ensemble}}(s)$ is the ensemble prediction from surrogate models.
+
+These reward engineering strategies work synergistically with the adaptive PPO mechanisms to balance exploration and exploitation throughout training, enabling the discovery of high-quality sequences while maintaining population diversity.

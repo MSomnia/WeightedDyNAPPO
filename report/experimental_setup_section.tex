@@ -1,0 +1,142 @@
+\subsection{Experimental Setup}
+
+This section describes the implementation details, evaluation methodology, and experimental configurations used to validate the DyNAPPO algorithm.
+
+\subsubsection{Implementation Details}
+
+The DyNAPPO system is implemented using a hybrid framework that leverages specialized libraries for different algorithmic components.
+
+\textbf{Framework.} The policy optimization component employs \textbf{PyTorch} (version 1.x) for implementing the policy network, value network, and all gradient-based optimization procedures. PyTorch provides automatic differentiation capabilities essential for computing policy gradients and backpropagating through the neural networks during PPO updates. The policy network architecture consists of:
+\begin{itemize}
+    \item \textbf{Input layer}: Context window encoder processing the last 8 tokens with character embeddings (dimension 64) and sinusoidal positional encodings (dimension 64), resulting in input dimension $8 \times 64 + 64 = 576$
+    \item \textbf{Hidden layers}: Two fully connected layers with ReLU activations, each containing 256 hidden units
+    \item \textbf{Output heads}: Separate policy head (softmax over vocabulary size 4) and value head (scalar output)
+\end{itemize}
+
+The surrogate modeling component utilizes \textbf{scikit-learn} (version 1.x) for implementing diverse ensemble models. The surrogate model library includes eight distinct model types:
+\begin{enumerate}
+    \item \textbf{Random Forest} (RF): Ensemble of decision trees with configurable depth and number of estimators
+    \item \textbf{Gradient Boosting} (GB): Sequential boosting with adaptive learning rates
+    \item \textbf{XGBoost} (XGB): Optimized gradient boosting with regularization
+    \item \textbf{K-Nearest Neighbors} (KNN): Instance-based learning with adaptive $k$ selection
+    \item \textbf{Gaussian Process} (GP): Bayesian non-parametric regression with RBF and Matern kernels
+    \item \textbf{Multi-Layer Perceptron} (MLP): Neural network regressor with hidden layers $(128, 64, 32)$
+    \item \textbf{Support Vector Regression} (SVR): Kernel-based regression with RBF and polynomial kernels
+    \item \textbf{Bayesian Ridge Regression}: Probabilistic linear model with L2 regularization
+\end{enumerate}
+
+Model selection is adaptive based on dataset size: simpler models (RF, KNN, Ridge, GP) are preferred for small data ($n < 100$), balanced complexity models for medium data ($100 \leq n < 300$), and complex models (XGBoost, deep MLP, polynomial SVR) for large data ($n \geq 300$). All surrogate models employ standardized input features via \texttt{StandardScaler} normalization.
+
+Optimal ensemble weight learning is implemented through three methods (detailed in Section \ref{sec:ensemble}): (1) \textit{validation-based optimization} using Sequential Least Squares Programming (SLSQP) from \textbf{scipy.optimize}, (2) \textit{ridge regression} from scikit-learn for regularized weight learning, and (3) \textit{performance-based weighting} using softmax over $R^2$ scores.
+
+The complete implementation comprises approximately 1,800 lines of Python code distributed across six primary modules: \texttt{DyNAPPO.py} (main algorithm, 1,819 lines), \texttt{PolicyNetwork.py} (neural architecture, 154 lines), \texttt{SurrogateModel.py} (model wrapper, 70 lines), \texttt{OptimalEnsembleWeights.py} (weight learning, 200 lines), \texttt{SequenceUtils.py} (diversity metrics, 89 lines), and \texttt{LearningMetricsTracker.py} (evaluation, 359 lines).
+
+\textbf{Hardware Specifications.} All experiments were conducted on a workstation with the following configuration:
+\begin{itemize}
+    \item \textbf{Processor}: Apple M-series chip (or equivalent x86-64 architecture)
+    \item \textbf{Memory}: 16 GB RAM minimum for large-scale experiments
+    \item \textbf{Operating System}: macOS 14+ (Darwin kernel) or Linux
+    \item \textbf{Python Version}: 3.8+
+\end{itemize}
+
+No GPU acceleration was required for the experiments presented in this work, as the policy network is relatively shallow (256 hidden units) and the batch size is moderate (32 sequences). A typical training run with $N = 200$ rounds, $M = 5$ virtual rounds, batch size $B = 32$, and sequence length $T = 10$ completes in approximately 300--600 seconds of wall-clock time on the specified hardware.
+
+\subsubsection{Evaluation Metrics}
+
+We employ a comprehensive set of metrics to assess algorithm performance across multiple dimensions: reward maximization, model quality, exploration diversity, and sample efficiency.
+
+\textbf{Oracle Reward Statistics.} The primary performance measure is the quality of generated sequences as evaluated by the oracle function. For each training round $n$, we compute:
+\begin{itemize}
+    \item \textbf{Mean reward}: $\bar{R}_n = \frac{1}{B}\sum_{i=1}^{B} R_{\text{oracle}}(s_i^{(n)})$, where $s_i^{(n)}$ are the $B$ sequences generated at round $n$
+    \item \textbf{Maximum reward}: $R_{\max}^{(n)} = \max_{i=1}^{B} R_{\text{oracle}}(s_i^{(n)})$, tracking the best sequence found per round
+    \item \textbf{Standard deviation}: $\sigma_R^{(n)} = \sqrt{\frac{1}{B-1}\sum_{i=1}^{B}(R_{\text{oracle}}(s_i^{(n)}) - \bar{R}_n)^2}$, measuring reward distribution spread
+\end{itemize}
+
+The cumulative best reward $R_{\max}^{\text{cum}}(n) = \max_{k=1}^{n} R_{\max}^{(k)}$ tracks the highest reward achieved up to round $n$. We also report the \textit{final deterministic performance}: after training completes, the policy is evaluated in deterministic mode (argmax action selection) over 10 sequences, and the mean and maximum rewards are recorded.
+
+\textbf{Model $R^2$ Scores.} Surrogate model quality is assessed using the coefficient of determination ($R^2$ score) computed via 5-fold cross-validation on all available oracle-labeled data at each round. For a model $f$ predicting rewards $\hat{y}_i = f(x_i)$ for true rewards $y_i$, the $R^2$ score is:
+%
+\begin{equation}
+R^2 = 1 - \frac{\sum_{i}(y_i - \hat{y}_i)^2}{\sum_{i}(y_i - \bar{y})^2}
+\end{equation}
+%
+where $\bar{y} = \frac{1}{n}\sum_{i}y_i$ is the mean reward. We track:
+\begin{itemize}
+    \item \textbf{Per-model $R^2$ scores}: Individual scores for each candidate model at each round
+    \item \textbf{Maximum $R^2$}: $R^2_{\max}^{(n)} = \max_{f \in \mathcal{F}} R^2(f)$, where $\mathcal{F}$ is the model candidate set
+    \item \textbf{Mean $R^2$}: $\overline{R^2}^{(n)} = \frac{1}{|\mathcal{F}|}\sum_{f \in \mathcal{F}} R^2(f)$, averaged over all candidates
+    \item \textbf{Number of accepted models}: Count of models with $R^2 > \tau_n$ used in the ensemble
+\end{itemize}
+
+Additionally, we compute \textit{prediction errors} on held-out validation samples (10 sequences per virtual round) to assess ensemble calibration: $\text{MAE} = \frac{1}{10}\sum_{i=1}^{10}|R_{\text{oracle}}(s_i) - \hat{R}_{\text{ensemble}}(s_i)|$.
+
+\textbf{Sequence Diversity.} Population diversity is quantified using the uniqueness ratio (Equation 4 from Section III):
+%
+\begin{equation}
+\rho_{\text{unique}}^{(n)} = \frac{|\{s : s \in \mathcal{B}_n\}|}{B}
+\end{equation}
+%
+where $\mathcal{B}_n$ is the batch of sequences generated at round $n$. This metric ranges from $1/B$ (all sequences identical) to 1 (all unique). We track diversity across all oracle-based rounds to ensure exploration is maintained throughout training.
+
+\textbf{Oracle Call Efficiency.} A critical metric for real-world applicability is sample efficiency, measured by the number of oracle evaluations required to reach target performance levels. We track:
+\begin{itemize}
+    \item \textbf{Cumulative oracle calls}: $N_{\text{oracle}}^{(n)} = \sum_{k=1}^{n} B_k$, where $B_k$ is the batch size at round $k$
+    \item \textbf{Calls to target}: Minimum $N_{\text{oracle}}$ required to first achieve a specified reward threshold (e.g., $R_{\max} \geq 15$)
+    \item \textbf{Oracle call history}: Tuple $(n, N_{\text{oracle}}^{(n)}, R_{\max}^{\text{cum}}(n))$ for each round, enabling analysis of reward vs. sample complexity trade-offs
+\end{itemize}
+
+For comparison with baselines (pure PPO, random search), we plot reward curves as a function of oracle calls rather than training rounds to ensure fair sample complexity comparisons.
+
+\subsubsection{Configuration Variants}
+
+We systematically evaluate DyNAPPO across multiple configuration axes to assess the contribution of each algorithmic component.
+
+\textbf{Ensemble Methods Comparison.} Three ensemble aggregation strategies are compared:
+\begin{enumerate}
+    \item \textbf{Average} (uniform weighting): $\hat{R}(s) = \frac{1}{|\mathcal{M}|}\sum_{f \in \mathcal{M}} f(s)$, where $\mathcal{M}$ is the set of accepted models. This baseline method assigns equal weight $w_i = 1/|\mathcal{M}|$ to all models regardless of performance.
+
+    \item \textbf{Weighted} (performance-based): $\hat{R}(s) = \sum_{f \in \mathcal{M}} w_f f(s)$ with $w_f \propto \exp(R^2(f) / \tau_T)$, where $\tau_T = 0.1$ is the temperature parameter. Weights are computed via softmax over $R^2$ scores, emphasizing high-quality models while retaining ensemble diversity.
+
+    \item \textbf{Dynamic} (adaptive weighting): Uses a progressive schedule across training:
+    \begin{itemize}
+        \item Early rounds ($n \leq N/3$): Performance-based weights
+        \item Middle rounds ($N/3 < n \leq 2N/3$): Ridge regression weights minimizing validation loss
+        \item Late rounds ($n > 2N/3$): Validation-optimized weights via SLSQP
+    \end{itemize}
+    This method adapts weight learning complexity to data availability and model maturity.
+\end{enumerate}
+
+All three methods share the same model candidate pool and $R^2$ threshold for model selection; only the weight computation differs. We compare these methods on metrics including cumulative reward, convergence speed, and final performance.
+
+\textbf{Threshold Types.} Two $R^2$ threshold schedules are evaluated:
+\begin{enumerate}
+    \item \textbf{Fixed}: $\tau_n = \tau_0 = 0.2$ for all rounds. This provides consistent model quality requirements but may reject useful models in early rounds with limited data.
+
+    \item \textbf{Dynamic}: $\tau_n$ increases linearly from $-0.3$ to $\tau_0 = 0.2$ over rounds $\lfloor N/10 \rfloor$ to $N$ (Equation 15 from Section IV). This lenient initial threshold accepts crude early models, then progressively increases quality standards as more data accumulates.
+\end{enumerate}
+
+For each threshold type, we measure: (1) number of accepted models per round, (2) ensemble $R^2$ vs. oracle reward correlation, and (3) overall sample efficiency. We hypothesize that dynamic thresholds improve early-round model-based training, accelerating exploration.
+
+\textbf{Impact of Diversity Penalties.} To assess the contribution of diversity control mechanisms, we compare three configurations:
+\begin{enumerate}
+    \item \textbf{No diversity control}: $\lambda_{\text{div}} = 0$, $r_{\text{int}} = 0$, disabling all diversity penalties and intrinsic rewards
+
+    \item \textbf{Intrinsic rewards only}: $r_{\text{int}}(s,n)$ enabled (Equation 5--8), but $\lambda_{\text{div}} = 0$ for model-based training. Tests exploration bonuses without virtual training penalties.
+
+    \item \textbf{Full diversity control}: Both intrinsic rewards ($r_{\text{int}}$) and diversity penalties ($p_{\text{div}}$) enabled as specified in Section III. This is the default configuration.
+\end{enumerate}
+
+We measure the impact on sequence diversity ($\rho_{\text{unique}}$), exploration coverage (number of unique sequences in history), and final reward quality. We expect full diversity control to maintain higher diversity while achieving competitive or superior final performance compared to no diversity control.
+
+\textbf{Baseline Comparisons.} DyNAPPO is compared against:
+\begin{itemize}
+    \item \textbf{Pure PPO}: PPO without surrogate models ($M = 0$), using only oracle-based training
+    \item \textbf{Random Search}: Uniform random sequence generation with oracle evaluation, tracking best reward found
+    \item \textbf{Fixed DyNA-PPO}: Standard DyNA-PPO with fixed learning rate, fixed exploration rate, and uniform ensemble weights (no adaptive mechanisms)
+\end{itemize}
+
+All methods use the same oracle function (DNA sequence scoring described below), batch size ($B = 32$), and sequence length ($T = 10$ bases) for fair comparison. The primary comparison metric is cumulative oracle reward versus number of oracle calls.
+
+\textbf{Oracle Function.} Experiments use a complex DNA sequence scoring function that combines eight components: (1) GC content optimality (peak at 50\%), (2) biological motif rewards (EcoRI, BamHI restriction sites, TATA box), (3) position-dependent base preferences, (4) repetitive sequence penalties, (5) local complexity rewards, (6) dinucleotide pair preferences, (7) melting temperature scoring, and (8) Gaussian noise ($\sigma = 0.15$) simulating experimental variability. The function maps 10-base DNA sequences (vocabulary size 4: A, T, G, C) to rewards in approximate range $[0, 20]$. This oracle is intentionally complex and non-smooth to challenge the surrogate models and test the algorithm's robustness to noisy, multimodal reward landscapes.
+
+Each experimental configuration is run with 3 random seeds to account for stochastic variation. We report mean performance across seeds with standard error bars. Statistical significance is assessed using paired t-tests at $\alpha = 0.05$ significance level.

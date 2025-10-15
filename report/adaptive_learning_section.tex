@@ -1,0 +1,134 @@
+\subsection{Adaptive Learning Mechanisms}
+
+The training process incorporates multiple adaptive mechanisms that dynamically adjust learning parameters based on training progress, performance trends, and data characteristics. These mechanisms enable the system to automatically transition from exploration to exploitation phases while maintaining training stability.
+
+\subsubsection{Learning Rate Scheduling}
+
+The learning rate schedule combines two complementary strategies: a cyclical schedule for escaping local minima and performance-based adjustments for convergence optimization.
+
+\textbf{Cosine Annealing with Warm Restarts.} The base learning rate follows a cosine annealing schedule with periodic warm restarts to help the optimization escape local minima and explore different regions of the parameter space. Given a base learning rate $\eta_{\text{base}} = 3 \times 10^{-4}$ and minimum learning rate $\eta_{\text{min}} = 1 \times 10^{-5}$, the scheduled learning rate at round $n$ is computed as:
+%
+\begin{equation}
+\eta_{\text{scheduled}}(n) = \eta_{\text{min}} + \frac{\eta_{\text{base}} - \eta_{\text{min}}}{2}\left(1 + \cos\left(\frac{\pi \cdot (n \bmod P)}{P}\right)\right)
+\end{equation}
+%
+where $P = 5$ is the period of warm restarts. This schedule creates a sawtooth pattern where the learning rate starts high at the beginning of each period and gradually decreases following a cosine curve. At the end of each period, the learning rate is abruptly reset to $\eta_{\text{base}}$, providing a ``warm restart'' that can help escape shallow local minima.
+
+The cosine function $\cos(\pi \cdot (n \bmod P) / P)$ evaluates to 1 at the start of each period and -1 at the end, creating smooth transitions. The modulo operation $(n \bmod P)$ ensures the schedule repeats every $P$ rounds, allowing multiple exploration-exploitation cycles throughout training.
+
+\textbf{Performance-Based Adjustment.} The scheduled learning rate is further refined based on recent performance trends. Let $\mathcal{T}_n = \{r_{n-2}, r_{n-1}, r_n\}$ denote the set of mean rewards from the three most recent rounds. We analyze the variance and monotonicity of this trend to adjust the learning rate:
+%
+\begin{equation}
+\eta_{\text{adjusted}}(n) = \begin{cases}
+0.5 \cdot \eta_{\text{scheduled}}(n) & \text{if } \text{Var}(\mathcal{T}_n) < 0.01 \text{ (plateau)} \\
+1.2 \cdot \eta_{\text{scheduled}}(n) & \text{if } r_{n-2} < r_{n-1} < r_n \text{ (improvement)} \\
+\eta_{\text{scheduled}}(n) & \text{otherwise (normal)}
+\end{cases}
+\end{equation}
+%
+The plateau detection condition $\text{Var}(\mathcal{T}_n) < 0.01$ identifies when performance has stabilized, triggering a 50\% learning rate reduction to encourage fine-grained convergence. Conversely, consistent improvement across three consecutive rounds indicates the model is in a favorable region of the loss landscape, warranting a 20\% learning rate increase to accelerate optimization.
+
+The final learning rate is clipped to the valid range:
+%
+\begin{equation}
+\eta(n) = \text{clip}(\eta_{\text{adjusted}}(n), \eta_{\text{min}}, \eta_{\text{base}})
+\end{equation}
+%
+This hybrid approach balances the benefits of cyclical schedules (exploration through periodic resets) with reactive adaptation to empirical performance, creating a robust learning rate policy.
+
+\subsubsection{Exploration Scheduling}
+
+Effective exploration-exploitation balance is achieved through coordinated scheduling of multiple exploration-related hyperparameters.
+
+\textbf{Decaying Exploration Rate over Rounds.} The exploration rate $\varepsilon_n$ controls the probability of random actions during sequence generation and follows a piecewise linear decay schedule:
+%
+\begin{equation}
+\varepsilon_n = \begin{cases}
+0.3 & \text{if } n \leq 3 \\
+\max(0.15, 0.4 - 0.03n) & \text{if } 3 < n \leq 7 \\
+\max(0.05, 0.2 - 0.015n) & \text{if } n > 7
+\end{cases}
+\end{equation}
+%
+This three-stage schedule implements an aggressive exploration strategy in early rounds ($\varepsilon = 0.3$), followed by gradual decay during the middle phase, and finally maintaining a minimum exploration rate of 0.05 in later rounds to preserve discovery of novel high-quality sequences.
+
+The decay rates are carefully calibrated: the middle phase uses a faster decay rate ($-0.03$ per round) to quickly reduce random exploration once initial coverage is achieved, while the late phase uses a gentler decay ($-0.015$ per round) to smoothly transition to near-greedy exploitation. The floor values (0.15 and 0.05) prevent complete elimination of exploration, which could lead to premature convergence.
+
+\textbf{Adaptive Entropy Coefficients.} As described in the policy optimization section, the entropy regularization coefficient $c_2$ follows a similar decay pattern:
+%
+\begin{equation}
+c_2(n) = \begin{cases}
+0.02 & \text{if } n \leq 3 \\
+0.01 & \text{if } 3 < n \leq 7 \\
+0.005 & \text{if } n > 7
+\end{cases}
+\end{equation}
+%
+The entropy coefficient directly influences the policy's stochasticity by penalizing deterministic policies during optimization. High values ($c_2 = 0.02$) in early rounds encourage uniform action distributions, promoting broad exploration of the sequence space. The coefficient is progressively reduced by factors of 2, allowing the policy to gradually sharpen its distribution around high-reward actions.
+
+For model-based (virtual) training rounds, the entropy coefficient is further scaled by a factor of 0.5:
+%
+\begin{equation}
+c_2^{\text{virtual}}(n) = 0.5 \cdot c_2(n)
+\end{equation}
+%
+This reduction reflects the fact that surrogate model predictions are less reliable than oracle evaluations, and thus exploitation of predicted high-reward regions should be tempered to avoid overfitting to model errors.
+
+The number of policy update epochs also adapts to the training phase:
+%
+\begin{equation}
+E_n = \begin{cases}
+8 & \text{if } n \leq 3 \text{ (thorough early learning)} \\
+4 & \text{if } 3 < n \leq 7 \text{ (balanced updates)} \\
+2 & \text{if } n > 7 \text{ (fast convergence)}
+\end{cases}
+\end{equation}
+%
+More epochs in early rounds allow the policy to fully incorporate diverse exploration experiences, while fewer epochs in later rounds prevent overfitting and reduce computational overhead.
+
+\subsubsection{Threshold Management}
+
+The $R^2$ threshold $\tau_n$ determines which surrogate models are considered sufficiently accurate for model-based training. The system supports two threshold management modes: fixed and dynamic.
+
+\textbf{Fixed vs. Dynamic Threshold Modes.} In \emph{fixed} mode, the threshold remains constant throughout training:
+%
+\begin{equation}
+\tau_n^{\text{fixed}} = \tau_0 \quad \forall n
+\end{equation}
+%
+where $\tau_0$ is a user-specified value (typically $\tau_0 = 0.2$). This mode is suitable when the oracle function's complexity is well-understood and consistent model quality is expected.
+
+In \emph{dynamic} mode, the threshold gradually increases to accommodate improving model quality as more training data accumulates. This mode is more robust for complex oracle functions where initial model quality may be poor.
+
+\textbf{Linear Interpolation for Dynamic Thresholds.} The dynamic threshold follows a piecewise linear schedule with an initial warm-up phase:
+%
+\begin{equation}
+\tau_n^{\text{dynamic}} = \begin{cases}
+\tau_{\text{start}} & \text{if } n < n_{\text{warmup}} \\
+\min\left(\tau_{\text{end}}, \tau_{\text{start}} + (n - n_{\text{warmup}}) \cdot \delta_{\tau}\right) & \text{if } n \geq n_{\text{warmup}}
+\end{cases}
+\end{equation}
+%
+where:
+\begin{itemize}
+    \item $\tau_{\text{start}} = -0.3$ is the initial threshold, allowing even poorly performing models in early rounds
+    \item $\tau_{\text{end}} = \tau_0$ is the target final threshold (user-specified)
+    \item $n_{\text{warmup}} = \lfloor N/10 \rfloor$ is the warm-up period (10\% of total rounds)
+    \item $\delta_{\tau} = 0.01$ is the threshold increment per round
+\end{itemize}
+
+The warm-up phase ($n < n_{\text{warmup}}$) maintains a lenient threshold $\tau_{\text{start}} = -0.3$, accepting models that explain less variance than a constant mean predictor ($R^2 < 0$). This is justified because: (1) initial training data is limited and may not reveal the oracle's true structure, (2) even crude models can provide useful guidance for exploration, and (3) rejecting all models would reduce the algorithm to pure PPO, forfeiting the sample efficiency benefits of model-based training.
+
+After the warm-up phase, the threshold increases linearly at rate $\delta_{\tau} = 0.01$ per round until reaching $\tau_{\text{end}}$. The linear growth ensures that model quality requirements increase proportionally with data availability, preventing the use of stale or inadequate models in later rounds when sufficient data exists to train accurate surrogates.
+
+The minimum operator in Equation (15) ensures the threshold never exceeds $\tau_{\text{end}}$, providing an upper bound on model quality requirements. This prevents overly stringent thresholds that might reject useful models due to inherent oracle stochasticity or complexity.
+
+\textbf{Threshold History Tracking.} The system maintains a complete history of threshold values:
+%
+\begin{equation}
+\mathcal{H}_{\tau} = \{(n, \tau_n) : n = 1, 2, \ldots, N\}
+\end{equation}
+%
+This history enables post-hoc analysis of the relationship between threshold settings, model selection decisions, and overall algorithm performance. The stored history facilitates hyperparameter tuning and provides insights into the data efficiency characteristics of different threshold schedules.
+
+Together, these adaptive mechanisms create a cohesive training strategy that automatically adjusts learning dynamics based on training progress, enabling robust optimization across diverse oracle functions without manual hyperparameter tuning for each specific problem instance.
