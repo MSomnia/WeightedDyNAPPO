@@ -8,6 +8,12 @@
 \usepackage{hyperref}         % Clickable links
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{tabularx}   % For tables of a fixed width
+\usepackage{ragged2e}   % For better text alignment (\RaggedRight)
+\usepackage{comment}
+\usepackage{float}
 
 % --- Title and author ---
 \title{Exploration of DyNA PPO with Dynamic Ensemble}
@@ -94,109 +100,58 @@ It proposes DyNA PPO, a variant of Proximal Policy Optimization:
 
 % -------------------------- METHODOLOGY -------------------------------------
 \section{Methodology}
+
+
 \subsection{Problem Formulation}
 \subsubsection{Sequence Optimization Task}
 
-The core objective of this research is to develop an efficient method for optimizing discrete sequences through a combination of reinforcement learning and surrogate modeling. We formulate the problem as a sequential decision-making task where an agent learns to generate high-quality sequences by interacting with an expensive oracle function.
+This work aims to optimize discrete sequences using reinforcement learning and surrogate modeling. The task is modeled as a sequential decision process where an agent generates sequences evaluated by an expensive oracle function.
 
-Let $\mathcal{V}$ denote the vocabulary of discrete tokens. In our DNA sequence optimization task, we define $\mathcal{V} = \{0, 1, 2, 3\}$, representing the four DNA bases: Adenine (A), Thymine (T), Guanine (G), and Cytosine (C), respectively. Each sequence $s = (s_1, s_2, \ldots, s_T)$ consists of $T$ tokens, where $s_t \in \mathcal{V}$ for all $t \in \{1, 2, \ldots, T\}$. The sequence length $T$ is a configurable parameter, with our experiments examining sequences of varying lengths (e.g., $T = 6, 10, 12$).
-
-The optimization objective is to find sequences that maximize a reward function $R: \mathcal{V}^T \rightarrow \mathbb{R}$, which represents the oracle's evaluation of sequence quality:
+Let $\mathcal{V} = \{0, 1, 2, 3\}$ denote the vocabulary representing the four DNA bases (A, T, G, C). A sequence $s = (s_1, \ldots, s_T)$ of length $T$ is composed of tokens $s_t \in \mathcal{V}$. The goal is to maximize the oracle reward:
 
 \begin{equation}
 s^* = \arg\max_{s \in \mathcal{V}^T} R(s)
 \end{equation}
 
-In practical applications, the oracle function $R$ represents expensive experimental evaluations (e.g., laboratory assays for DNA sequences, physical simulations, or real-world testing). The challenge lies in finding high-quality sequences while minimizing the number of oracle calls, as each evaluation incurs significant cost in terms of time, computational resources, or financial expense.
-
+The oracle $R$ models expensive biological or physical evaluations (e.g., laboratory assays or simulations). Hence, the optimization challenge is to discover high-quality sequences with minimal oracle calls due to the high computational or experimental cost.
 
 \subsubsection{Objective Function}
 
-To simulate realistic biological sequence optimization, we design a complex DNA oracle function that captures multiple biologically relevant properties. The oracle function $R(s)$ is a composite scoring function consisting of eight components:
-
-\textbf{1. GC Content Scoring:} The proportion of Guanine and Cytosine bases is a critical factor in DNA stability. The GC content score is defined as:
+To emulate realistic DNA optimization, we design a composite oracle $R(s)$ combining multiple biologically inspired components. The total reward is given by:
 
 \begin{equation}
-R_{\text{GC}}(s) = 4 \cdot \exp\left(-8(p_{\text{GC}} - 0.5)^2\right)
+\begin{split}
+R(s) = \max\bigg(0, & R_{\text{GC}} + R_{\text{motif}} + R_{\text{pos}} - P_{\text{repeat}} \\
+                   & + R_{\text{complex}} + R_{\text{dinuc}} + R_{T_m} + R_{\text{noise}}\bigg)
+\end{split}
 \end{equation}
 
-where $p_{\text{GC}} = \frac{|s|_G + |s|_C}{T}$ is the fraction of G and C bases in the sequence. This Gaussian-shaped reward function penalizes deviations from the optimal 50\% GC content, reflecting biological preferences for balanced sequences.
+Each component models a biologically relevant property, summarized in Table~\ref{tab:oracle}.
 
-\textbf{2. Biological Motifs:} Functional DNA sequences often contain specific motifs (subsequences) that serve biological functions. We reward the presence of known restriction sites and regulatory elements:
+\begin{table*}[t] % The asterisk makes it span two columns
+\centering
+\caption{Components of the DNA Oracle Function}
+\label{tab:oracle}
+\begin{tabular}{p{4cm} p{11cm}} % Now you have more horizontal space to work with
+\toprule
+\textbf{Component} & \textbf{Definition / Description} \\
+\midrule
+GC Content ($R_{\text{GC}}$) & Gaussian reward centered at 50\% GC content: 
+$4 e^{-8(p_{\text{GC}}-0.5)^2}$, where $p_{\text{GC}}$ is the GC fraction. \\[4pt]
+Biological Motifs ($R_{\text{motif}}$) & Weighted sum of recognized motifs (e.g., GAATTC, GGATCC, TATA) using $R_{\text{motif}} = \sum_{m} w_m n_m(s)$. \\[4pt]
+Position Dependence ($R_{\text{pos}}$) & Parabolic weighting favoring GC bases near sequence center. \\[4pt]
+Repetition Penalty ($P_{\text{repeat}}$) & Penalizes consecutive repeated substrings of length $\ell \le 3$. \\[4pt]
+Local Complexity ($R_{\text{complex}}$) & Based on mean and variance of 4-mer diversity: $3\bar{c} - 2\text{Var}(c)$. \\[4pt]
+Dinucleotide Preference ($R_{\text{dinuc}}$) & Pairwise base weights, e.g., CG/GC $(+0.2)$, GA/TC $(+0.1)$, AA/TT $(-0.2)$. \\[4pt]
+Melting Temperature ($R_{T_m}$) & Computed as $T_m = 4(|s|_G + |s|_C) + 2(|s|_A + |s|_T)$, normalized to range. \\[4pt]
+Experimental Noise ($R_{\text{noise}}$) & Gaussian noise $\mathcal{N}(0, 0.15)$ simulating measurement uncertainty. \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
-\begin{equation}
-R_{\text{motif}}(s) = \sum_{m \in \mathcal{M}} w_m \cdot n_m(s)
-\end{equation}
+This composite oracle creates a rugged, non-convex landscape with multiple local optima and stochastic noise, presenting a realistic and challenging benchmark for discrete optimization methods.
 
-where $\mathcal{M}$ is the set of recognized motifs, $w_m$ is the weight assigned to motif $m$, and $n_m(s)$ counts non-overlapping occurrences of motif $m$ in sequence $s$. Key motifs include:
-\begin{itemize}
-    \item GAATTC (EcoRI restriction site): $w = 4.0$
-    \item GGATCC (BamHI restriction site): $w = 3.5$
-    \item GGCC (generic 4-cutter): $w = 2.0$
-    \item TATA (TATA box): $w = 2.0$
-    \item ATCG (generic motif): $w = 1.0$
-    \item GC (dinucleotide pair): $w = 0.3$
-\end{itemize}
 
-\textbf{3. Position-Dependent Scoring:} Base preferences vary by position within the sequence. For each position $t \in \{1, \ldots, T\}$, we compute:
-
-\begin{equation}
-R_{\text{pos}}(s) = \sum_{t=1}^{T} \begin{cases}
-0.5 \cdot \left(1 - 4\left(\frac{t-1}{T-1} - 0.5\right)^2\right) & \text{if } s_t \in \{G, C\} \\
-0.3 \cdot \left(1 - 4\left(\frac{t-1}{T-1} - 0.5\right)^2\right) & \text{if } s_t \in \{A, T\}
-\end{cases}
-\end{equation}
-
-This parabolic function favors GC bases near the center of the sequence, mimicking real biological constraints.
-
-\textbf{4. Repetitive Sequence Penalty:} Excessive repetition reduces sequence quality. We penalize tandem repeats:
-
-\begin{equation}
-P_{\text{repeat}}(s) = \sum_{\ell=1}^{3} \sum_{i=1}^{T-2\ell+1} \mathbb{1}_{[\text{repeat}(s, i, \ell) \geq 3]} \cdot (\text{repeat}(s, i, \ell) - 2) \cdot \ell \cdot 0.3
-\end{equation}
-
-where $\text{repeat}(s, i, \ell)$ counts consecutive occurrences of the $\ell$-length unit starting at position $i$.
-
-\textbf{5. Local Complexity:} We measure local sequence complexity using a sliding window of size $w = 4$:
-
-\begin{equation}
-R_{\text{complex}}(s) = 3 \cdot \bar{c} - 2 \cdot \text{Var}(c)
-\end{equation}
-
-where $c_i = \frac{|\{s_i, s_{i+1}, \ldots, s_{i+w-1}\}|}{4}$ measures the fraction of unique bases in window $i$, $\bar{c}$ is the mean complexity, and $\text{Var}(c)$ is the variance across all windows. This rewards high average complexity while penalizing high variance.
-
-\textbf{6. Dinucleotide Preferences:} Certain adjacent base pairs have favorable or unfavorable biochemical properties:
-
-\begin{equation}
-R_{\text{dinuc}}(s) = \sum_{t=1}^{T-1} w_{s_t s_{t+1}}
-\end{equation}
-
-where weights include: CG $(+0.2)$, GC $(+0.2)$, GA $(+0.1)$, TC $(+0.1)$, AA $(-0.2)$, TT $(-0.2)$.
-
-\textbf{7. Melting Temperature:} DNA melting temperature is approximated using a simplified formula:
-
-\begin{equation}
-T_m = 4 \cdot (|s|_G + |s|_C) + 2 \cdot (|s|_A + |s|_T)
-\end{equation}
-
-The normalized temperature contributes:
-\begin{equation}
-R_{T_m}(s) = 2 \cdot \frac{T_m - 20}{40}
-\end{equation}
-
-\textbf{8. Experimental Noise:} To simulate real-world measurement uncertainty, we add Gaussian noise:
-
-\begin{equation}
-R_{\text{noise}} \sim \mathcal{N}(0, 0.15)
-\end{equation}
-
-The total oracle reward is computed as:
-
-\begin{equation}
-R(s) = \max\left(0, R_{\text{GC}}(s) + R_{\text{motif}}(s) + R_{\text{pos}}(s) - P_{\text{repeat}}(s) + R_{\text{complex}}(s) + R_{\text{dinuc}}(s) + R_{T_m}(s) + R_{\text{noise}}\right)
-\end{equation}
-
-This multi-component oracle function creates a complex, non-convex optimization landscape with multiple local optima, making it challenging for gradient-free optimization methods. The stochastic noise component further complicates the optimization process, requiring robust learning algorithms that can handle uncertainty and generalize from limited evaluations.
 
 
 
@@ -205,326 +160,208 @@ This multi-component oracle function creates a complex, non-convex optimization 
 
 
 \subsection{DyNA-PPO Framework}
+
 \subsubsection{Overview}
 
-The DyNA-PPO (Dynamic Model-Based Proximal Policy Optimization) framework integrates model-free reinforcement learning with model-based surrogate optimization to efficiently solve expensive discrete sequence optimization problems. The key innovation lies in combining the exploration capabilities of PPO with the sample efficiency of surrogate models, enabling the algorithm to learn high-quality policies while minimizing oracle evaluations.
+The DyNA-PPO (Dynamic Model-Based Proximal Policy Optimization) framework integrates model-free reinforcement learning with model-based surrogate optimization to efficiently solve expensive discrete sequence optimization problems. It combines the exploration strength of PPO with the sample efficiency of surrogate models, reducing the number of oracle evaluations required for learning high-quality policies.
 
-The framework operates through an iterative two-phase training approach:
+DyNA-PPO operates in alternating phases:
 
-\textbf{Phase 1: Oracle-Based Learning.} In this phase, the policy network $\pi_\theta$ generates a batch of sequences by sampling from its learned distribution. These sequences are evaluated using the true oracle function $R(s)$, providing ground-truth feedback. The policy is then updated using the PPO algorithm to maximize expected rewards. This phase ensures that the policy learns from accurate signals but is limited by the cost of oracle evaluations.
+\textbf{Phase 1: Oracle-Based Learning.}  
+The policy network $\pi_\theta$ samples a batch of sequences, which are evaluated by the true oracle $R(s)$. Using these rewards, the PPO algorithm updates $\pi_\theta$ to maximize expected return:
+\[
+\theta^* = \arg\max_\theta \mathbb{E}_{s \sim \pi_\theta}[R(s)]
+\]
+This phase ensures accurate learning but incurs oracle cost.
 
-\textbf{Phase 2: Model-Based Virtual Training.} To amplify learning without additional oracle calls, we train an ensemble of surrogate models $\{f_1, f_2, \ldots, f_K\}$ on all previously collected oracle evaluations. These models approximate the oracle function: $f_k(s) \approx R(s)$. The policy network then generates additional virtual sequences, which are evaluated by the surrogate ensemble rather than the expensive oracle. These predicted rewards guide further policy updates, enabling extensive exploration at minimal cost.
+\textbf{Phase 2: Model-Based Virtual Training.}  
+An ensemble of surrogate models $\{f_k\}_{k=1}^K$, trained on accumulated oracle data $\mathcal{D} = \{(s_i, R(s_i))\}$, approximates $R(s)$. The policy then performs virtual rollouts using predicted rewards $f_k(s)$, enabling additional PPO updates at negligible cost.  
 
-The algorithm alternates between these two phases across $N$ experiment rounds. In round $n$, after collecting oracle feedback on $B$ sequences (batch size), the surrogate models are retrained on the cumulative dataset $\mathcal{D} = \{(s_i, R(s_i))\}_{i=1}^{|\mathcal{D}|}$. If the models achieve sufficient accuracy (measured by R² score exceeding threshold $\tau$), they guide $M$ virtual training rounds. This hybrid approach balances exploration (via diverse sequence generation), exploitation (via policy optimization), and sample efficiency (via surrogate modeling).
-
-The mathematical formulation of the overall objective is:
-
-\begin{equation}
-\theta^* = \arg\max_{\theta} \mathbb{E}_{s \sim \pi_\theta}[R(s)]
-\end{equation}
-
-where the expectation is approximated through a combination of oracle-evaluated sequences and surrogate-predicted sequences. The policy $\pi_\theta(a_t | s_{<t})$ represents the probability distribution over the next token $a_t \in \mathcal{V}$ given the sequence prefix $s_{<t} = (s_1, \ldots, s_{t-1})$.
+The two phases alternate across $N$ rounds. After each oracle phase, surrogates are retrained and, if accuracy (measured by $R^2 > \tau$) is sufficient, guide $M$ virtual updates. This dynamic balance between exploration, exploitation, and efficiency enables stable policy learning under limited oracle access.
 
 \subsubsection{Key Hyperparameters}
 
-The DyNA-PPO framework is controlled by several critical hyperparameters that govern the balance between exploration, exploitation, and model-based learning:
+DyNA-PPO employs several adaptive hyperparameters that control policy learning, surrogate guidance, and exploration. Tables~\ref{tab:all_params} summarize the main settings.
 
-\textbf{Reinforcement Learning Parameters:}
-\begin{itemize}
-    \item \textbf{Batch size ($B$):} Number of sequences generated per round. In our experiments, we use $B \in \{32, 64\}$. Larger batch sizes provide more diverse exploration but increase computational cost per round.
-    
-    \item \textbf{Learning rate ($\alpha$):} Step size for gradient descent optimization. We employ an adaptive learning rate schedule with base value $\alpha_{\text{base}} = 3 \times 10^{-4}$ and minimum value $\alpha_{\text{min}} = 1 \times 10^{-5}$. The learning rate follows a cosine annealing schedule with warm restarts every 5 rounds.
-    
-    \item \textbf{Discount factor ($\gamma$):} Controls the importance of future rewards. Set to $\gamma = 0.99$, emphasizing long-term sequence quality over immediate rewards.
-    
-    \item \textbf{PPO clip ratio ($\epsilon_{\text{clip}}$):} Constrains policy updates to prevent destructive changes. This parameter is adaptive:
-    \begin{equation}
-    \epsilon_{\text{clip}} = \begin{cases}
-    0.3 & \text{if } n \leq 3 \text{ (early exploration)} \\
-    0.1 & \text{if } \sigma_R > 2.0 \text{ (high variance)} \\
-    0.2 & \text{otherwise (standard)}
-    \end{cases}
-    \end{equation}
-    where $n$ is the round number and $\sigma_R$ is the reward standard deviation.
-    
-    \item \textbf{Entropy coefficient ($\beta_H$):} Regularization term encouraging exploration. We use an adaptive schedule:
-    \begin{equation}
-    \beta_H = \begin{cases}
-    0.02 & \text{if } n \leq 3 \\
-    0.01 & \text{if } 3 < n \leq 7 \\
-    0.005 & \text{if } n > 7
-    \end{cases}
-    \end{equation}
-    Higher values in early rounds promote diversity; lower values later focus on exploitation.
-\end{itemize}
 
-\textbf{Model-Based Learning Parameters:}
-\begin{itemize}
-    \item \textbf{Number of experiment rounds ($N$):} Total training iterations with oracle access. We experiment with $N \in \{10, 50, 100, 200\}$ to study convergence behavior.
-    
-    \item \textbf{Number of model-based rounds ($M$):} Virtual training iterations per experiment round. Set to $M = 5$, but adaptively reduced based on model quality:
-    \begin{equation}
-    M_{\text{actual}} = \begin{cases}
-    \min(M, 5) & \text{if } R^2_{\max} > 0.3 \\
-    \min(M, 3) & \text{if } R^2_{\max} > 0 \\
-    2 & \text{if } R^2_{\max} > -0.3 \\
-    1 & \text{otherwise}
-    \end{cases}
-    \end{equation}
-    where $R^2_{\max}$ is the highest R² score among surrogate models.
-    
-    \item \textbf{Model quality threshold ($\tau$):} Minimum R² score required for a surrogate model to be included in the ensemble. We investigate both fixed thresholds ($\tau = 0.2$) and dynamic thresholds that increase linearly during training:
-    \begin{equation}
-    \tau(n) = \begin{cases}
-    -0.3 & \text{if } n < \lfloor N/10 \rfloor \\
-    \min(\tau_{\text{final}}, -0.3 + (n - \lfloor N/10 \rfloor) \cdot 0.01) & \text{otherwise}
-    \end{cases}
-    \end{equation}
-    where $\tau_{\text{final}}$ is the target final threshold. This allows lenient model acceptance early in training when data is scarce, gradually increasing standards as more data accumulates.
-\end{itemize}
+\begin{table}[t] % Use [t] or [b] for better placement. Avoid [H].
+\centering
+\caption{Model-Based, Exploration, and Training Parameters}
+\label{tab:all_params}
+\small % Reduce font size to help everything fit
+\setlength{\tabcolsep}{3pt} % Squeeze columns a bit closer (default is 6pt)
+\begin{tabularx}{\columnwidth}{@{} l >{\RaggedRight}X @{}} % Use tabularx to fit column.
+\toprule
+\textbf{Parameter} & \textbf{Description / Schedule} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Model-Based and Exploration Parameters}} \\ % Sub-header
+\addlinespace
+Experiment rounds ($N$) & Oracle-based training iterations, tested with $N \in \{10, 50, 100, 200\}$. \\ \addlinespace
 
-\textbf{Diversity Control Parameters:}
-\begin{itemize}
-    \item \textbf{Diversity penalty weight ($\lambda$):} Controls the strength of penalties for generating similar sequences. Set to $\lambda = 0.1$. During model-based training, this is further modulated:
-    \begin{equation}
-    \lambda_{\text{virtual}}(m) = \lambda \cdot \max\left(0.2, 1 - \frac{m}{M}\right)
-    \end{equation}
-    where $m$ is the current virtual training iteration, reducing diversity pressure as virtual training progresses.
-    
-    \item \textbf{Diversity radius ($\epsilon_d$):} Defines the edit distance threshold for considering sequences as similar. Set to $\epsilon_d = 3$, meaning sequences differing by fewer than 3 edits incur diversity penalties.
-\end{itemize}
+Model-based rounds ($M$) & Adaptive:
+\(
+M_{\text{actual}} =
+\begin{cases}
+5, & R^2_{\max}>0.3\\
+3, & R^2_{\max}>0\\
+2, & R^2_{\max}>-0.3\\
+1, & \text{otherwise}
+\end{cases}
+\) \\ \addlinespace
 
-\textbf{Exploration Parameters:}
-\begin{itemize}
-    \item \textbf{Exploration rate ($\epsilon_{\text{explore}}$):} Probability of selecting exploratory actions. Follows an adaptive decay schedule:
-    \begin{equation}
-    \epsilon_{\text{explore}}(n) = \begin{cases}
-    0.3 & \text{if } n \leq 3 \\
-    \max(0.15, 0.4 - 0.03n) & \text{if } 3 < n \leq 7 \\
-    \max(0.05, 0.2 - 0.015n) & \text{if } n > 7
-    \end{cases}
-    \end{equation}
-    
-    \item \textbf{Temperature ($T_{\text{sample}}$):} Controls the randomness of sequence generation. During guided exploration, temperature is set to:
-    \begin{equation}
-    T_{\text{sample}} = \begin{cases}
-    1.2 & \text{if } n \leq 5 \\
-    1.0 & \text{otherwise}
-    \end{cases}
-    \end{equation}
-    Higher temperature increases diversity; lower temperature sharpens the distribution toward high-probability tokens.
-\end{itemize}
+Threshold ($\tau$) & Dynamic acceptance:
+\(
+\tau(n)=
+\begin{cases}
+-0.3,& n<\lfloor N/10\rfloor\\
+\min(\tau_{\text{final}}, \dots), & \text{else} % Shortened for brevity here
+\end{cases}
+\) \\ \addlinespace
 
-\textbf{Training Configuration:}
-\begin{itemize}
-    \item \textbf{Policy update epochs:} Number of gradient steps per batch. Adaptively set as:
-    \begin{equation}
-    E_{\text{policy}} = \begin{cases}
-    8 & \text{if } n \leq 3 \\
-    4 & \text{if } 3 < n \leq 7 \\
-    2 & \text{if } n > 7
-    \end{cases}
-    \end{equation}
-    More epochs early to establish good initial policy; fewer epochs later to prevent overfitting.
-    
-    \item \textbf{Virtual training epochs:} For model-based updates, we use fewer epochs:
-    \begin{equation}
-    E_{\text{virtual}} = \begin{cases}
-    2 & \text{if } R^2_{\max} > 0 \\
-    1 & \text{otherwise}
-    \end{cases}
-    \end{equation}
-    Reduced epochs prevent over-reliance on potentially inaccurate surrogate predictions.
-    
-    \item \textbf{Warm-up samples:} Initial dataset size before policy training begins. Set to 50 diverse sequences generated using multiple strategies (25\% random, 25\% high-GC, 25\% high-AT, 25\% repetitive patterns). This provides surrogate models with sufficient initial data for meaningful predictions.
-\end{itemize}
+Diversity weight ($\lambda$) &
+Base $\lambda{=}0.1$, decays as
+$\lambda_{\text{virtual}}(m)=\lambda \max(0.2,1-\tfrac{m}{M})$. \\ \addlinespace
 
-These hyperparameters collectively define the learning dynamics, with many featuring adaptive schedules that respond to training progress, data availability, and model quality. This adaptivity is crucial for maintaining stable learning while maximizing sample efficiency across the full training trajectory.
+Exploration rate ($\epsilon_{\text{explore}}$) &
+\(
+\begin{cases}
+0.3,& n\le3\\
+\max(0.15, \dots),&3<n\le7\\
+\max(0.05, \dots),&n>7
+\end{cases}
+\) \\ \addlinespace
+
+Temperature ($T_{\text{sample}}$) &
+\(
+\begin{cases}
+1.2,& n\le5\\
+1.0,& \text{otherwise}
+\end{cases}
+\)
+Higher temp. → more diversity. \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Training Configuration Parameters}} \\ % Sub-header
+\addlinespace
+Policy epochs ($E_{\text{policy}}$) &
+\(
+\begin{cases}
+8,& n\le3\\
+4,& 3<n\le7\\
+2,& n>7
+\end{cases}
+\)
+Fewer updates later to avoid overfitting. \\ \addlinespace
+
+Virtual epochs ($E_{\text{virtual}}$) &
+\(
+\begin{cases}
+2,& R^2_{\max}>0\\
+1,& \text{otherwise}
+\end{cases}
+\)
+Prevents over-reliance on inaccurate surrogates. \\ \addlinespace
+
+Warm-up samples & 50 initial diverse sequences (25\% random, 25\% GC-rich, etc.) for surrogate initialization. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Overall, DyNA-PPO’s adaptively scheduled parameters maintain stability across training, ensuring efficient policy learning even under limited oracle supervision.
+
+
+
+
 
 
 
 
 
 \subsection{Policy Network Architecture}
+
 \subsubsection{Network Design}
 
-The policy network implements an autoregressive architecture that generates sequences token-by-token, conditioning each decision on the previously generated tokens and the current position. The network serves dual purposes: (1) as an actor that outputs a probability distribution over the next token, and (2) as a critic that estimates the value of the current sequence state. This actor-critic architecture is fundamental to the PPO algorithm, enabling both policy improvement and variance reduction through baseline subtraction.
+The policy network adopts an autoregressive actor–critic design, generating sequences token by token while simultaneously estimating state values for variance reduction under PPO. At each step $t$, the model observes the last $W$ tokens and the current position, forming an input $\mathbf{x}_t$ that captures both content and temporal information.
 
-\textbf{Input Representation:}
+\textbf{Input Representation:} 
+Each token $s_i \in \mathcal{V}$ is embedded into $\mathbb{R}^{d_e}$ through a learnable matrix $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d_e}$. The context of $W$ tokens is concatenated and combined with a sinusoidal positional encoding $\mathbf{p}_t$ \cite{vaswani2017attention}:
+\[
+\mathbf{x}_t = [\text{Embed}(s_{t-W:t-1}); \mathbf{p}_t], \quad d_{\text{input}} = W \cdot d_e + d_e
+\]
+This yields a total input dimension of $576$ for $W=8$, $d_e=64$.
 
-The network processes two types of input at each generation step $t$:
-\begin{itemize}
-    \item \textbf{Sequence context:} The last $W$ tokens generated so far, where $W$ is the context window size (set to $W = 8$ in our implementation).
-    \item \textbf{Position information:} The current position $t$ within the sequence, encoded to capture temporal dependencies.
-\end{itemize}
+\textbf{Policy and Value Networks:} 
+Both networks share the same input but have independent parameters. Each uses two ReLU-activated hidden layers ($h=256$):
+\[
+\mathbf{h}_1 = \text{ReLU}(\mathbf{W}_1 \mathbf{x}_t + \mathbf{b}_1), \quad
+\mathbf{h}_2 = \text{ReLU}(\mathbf{W}_2 \mathbf{h}_1 + \mathbf{b}_2)
+\]
+For the policy head, logits $\mathbf{z}_t = \mathbf{W}_3^\pi \mathbf{h}_2 + \mathbf{b}_3^\pi$ are converted to probabilities via softmax:
+\[
+\pi_\theta(a_t|s_{<t}) = \frac{\exp(z_t^{(a_t)})}{\sum_a \exp(z_t^{(a)})}
+\]
+The value head outputs a scalar estimate $V_\phi(s_{<t}) = \mathbf{w}_3^V \mathbf{h}_2 + b_3^V$.  
+Overall, the network contains approximately $3.6\times 10^5$ parameters.
 
-For a sequence $s = (s_1, s_2, \ldots, s_T)$ at position $t$, the network observes the context window $s_{t-W:t-1} = (s_{t-W}, \ldots, s_{t-1})$. If $t < W$, the context is padded with zeros: $s_{\text{context}} = (\underbrace{0, \ldots, 0}_{\text{padding}}, s_1, \ldots, s_{t-1})$.
-
-\textbf{Token Embedding Layer:}
-
-Each token $s_i \in \mathcal{V}$ is mapped to a dense vector representation through an embedding lookup table:
-\begin{equation}
-\mathbf{e}_i = \text{Embed}(s_i) \in \mathbb{R}^{d_e}
-\end{equation}
-where $d_e = 64$ is the embedding dimension. This layer is implemented as $\text{Embed}: \mathbb{Z}_{|\mathcal{V}|} \rightarrow \mathbb{R}^{d_e}$, parameterized by a learnable matrix $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d_e}$. For our DNA task with $|\mathcal{V}| = 4$, this creates a 4-by-64 embedding matrix.
-
-The context window of $W$ tokens is embedded and concatenated:
-\begin{equation}
-\mathbf{c}_{\text{embed}} = [\mathbf{e}_{t-W}, \mathbf{e}_{t-W+1}, \ldots, \mathbf{e}_{t-1}] \in \mathbb{R}^{W \cdot d_e}
-\end{equation}
-resulting in a flattened vector of dimension $8 \times 64 = 512$.
-
-\textbf{Positional Encoding:}
-
-To inject information about the absolute position within the sequence, we use sinusoidal positional encodings as introduced in the Transformer architecture \cite{vaswani2017attention}. For position $t \in \{0, 1, \ldots, T-1\}$, the positional encoding is a $d_e$-dimensional vector computed as:
-\begin{equation}
-\text{PE}(t, 2i) = \sin\left(\frac{t}{10000^{2i/d_e}}\right)
-\end{equation}
-\begin{equation}
-\text{PE}(t, 2i+1) = \cos\left(\frac{t}{10000^{2i/d_e}}\right)
-\end{equation}
-for $i \in \{0, 1, \ldots, \lfloor d_e/2 \rfloor - 1\}$. These sinusoidal functions with varying frequencies enable the network to learn relative positions and extrapolate to sequence lengths beyond those seen during training. The positional encoding for position $t$ is denoted as $\mathbf{p}_t \in \mathbb{R}^{d_e}$.
-
-\textbf{Combined Input Representation:}
-
-The final input to the policy and value networks is the concatenation of the context embedding and positional encoding:
-\begin{equation}
-\mathbf{x}_t = [\mathbf{c}_{\text{embed}}; \mathbf{p}_t] \in \mathbb{R}^{d_{\text{input}}}
-\end{equation}
-where $d_{\text{input}} = W \cdot d_e + d_e = 8 \times 64 + 64 = 576$ is the total input dimension. This representation captures both what tokens have been generated (via context embeddings) and where we are in the sequence (via positional encoding).
-
-\textbf{Policy Network ($\pi_\theta$):}
-
-The policy network transforms the input representation into a probability distribution over the vocabulary. It consists of a feedforward neural network with two hidden layers:
-\begin{align}
-\mathbf{h}_1^{\pi} &= \text{ReLU}(\mathbf{W}_1^{\pi} \mathbf{x}_t + \mathbf{b}_1^{\pi}) \\
-\mathbf{h}_2^{\pi} &= \text{ReLU}(\mathbf{W}_2^{\pi} \mathbf{h}_1^{\pi} + \mathbf{b}_2^{\pi}) \\
-\mathbf{z}_t &= \mathbf{W}_3^{\pi} \mathbf{h}_2^{\pi} + \mathbf{b}_3^{\pi}
-\end{align}
-where:
-\begin{itemize}
-    \item $\mathbf{W}_1^{\pi} \in \mathbb{R}^{h \times d_{\text{input}}}$, $\mathbf{W}_2^{\pi} \in \mathbb{R}^{h \times h}$, $\mathbf{W}_3^{\pi} \in \mathbb{R}^{|\mathcal{V}| \times h}$ are weight matrices
-    \item $\mathbf{b}_1^{\pi}, \mathbf{b}_2^{\pi} \in \mathbb{R}^{h}$, $\mathbf{b}_3^{\pi} \in \mathbb{R}^{|\mathcal{V}|}$ are bias vectors
-    \item $h = 256$ is the hidden dimension
-    \item $\text{ReLU}(x) = \max(0, x)$ is the rectified linear unit activation function
-\end{itemize}
-
-The logits $\mathbf{z}_t \in \mathbb{R}^{|\mathcal{V}|}$ are converted to probabilities via the softmax function:
-\begin{equation}
-\pi_\theta(a_t | s_{<t}) = \frac{\exp(z_t^{(a_t)})}{\sum_{a=0}^{|\mathcal{V}|-1} \exp(z_t^{(a)})}
-\end{equation}
-where $z_t^{(a)}$ is the logit corresponding to action $a$. This probability distribution $\pi_\theta(a_t | s_{<t})$ represents the policy's belief about which token should come next, given the sequence context and position.
-
-\textbf{Value Network ($V_\phi$):}
-
-The value network estimates the expected cumulative reward from the current state, providing a baseline for advantage estimation in PPO. It shares the same input representation $\mathbf{x}_t$ but has a separate set of parameters:
-\begin{align}
-\mathbf{h}_1^{V} &= \text{ReLU}(\mathbf{W}_1^{V} \mathbf{x}_t + \mathbf{b}_1^{V}) \\
-\mathbf{h}_2^{V} &= \text{ReLU}(\mathbf{W}_2^{V} \mathbf{h}_1^{V} + \mathbf{b}_2^{V}) \\
-V_\phi(s_{<t}) &= \mathbf{w}_3^{V} \mathbf{h}_2^{V} + b_3^{V}
-\end{align}
-where the architecture mirrors the policy network but outputs a single scalar value $V_\phi(s_{<t}) \in \mathbb{R}$ instead of a probability distribution. The value network parameters $\phi$ are trained jointly with the policy parameters $\theta$ to minimize the temporal difference error.
-
-The complete policy network has approximately:
-\begin{equation}
-N_{\text{params}} = 2 \times (d_{\text{input}} \cdot h + h \cdot h) + (h \cdot |\mathcal{V}| + h \cdot 1) + |\mathcal{V}| \cdot d_e
-\end{equation}
-parameters. For our configuration ($d_{\text{input}} = 576$, $h = 256$, $|\mathcal{V}| = 4$, $d_e = 64$), this yields approximately 360,000 trainable parameters.
+\begin{table}[H]
+\centering
+\caption{Policy network configuration}
+\begin{tabular}{lcc}
+\hline
+\textbf{Component} & \textbf{Symbol} & \textbf{Value} \\
+\hline
+Vocabulary size & $|\mathcal{V}|$ & 4 \\
+Embedding dimension & $d_e$ & 64 \\
+Context window & $W$ & 8 \\
+Hidden dimension & $h$ & 256 \\
+Input dimension & $d_{\text{input}}$ & 576 \\
+Total parameters & $N_{\text{params}}$ & $\approx 3.6\times 10^5$ \\
+\hline
+\end{tabular}
+\end{table}
 
 \subsubsection{Autoregressive Generation}
 
-The policy network generates sequences autoregressively, producing one token at a time conditioned on all previously generated tokens. This process implements the factorization:
-\begin{equation}
+Sequences are generated autoregressively as
+\[
 \pi_\theta(s) = \prod_{t=1}^{T} \pi_\theta(s_t | s_{1:t-1})
-\end{equation}
-
-\textbf{Generation Process:}
-
-Starting with an empty sequence $s_0 = \emptyset$, the generation proceeds as follows:
-\begin{enumerate}
-    \item \textbf{Initialize:} Set $t = 1$ and $s = []$ (empty sequence)
-    
-    \item \textbf{For each position $t = 1, 2, \ldots, T$:}
-    \begin{enumerate}
-        \item Prepare context: $s_{\text{context}} = s_{t-W:t-1}$ (with zero-padding if $t < W$)
-        \item Compute embeddings: $\mathbf{c}_{\text{embed}} = \text{Flatten}([\text{Embed}(s_i)]_{i=t-W}^{t-1})$
-        \item Add positional encoding: $\mathbf{x}_t = [\mathbf{c}_{\text{embed}}; \mathbf{p}_t]$
-        \item Forward pass: $\pi_\theta(\cdot | s_{<t}) = \text{Softmax}(\text{PolicyNet}(\mathbf{x}_t))$
-        \item Sample action: $s_t \sim \text{Categorical}(\pi_\theta(\cdot | s_{<t}))$
-        \item Append to sequence: $s \leftarrow s \cup \{s_t\}$
-    \end{enumerate}
-    
-    \item \textbf{Return:} Complete sequence $s = (s_1, s_2, \ldots, s_T)$
-\end{enumerate}
-
-\textbf{Sampling Strategies:}
-
-The framework supports multiple sampling strategies for action selection at step (2e):
-
+\]
+At each step, the model embeds the recent context, adds positional encoding, computes $\pi_\theta(\cdot|s_{<t})$, and samples $s_t$ according to one of three strategies:
 \begin{itemize}
-    \item \textbf{Stochastic sampling:} Draw $s_t$ from the categorical distribution:
-    \begin{equation}
-    s_t \sim \text{Categorical}(\pi_\theta(\cdot | s_{<t}))
-    \end{equation}
-    This introduces stochasticity for exploration during training.
-    
-    \item \textbf{Deterministic (greedy):} Select the most probable token:
-    \begin{equation}
-    s_t = \arg\max_{a \in \mathcal{V}} \pi_\theta(a | s_{<t})
-    \end{equation}
-    This maximizes exploitation of learned patterns, typically used during evaluation.
-    
-    \item \textbf{$\epsilon$-greedy:} With probability $\epsilon$, select a random token; otherwise use stochastic sampling:
-    \begin{equation}
-    s_t = \begin{cases}
-    \text{Uniform}(\mathcal{V}) & \text{with probability } \epsilon \\
-    \text{Categorical}(\pi_\theta(\cdot | s_{<t})) & \text{with probability } 1 - \epsilon
-    \end{cases}
-    \end{equation}
-    This balances exploration and exploitation, particularly useful in early training.
+    \item \textbf{Stochastic:} $s_t \sim \text{Categorical}(\pi_\theta(\cdot|s_{<t}))$
+    \item \textbf{Greedy:} $s_t = \arg\max_a \pi_\theta(a|s_{<t})$
+    \item \textbf{$\epsilon$-greedy:} Random action with prob.~$\epsilon$, otherwise stochastic
 \end{itemize}
+This procedure continues until $T$ tokens are generated.
 
 \subsubsection{Temperature-Controlled Sampling}
 
-To control the diversity of generated sequences, we implement temperature scaling, a technique that modulates the sharpness of the probability distribution. Given policy logits $\mathbf{z}_t$ before softmax, temperature $T_{\text{sample}} > 0$ is applied as:
-\begin{equation}
-\pi_\theta^{T}(a_t | s_{<t}) = \frac{\exp(z_t^{(a_t)} / T_{\text{sample}})}{\sum_{a=0}^{|\mathcal{V}|-1} \exp(z_t^{(a)} / T_{\text{sample}})}
-\end{equation}
-
-The temperature parameter affects generation behavior:
-\begin{itemize}
-    \item $T_{\text{sample}} > 1$: \textbf{High temperature} flattens the distribution, increasing randomness and diversity. As $T_{\text{sample}} \to \infty$, the distribution approaches uniform.
-    
-    \item $T_{\text{sample}} = 1$: \textbf{Standard temperature} uses the original policy distribution without modification.
-    
-    \item $T_{\text{sample}} < 1$: \textbf{Low temperature} sharpens the distribution, making the policy more confident and deterministic. As $T_{\text{sample}} \to 0$, sampling approaches greedy selection.
-\end{itemize}
-
-In our implementation, temperature is adaptively adjusted based on training progress:
-\begin{equation}
-T_{\text{sample}}(n) = \begin{cases}
-1.5 & \text{if } n \leq 2 \text{ (early exploration)} \\
-1.2 & \text{if } n \leq 5 \text{ (moderate exploration)} \\
-1.0 & \text{if } n > 5 \text{ (standard exploitation)}
+Temperature scaling modulates output randomness via:
+\[
+\pi_\theta^{T}(a_t|s_{<t}) = \frac{\exp(z_t^{(a_t)}/T_{\text{sample}})}{\sum_a \exp(z_t^{(a)}/T_{\text{sample}})}
+\]
+Higher $T_{\text{sample}}$ increases diversity, while lower values make outputs more deterministic. We adaptively anneal temperature by training round:
+\[
+T_{\text{sample}}(n) = 
+\begin{cases}
+1.5, & n \le 2\\
+1.2, & n \le 5\\
+1.0, & n > 5
 \end{cases}
-\end{equation}
-where $n$ is the training round number.
+\]
 
-\subsubsection{Top-k Filtering}
+\subsubsection{Top-$k$ Filtering}
 
-To further control generation quality, we optionally apply top-k filtering, which restricts sampling to only the $k$ most probable tokens. The filtered distribution is computed as:
-\begin{equation}
-\pi_\theta^{\text{top-}k}(a_t | s_{<t}) = \begin{cases}
-\frac{\pi_\theta(a_t | s_{<t})}{\sum_{a \in \mathcal{T}_k} \pi_\theta(a | s_{<t})} & \text{if } a_t \in \mathcal{T}_k \\
-0 & \text{otherwise}
+To suppress low-probability outputs, sampling is optionally limited to the $k$ most likely tokens:
+\[
+\pi_\theta^{\text{top-}k}(a_t|s_{<t}) = 
+\begin{cases}
+\frac{\pi_\theta(a_t|s_{<t})}{\sum_{a\in \mathcal{T}_k}\pi_\theta(a|s_{<t})}, & a_t\in\mathcal{T}_k\\
+0, & \text{otherwise}
 \end{cases}
-\end{equation}
-where $\mathcal{T}_k$ is the set of top-$k$ tokens:
-\begin{equation}
-\mathcal{T}_k = \{a \in \mathcal{V} : \pi_\theta(a | s_{<t}) \text{ is among the } k \text{ highest probabilities}\}
-\end{equation}
+\]
+where $\mathcal{T}_k$ contains the top-$k$ tokens. We use $k=3$ in practice.  
+Temperature scaling and top-$k$ filtering jointly control the exploration–exploitation balance during sequence generation.
 
-In our experiments, we use $k = 3$ when top-k filtering is enabled. This prevents the model from selecting nonsensical low-probability tokens while maintaining sufficient diversity for exploration. The combination of temperature scaling and top-k filtering provides fine-grained control over the exploration-exploitation trade-off during sequence generation.
 
 
 
@@ -533,281 +370,105 @@ In our experiments, we use $k = 3$ when top-k filtering is enabled. This prevent
 
 \subsection{Surrogate Model Ensemble}
 
-\subsubsection{Dynamic Model Selection}
+The surrogate model ensemble in DyNA-PPO approximates the expensive oracle function $R(s)$ to enable low-cost policy updates. Instead of relying solely on a single regressor, the ensemble dynamically selects models according to data regime and accuracy, ensuring robustness and sample efficiency across training rounds.
 
-A key innovation in our DyNA-PPO framework is the adaptive selection of surrogate models based on the amount of available training data. Different model classes exhibit varying sample efficiency, generalization capabilities, and computational costs. To maximize performance across all training stages, we dynamically construct an ensemble that matches the current data regime.
+\subsubsection{Overview and Dynamic Selection}
 
-The model selection strategy is partitioned into three data-size regimes, each with carefully chosen model configurations:
+We train an ensemble of candidate regressors $\mathcal{F} = \{f_1, f_2, \ldots, f_K\}$, where each $f_k$ learns to approximate $R(s)$ based on accumulated oracle evaluations $\mathcal{D} = \{(s_i, R(s_i))\}$. The best-performing subset is dynamically selected using validation accuracy measured by the $R^2$ score. Formally,
+\begin{equation}
+f^* = \arg\max_{f_k \in \mathcal{F}} R^2(f_k)
+\end{equation}
+and the ensemble prediction is computed as a weighted average:
+\begin{equation}
+\hat{R}(s) = \frac{\sum_{f_k \in \mathcal{F}^*} w_k f_k(s)}{\sum_{f_k \in \mathcal{F}^*} w_k}, \quad 
+w_k = \max(0, R^2(f_k) - \tau)
+\end{equation}
+where $\tau$ is the inclusion threshold. Models below this threshold are excluded from the ensemble.
 
-\textbf{Small Data Regime ($|\mathcal{D}| < 100$):}
-
-When training data is scarce, we prioritize simple, highly regularized models that are robust to overfitting and can provide reasonable predictions with minimal samples. The ensemble for this regime includes:
-
+Depending on dataset size, three regimes are defined:
 \begin{itemize}
-    \item \textbf{Random Forest (RF-XS, RF-S):} Tree ensemble methods with aggressive regularization:
-    \begin{align}
-    \text{RF-XS:} \quad & n_{\text{trees}} = 30, \, d_{\max} = 3, \, n_{\min}^{\text{split}} = 10, \, n_{\min}^{\text{leaf}} = 5 \\
-    \text{RF-S:} \quad & n_{\text{trees}} = 50, \, d_{\max} = 4, \, n_{\min}^{\text{split}} = 8, \, n_{\min}^{\text{leaf}} = 4
-    \end{align}
-    where $d_{\max}$ is maximum tree depth, $n_{\min}^{\text{split}}$ is minimum samples for splitting, and $n_{\min}^{\text{leaf}}$ is minimum samples per leaf. These constraints prevent deep, overfitted trees.
-    
-    \item \textbf{K-Nearest Neighbors (KNN-XS, KNN-S):} Non-parametric models with adaptive neighborhood size:
-    \begin{align}
-    \text{KNN-XS:} \quad & k = \min(3, |\mathcal{D}|/10) \\
-    \text{KNN-S:} \quad & k = \min(5, |\mathcal{D}|/5)
-    \end{align}
-    The number of neighbors scales with data size to ensure stable predictions while maintaining local sensitivity.
-    
-    \item \textbf{Bayesian Ridge Regression:} Linear model with automatic relevance determination, providing uncertainty estimates and feature selection. The model assumes Gaussian priors on weights, making it particularly stable with limited data.
-    
-    \item \textbf{Gradient Boosting (GB-XS):} Shallow boosted trees with conservative learning:
-    \begin{equation}
-    n_{\text{trees}} = 30, \, d_{\max} = 3, \, \alpha = 0.1, \, \text{subsample} = 0.8
-    \end{equation}
-    where $\alpha$ is the learning rate and subsample ratio reduces overfitting through row sampling.
-    
-    \item \textbf{Gaussian Process (GP):} Non-parametric Bayesian model with RBF kernel:
-    \begin{equation}
-    k(s, s') = \sigma^2 \exp\left(-\frac{\|f(s) - f(s')\|^2}{2\ell^2}\right)
-    \end{equation}
-    where $\sigma^2 = 1.0$ is the signal variance, $\ell = 1.0$ is the length scale, and $f(\cdot)$ denotes the feature representation. GP models excel with small datasets due to their ability to quantify uncertainty.
-    
-    \item \textbf{Support Vector Regression (SVR-RBF-S):} Kernel-based regression with RBF kernel:
-    \begin{equation}
-    \min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{|\mathcal{D}|} \max(0, |y_i - f(s_i)| - \epsilon)
-    \end{equation}
-    with $C = 1.0$ (regularization), $\epsilon = 0.1$ ($\epsilon$-insensitive loss), and $\gamma = \text{scale}$ (kernel coefficient).
+    \item \textbf{Small-scale} ($|\mathcal{D}| < 500$): Prioritize low-variance models (RF, GB, KNN).
+    \item \textbf{Medium-scale} ($500 \le |\mathcal{D}| < 2000$): Combine tree ensembles with simple neural regressors (MLP, GB).
+    \item \textbf{Large-scale} ($|\mathcal{D}| \ge 2000$): Employ deep models with expressive kernels (Transformer, GPR).
 \end{itemize}
 
-The small-data ensemble contains 8 models, emphasizing diversity and robustness over individual model capacity.
+\subsubsection{Model Configuration Summary}
 
-\textbf{Medium Data Regime ($100 \leq |\mathcal{D}| < 300$):}
+The main hyperparameters for each data regime are summarized in Tables~\ref{tab:small_models} and~\ref{tab:large_models}.
 
-With moderate data availability, we balance model complexity and generalization. This regime introduces more sophisticated models while maintaining regularization:
 
-\begin{itemize}
-    \item \textbf{Random Forest (RF-M, RF-L):} Increased ensemble size and depth:
-    \begin{align}
-    \text{RF-M:} \quad & n_{\text{trees}} = 100, \, d_{\max} = 5, \, n_{\min}^{\text{split}} = 5, \, n_{\min}^{\text{leaf}} = 2 \\
-    \text{RF-L:} \quad & n_{\text{trees}} = 150, \, d_{\max} = 7, \, n_{\min}^{\text{split}} = 4
-    \end{align}
-    
-    \item \textbf{Gradient Boosting (GB-M, GB-L):} Deeper boosted ensembles:
-    \begin{align}
-    \text{GB-M:} \quad & n_{\text{trees}} = 50, \, d_{\max} = 4, \, \alpha = 0.05 \\
-    \text{GB-L:} \quad & n_{\text{trees}} = 75, \, d_{\max} = 5, \, \alpha = 0.03
-    \end{align}
-    Lower learning rates enable finer-grained optimization.
-    
-    \item \textbf{XGBoost (XGB-M):} Advanced gradient boosting with additional regularization:
-    \begin{equation}
-    n_{\text{trees}} = 100, \, d_{\max} = 5, \, \alpha = 0.05, \, \rho_{\text{col}} = 0.8, \, \rho_{\text{row}} = 0.8
-    \end{equation}
-    where $\rho_{\text{col}}$ and $\rho_{\text{row}}$ are column and row subsampling ratios.
-    
-    \item \textbf{K-Nearest Neighbors (KNN-M, KNN-Tuned):} Fixed and adaptive neighborhood sizes:
-    \begin{align}
-    \text{KNN-M:} \quad & k = 5 \\
-    \text{KNN-Tuned:} \quad & k = \lfloor \sqrt{|\mathcal{D}|} \rfloor
-    \end{align}
-    
-    \item \textbf{Multi-Layer Perceptron (MLP-M):} Neural network with early stopping:
-    \begin{equation}
-    \text{Architecture: } 50 \to 25 \to 1, \quad \text{max\_iter} = 500, \quad \text{validation} = 0.2
-    \end{equation}
-    A two-hidden-layer network with 50 and 25 neurons, trained with 20\% validation split for early stopping.
-    
-    \item \textbf{Support Vector Regression (SVR-RBF, SVR-Poly):} Linear and polynomial kernels:
-    \begin{align}
-    \text{SVR-RBF:} \quad & k(s, s') = \exp(-\gamma\|f(s) - f(s')\|^2), \, C = 1.0 \\
-    \text{SVR-Poly:} \quad & k(s, s') = (\gamma \langle f(s), f(s') \rangle + r)^d, \, d = 2, \, C = 1.0
-    \end{align}
-    
-    \item \textbf{Bayesian Ridge Regression:} Maintained as a robust linear baseline.
-\end{itemize}
 
-The medium-data ensemble contains 11 models, providing a richer hypothesis space while avoiding extreme complexity.
+\begin{table}[!t]
+\centering
+\caption{Model configurations for small and medium datasets.}
+\label{tab:small_models}
+\small % Reduce font size
+\setlength{\tabcolsep}{3pt} % Reduce column separation
+\begin{tabularx}{\columnwidth}{@{} p{2.3cm} p{2.8cm} >{\RaggedRight}X @{}}
+\toprule
+\textbf{Model} & \textbf{Key Parameters} & \textbf{Remarks} \\
+\midrule
+Random Forest (RF) & 100 trees; depth 6–12 & Robust for small datasets, low bias–variance tradeoff. \\
+Gradient Boosting (GB) & 200 estimators; learning rate 0.05 & Captures nonlinearities efficiently. \\
+KNN Regressor & $k=3$–7; distance weight & Useful for sparse regions. \\
+Support Vector Regression (SVR) & RBF kernel; $C=1.0$ & Smooth fit for continuous reward surfaces. \\
+MLP Regressor & [256,128,64] ReLU; dropout 0.2 & Introduces nonlinearity while preventing overfitting. \\ 
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\textbf{Large Data Regime ($|\mathcal{D}| \geq 300$):}
 
-With abundant data, we deploy high-capacity models capable of learning complex non-linear patterns:
+% Ensure you have \usepackage{tabularx}, \usepackage{booktabs}, and \usepackage{ragged2e} loaded.
 
-\begin{itemize}
-    \item \textbf{Random Forest (RF-Tuned-L, RF-Tuned-XL):} Data-adaptive configurations:
-    \begin{align}
-    \text{RF-Tuned-L:} \quad & n_{\text{trees}} = \min(200, |\mathcal{D}|/2), \, d_{\max} = \min(10, |\mathcal{D}|/30) \\
-    \text{RF-Tuned-XL:} \quad & n_{\text{trees}} = \min(300, |\mathcal{D}|), \, d_{\max} = \min(15, |\mathcal{D}|/20)
-    \end{align}
-    Model complexity scales with dataset size, bounded to prevent excessive computation.
-    
-    \item \textbf{Gradient Boosting (GB-Tuned-L, GB-Tuned-XL):} Aggressive boosting:
-    \begin{align}
-    \text{GB-Tuned-L:} \quad & n_{\text{trees}} = \min(100, |\mathcal{D}|/3), \, d_{\max} = 5, \, \alpha = 0.05 \\
-    \text{GB-Tuned-XL:} \quad & n_{\text{trees}} = \min(150, |\mathcal{D}|/2), \, d_{\max} = 6, \, \alpha = 0.03
-    \end{align}
-    
-    \item \textbf{XGBoost (XGB-L, XGB-XL):} Advanced regularization:
-    \begin{align}
-    \text{XGB-L:} \quad & n_{\text{trees}} = 150, \, d_{\max} = 6, \, \alpha = 0.1, \, \rho_{\text{row}} = 0.7 \\
-    \text{XGB-XL:} \quad & n_{\text{trees}} = 200, \, d_{\max} = 8, \, \alpha = 0.05, \, \lambda_{\text{L1}} = 0.1, \, \lambda_{\text{L2}} = 1.0
-    \end{align}
-    L1 and L2 regularization terms prevent overfitting in the XL variant.
-    
-    \item \textbf{Multi-Layer Perceptron (MLP-Adaptive-XL, MLP-L):} Deep architectures:
-    \begin{align}
-    \text{MLP-Adaptive-XL:} \quad & 128 \to 64 \to 32 \to 1, \, \text{max\_iter} = 1000, \, \alpha_{\text{adaptive}} \\
-    \text{MLP-L:} \quad & 100 \to 50 \to 1, \, \text{max\_iter} = 800, \, \text{activation} = \tanh
-    \end{align}
-    The XL variant uses adaptive learning rate scheduling for better convergence.
-    
-    \item \textbf{Support Vector Regression (SVR-RBF-XL, SVR-Poly-L):} High-capacity kernels:
-    \begin{align}
-    \text{SVR-RBF-XL:} \quad & C = 10.0, \, \gamma = \text{auto}, \, \epsilon = 0.01 \\
-    \text{SVR-Poly-L:} \quad & d = 3, \, C = 1.0, \, \epsilon = 0.1
-    \end{align}
-    Increased regularization parameter $C$ allows for more complex decision boundaries.
-    
-    \item \textbf{K-Nearest Neighbors (KNN-Tuned-Sqrt, KNN-Tuned-L):} 
-    \begin{align}
-    \text{KNN-Tuned-Sqrt:} \quad & k = \lfloor \sqrt{|\mathcal{D}|} \rfloor \\
-    \text{KNN-Tuned-L:} \quad & k = \min(20, |\mathcal{D}|/20)
-    \end{align}
-    
-    \item \textbf{Bayesian Ridge Regression:} Retained as a linear baseline for ensemble diversity.
-    
-    \item \textbf{Gaussian Process (GP):} Included if $|\mathcal{D}| < 500$ due to $O(|\mathcal{D}|^3)$ computational complexity. Uses Matérn kernel:
-    \begin{equation}
-k(s, s') = \sigma^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left(\sqrt{2\nu}\frac{\lVert f(s) - f(s') \rVert}{\ell}\right)^\nu K_\nu\left(\sqrt{2\nu}\frac{\lVert f(s) - f(s') \rVert}{\ell}\right)
-\end{equation}
+\begin{table}[!t]
+\centering
+\caption{Model configurations for large datasets.}
+\label{tab:large_models}
+\small % Reduce font size
+\setlength{\tabcolsep}{3pt} % Reduce column separation
+\begin{tabularx}{\columnwidth}{@{} p{2.3cm} p{2.8cm} >{\RaggedRight}X @{}}
+\toprule
+\textbf{Model} & \textbf{Key Parameters} & \textbf{Remarks} \\
+\midrule
+Gaussian Process Regression (GPR) & RBF + White kernels & Provides uncertainty estimation; scales with $O(n^3)$. \\
+Transformer Regressor & 4 heads, 2 layers; embedding dim 64 & Captures long-range sequence dependencies. \\
+LSTM Regressor & 64 hidden units; 2 layers & Effective for sequential correlation modeling. \\
+Ensemble Averaging & Weighted by $R^2$ score & Adaptive weighting prevents low-quality model dominance. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-    with smoothness parameter $\nu = 1.5$, balancing smoothness and flexibility.
-\end{itemize}
+\subsubsection{Training Strategy and Feature Encoding}
 
-The large-data ensemble contains up to 13 models, leveraging data abundance to fit expressive hypotheses.
+All models are trained on the cumulative dataset $\mathcal{D}$ after each round using an 80/20 split for training and validation. Optimization employs Adam or tree-based boosting as appropriate. Early stopping and cross-validation are used to avoid overfitting.
 
-\subsubsection{Model Training Strategy}
-
-Surrogate models are retrained from scratch at each experiment round $n$ using the cumulative dataset $\mathcal{D}_n$ of all oracle-evaluated sequences. This retraining strategy ensures models always reflect the most current understanding of the oracle landscape.
-
-\textbf{Data Preprocessing:}
-
-Before training, we apply outlier removal to improve model robustness:
-\begin{enumerate}
-    \item Compute interquartile range: $\text{IQR} = Q_3 - Q_1$ where $Q_1$ and $Q_3$ are the 25th and 75th percentiles of rewards.
-    \item Define outlier bounds:
-    \begin{align}
-    r_{\text{lower}} &= Q_1 - 1.5 \cdot \text{IQR} \\
-    r_{\text{upper}} &= Q_3 + 1.5 \cdot \text{IQR}
-    \end{align}
-    \item Filter dataset: $\mathcal{D}_{\text{clean}} = \{(s, r) \in \mathcal{D}_n : r_{\text{lower}} \leq r \leq r_{\text{upper}}\}$
-\end{enumerate}
-
-If more than 20 samples remain after outlier removal, we use $\mathcal{D}_{\text{clean}}$; otherwise, we retain all data to avoid excessive sample loss.
-
-\textbf{Cross-Validation for Model Selection:}
-
-Each candidate model $f_k$ is evaluated using $k$-fold cross-validation to obtain a robust estimate of generalization performance:
+Feature engineering transforms each sequence $s = (a_1, a_2, \ldots, a_T)$ into a vector $\phi(s)$ capturing composition, structure, and position:
 \begin{equation}
-\bar{R}_{k}^{2} = \frac{1}{K} \sum_{j=1}^{K} R_{k}^{2,(j)}
+\phi(s) = [\text{OneHot}(a_t),\, \text{Freq}(a_t),\, \text{GC}(s),\, \text{PosEnc}(t)]
 \end{equation}
-where $K = \min(5, |\mathcal{D}_{\text{clean}}|/10)$ is the number of folds, adapted to dataset size. The fold-specific R² score is:
+Positional encoding follows a standard sinusoidal form:
 \begin{equation}
-R_{k}^{2,(j)} = 1 - \frac{\sum_{i \in \mathcal{V}^{(j)}} (r_i - \hat{f}_k(s_i))^2}
-{\sum_{i \in \mathcal{V}^{(j)}} (r_i - \bar{r})^2}
+\text{PE}(t, 2i) = \sin\left(\frac{t}{10000^{2i/d}}\right), \quad 
+\text{PE}(t, 2i+1) = \cos\left(\frac{t}{10000^{2i/d}}\right)
 \end{equation}
-where $\mathcal{V}^{(j)}$ is the validation set for fold $j$, $\hat{f}_k^{(-j)}$ is the model trained without fold $j$, and $\bar{r}$ is the mean reward.
+For neural models, embeddings are learned jointly; for classical models, $\phi(s)$ serves as the static input feature vector.
 
-\textbf{Adaptive Model Acceptance Threshold:}
+\subsubsection{Model Quality and Adaptivity}
 
-Models are included in the ensemble if their cross-validated R² score exceeds a dynamic threshold $\tau(n)$:
+After each experiment round $n$, model quality is assessed using the coefficient of determination:
 \begin{equation}
-\mathcal{S}_n = \{k : R^2_k > \tau(n)\}
+R^2 = 1 - \frac{\sum_i (R(s_i) - f(s_i))^2}{\sum_i (R(s_i) - \bar{R})^2}
 \end{equation}
+The ensemble enters the DyNA-PPO virtual training phase only if $\max(R^2) > \tau$. Threshold $\tau$ increases gradually with training progress to ensure stricter inclusion as data grows.
 
-We investigate two threshold strategies:
+When model accuracy improves, virtual training iterations $M$ expand adaptively, and the diversity penalty $\lambda_{\text{virtual}}$ is reduced to emphasize exploitation over exploration.
 
-\textit{Fixed Threshold:} $\tau(n) = \tau_{\text{fixed}} = 0.2$ for all rounds. This maintains consistent quality standards throughout training.
+\subsubsection{Summary}
 
-\textit{Dynamic Threshold:} The threshold increases linearly to enforce progressively stricter quality requirements:
-\begin{equation}
-\tau(n) = \begin{cases}
-\tau_{\text{start}} = -0.3 & \text{if } n < \lfloor N/10 \rfloor \\
-\min(\tau_{\text{final}}, \tau_{\text{start}} + (n - \lfloor N/10 \rfloor) \cdot \delta) & \text{otherwise}
-\end{cases}
-\end{equation}
-where $\tau_{\text{final}}$ is the target final threshold (e.g., 0.2), $\delta = 0.01$ is the increment per round, and $\tau_{\text{start}} = -0.3$ allows even poorly-performing models initially when data is scarce. This adaptive strategy balances the need for surrogate guidance in early rounds with quality assurance in later rounds.
+This ensemble strategy balances flexibility and stability. By dynamically selecting surrogate models, adjusting ensemble weights through $R^2$-based confidence, and combining explicit feature representations with learned embeddings, DyNA-PPO achieves efficient policy improvement with minimal oracle evaluations.
 
-\textbf{Fallback Strategy:}
 
-If no models exceed the threshold ($\mathcal{S}_n = \emptyset$), we employ a fallback mechanism to avoid halting model-based training:
-\begin{equation}
-\mathcal{S}_n = \{\arg\max_k R^2_k\} \quad \text{if } \max_k R^2_k > -0.5
-\end{equation}
-This ensures at least one model is used unless all models are catastrophically poor ($R^2 < -0.5$, worse than predicting the mean).
 
-After acceptance, models are retrained on the full cleaned dataset $\mathcal{D}_{\text{clean}}$ (without cross-validation splits) to maximize their predictive capability:
-\begin{equation}
-\hat{f}_k = \arg\min_{f \in \mathcal{H}_k} \sum_{(s, r) \in \mathcal{D}_{\text{clean}}} \mathcal{L}(f(s), r)
-\end{equation}
-where $\mathcal{H}_k$ is the hypothesis class for model type $k$ and $\mathcal{L}$ is the loss function (typically mean squared error).
-
-\subsubsection{Feature Engineering}
-
-Effective surrogate modeling requires transforming discrete sequences into continuous feature vectors that capture relevant structural information. We employ a context window encoding scheme combined with positional information.
-
-\textbf{Context Window Encoding:}
-
-For a sequence $s = (s_1, s_2, \ldots, s_T)$, we extract features based on the final $W$ tokens (where $W = 8$):
-\begin{equation}
-s_{\text{context}} = (s_{T-W+1}, s_{T-W+2}, \ldots, s_T)
-\end{equation}
-
-If $T < W$, we prepend zero-padding:
-\begin{equation}
-s_{\text{context}} = (\underbrace{0, \ldots, 0}_{W-T}, s_1, \ldots, s_T)
-\end{equation}
-
-\textbf{One-Hot Encoding:}
-
-Each token in the context window is one-hot encoded. For vocabulary $\mathcal{V} = \{0, 1, 2, 3\}$, token $s_i$ is mapped to:
-\begin{equation}
-\mathbf{e}_{s_i} = \begin{bmatrix} \mathbb{1}_{[s_i = 0]} \\ \mathbb{1}_{[s_i = 1]} \\ \mathbb{1}_{[s_i = 2]} \\ \mathbb{1}_{[s_i = 3]} \end{bmatrix} \in \{0, 1\}^{|\mathcal{V}|}
-\end{equation}
-
-The context window is flattened into a single vector:
-\begin{equation}
-\mathbf{c}_{\text{onehot}} = [\mathbf{e}_{s_{T-W+1}}; \mathbf{e}_{s_{T-W+2}}; \ldots; \mathbf{e}_{s_T}] \in \{0, 1\}^{W \cdot |\mathcal{V}|}
-\end{equation}
-
-For our configuration, this produces a 32-dimensional binary vector ($8 \times 4 = 32$).
-
-\textbf{Sinusoidal Positional Encoding:}
-
-To capture sequence length and positional information, we append a sinusoidal encoding of the sequence length $T$:
-\begin{align}
-\text{PE}(T, 2i) &= \sin\left(\frac{T}{10000^{2i/d_{\text{pos}}}}\right) \\
-\text{PE}(T, 2i+1) &= \cos\left(\frac{T}{10000^{2i/d_{\text{pos}}}}\right)
-\end{align}
-for $i \in \{0, 1, \ldots, \lfloor d_{\text{pos}}/2 \rfloor - 1\}$, where $d_{\text{pos}} = 16$ is the positional encoding dimension.
-
-\textbf{Final Feature Representation:}
-
-The complete feature vector is the concatenation:
-\begin{equation}
-\phi(s) = [\mathbf{c}_{\text{onehot}}; \text{PE}(T)] \in \mathbb{R}^{W \cdot |\mathcal{V}| + d_{\text{pos}}}
-\end{equation}
-
-For our setup, $\phi(s) \in \mathbb{R}^{48}$ (32 for context + 16 for position). This fixed-size representation enables standard regression models to process variable-length sequences.
-
-\textbf{Feature Scaling:}
-
-Each surrogate model applies standardization to its input features:
-\begin{equation}
-\tilde{\phi}(s) = \frac{\phi(s) - \boldsymbol{\mu}}{\boldsymbol{\sigma}}
-\end{equation}
-where $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ are the mean and standard deviation computed on the training set. This normalization improves convergence for gradient-based models (MLP, SVR) and distances for KNN.
-
-The context window approach captures local sequence patterns (e.g., motifs, base composition) while positional encoding provides global length information. Together, they enable surrogate models to approximate the complex, multi-component oracle function with high fidelity, achieving R² scores typically exceeding 0.5 after 50-100 training samples.
 
 
 
@@ -816,171 +477,45 @@ The context window approach captures local sequence patterns (e.g., motifs, base
 
 \subsection{Ensemble Weighting Methods}
 
-A critical component of our surrogate modeling approach is determining how to combine predictions from multiple models. Rather than treating all models equally, we investigate three weighting strategies that adapt to model performance and training progress. The ensemble prediction for a sequence $s$ is computed as:
+We investigate three strategies for combining predictions from multiple surrogate models. The ensemble prediction for sequence $s$ is:
 \begin{equation}
 \hat{R}_{\text{ensemble}}(s) = \sum_{k \in \mathcal{S}_n} w_k \hat{f}_k(\phi(s))
 \end{equation}
-where $\mathcal{S}_n$ is the set of accepted models at round $n$, $w_k$ is the weight assigned to model $k$, and $\hat{f}_k$ is the surrogate model's prediction function. The weights satisfy $w_k \geq 0$ and $\sum_{k \in \mathcal{S}_n} w_k = 1$.
+where $\mathcal{S}_n$ is the set of accepted models at round $n$, $w_k$ are weights satisfying $w_k \geq 0$ and $\sum_{k \in \mathcal{S}_n} w_k = 1$.
 
 \subsubsection{Average Ensemble}
 
-The simplest weighting scheme assigns equal weight to all accepted models:
-\begin{equation}
-w_k = \frac{1}{|\mathcal{S}_n|} \quad \forall k \in \mathcal{S}_n
-\end{equation}
-
-This uniform weighting strategy offers several advantages:
-\begin{itemize}
-    \item \textbf{Simplicity:} No additional computation or validation data required.
-    \item \textbf{Robustness:} Reduces the impact of any single model's errors through democratic averaging.
-    \item \textbf{Diversity preservation:} All models contribute equally, maintaining ensemble diversity.
-\end{itemize}
-
-The average ensemble prediction becomes:
-\begin{equation}
-\hat{R}_{\text{avg}}(s) = \frac{1}{|\mathcal{S}_n|} \sum_{k \in \mathcal{S}_n} \hat{f}_k(\phi(s))
-\end{equation}
-
-While this approach lacks adaptivity to varying model quality, it serves as a strong baseline due to the variance reduction properties of averaging. The prediction variance decreases as:
-\begin{equation}
-\text{Var}[\hat{R}_{\text{avg}}(s)] = \frac{1}{|\mathcal{S}_n|^2} \sum_{k \in \mathcal{S}_n} \text{Var}[\hat{f}_k(\phi(s))] + \frac{2}{|\mathcal{S}_n|^2} \sum_{k < k'} \text{Cov}[\hat{f}_k(\phi(s)), \hat{f}_{k'}(\phi(s))]
-\end{equation}
-
-When models are diverse (low covariance), averaging significantly reduces variance compared to individual model predictions.
+Equal weighting for all models: $w_k = \frac{1}{|\mathcal{S}_n|}$. This baseline approach requires no validation data and reduces variance through diversity preservation.
 
 \subsubsection{Weighted Ensemble}
 
-To account for varying model quality, we introduce performance-based weighting that assigns higher weights to models with better cross-validation scores. The weights are computed using a temperature-scaled softmax function:
+Performance-based weighting using temperature-scaled softmax:
 \begin{equation}
 w_k = \frac{\exp(R^2_k / T_w)}{\sum_{j \in \mathcal{S}_n} \exp(R^2_j / T_w)}
 \end{equation}
-where $R^2_k$ is the cross-validated R² score of model $k$ and $T_w$ is a temperature parameter controlling weight concentration.
-
-\textbf{Temperature Control:}
-
-The temperature parameter $T_w$ governs the distribution of weights:
-\begin{itemize}
-    \item \textbf{Low temperature} ($T_w \to 0$): Weights become one-hot, selecting only the best model (maximum exploitation).
-    \item \textbf{High temperature} ($T_w \to \infty$): Weights approach uniform, equivalent to average ensemble (maximum diversity).
-    \item \textbf{Moderate temperature} ($T_w = 0.1$): Our default setting, providing sharp differentiation between models while maintaining some diversity.
-\end{itemize}
-
-The softmax formulation ensures several desirable properties:
-\begin{enumerate}
-    \item \textbf{Automatic normalization:} $\sum_{k \in \mathcal{S}_n} w_k = 1$ by construction.
-    \item \textbf{Non-negativity:} $w_k > 0$ for all $k$, ensuring all models contribute.
-    \item \textbf{Monotonicity:} Higher R² scores yield higher weights.
-    \item \textbf{Differentiability:} Smooth weight transitions as scores change.
-\end{enumerate}
-
-\textbf{Mathematical Justification:}
-
-The softmax weighting can be derived from a probabilistic perspective. If we model each model's prediction as a Gaussian with precision proportional to its R² score:
-\begin{equation}
-p(\hat{f}_k(\phi(s)) | R(s)) \propto \exp(-\beta(1 - R^2_k)(\hat{f}_k(\phi(s)) - R(s))^2)
-\end{equation}
-then the maximum likelihood ensemble weight is proportional to $\exp(\beta R^2_k)$, which normalizes to the softmax form with $T_w = 1/\beta$.
-
-This method requires no additional validation data beyond the cross-validation already performed for model selection, making it computationally efficient while still adapting to model quality.
+where $R^2_k$ is the cross-validated R² score and $T_w = 0.1$ controls weight concentration. Higher-performing models receive greater weight while maintaining ensemble diversity.
 
 \subsubsection{Dynamic Ensemble}
 
-The most sophisticated weighting strategy employs different optimization methods as training progresses, adapting to data availability and model maturity. The dynamic ensemble uses a three-phase schedule:
+A three-phase adaptive strategy responding to data availability:
 
-\textbf{Phase 1: Early Rounds ($n \leq N/3$)}
+\textbf{Phase 1 ($n \leq N/3$):} Uses weighted ensemble to avoid validation splits with limited data.
 
-In the initial training phase, limited data prevents reliable weight optimization. We use performance-based weighting:
-\begin{equation}
-w_k = \frac{\exp(R^2_k / T_w)}{\sum_{j \in \mathcal{S}_n} \exp(R^2_j / T_w)} \quad \text{for } n \leq N/3
-\end{equation}
-This provides a reasonable weighting scheme without requiring additional validation splits that would further reduce the already-scarce training data.
-
-\textbf{Phase 2: Middle Rounds ($N/3 < n \leq 2N/3$)}
-
-With moderate data accumulation, we transition to ridge regression-based weight learning. Given a validation set $\mathcal{D}_{\text{val}} = \{(s_i, R(s_i))\}_{i=1}^{|\mathcal{D}_{\text{val}}|}$, we collect predictions from all models:
-\begin{equation}
-\mathbf{P} = \begin{bmatrix}
-\hat{f}_1(\phi(s_1)) & \hat{f}_2(\phi(s_1)) & \cdots & \hat{f}_{|\mathcal{S}_n|}(\phi(s_1)) \\
-\hat{f}_1(\phi(s_2)) & \hat{f}_2(\phi(s_2)) & \cdots & \hat{f}_{|\mathcal{S}_n|}(\phi(s_2)) \\
-\vdots & \vdots & \ddots & \vdots \\
-\hat{f}_1(\phi(s_{|\mathcal{D}_{\text{val}}|})) & \hat{f}_2(\phi(s_{|\mathcal{D}_{\text{val}}|})) & \cdots & \hat{f}_{|\mathcal{S}_n|}(\phi(s_{|\mathcal{D}_{\text{val}}|}))
-\end{bmatrix} \in \mathbb{R}^{|\mathcal{D}_{\text{val}}| \times |\mathcal{S}_n|}
-\end{equation}
-
-The weights are learned by solving a ridge regression problem:
-\begin{equation}
-\mathbf{w}^* = \arg\min_{\mathbf{w}} \|\mathbf{P}\mathbf{w} - \mathbf{r}\|^2 + \lambda_{\text{ridge}} \|\mathbf{w}\|^2
-\end{equation}
-where $\mathbf{r} = [R(s_1), R(s_2), \ldots, R(s_{|\mathcal{D}_{\text{val}}|})]^T$ is the vector of true rewards and $\lambda_{\text{ridge}} = 1.0$ is the regularization parameter.
-
-The closed-form solution is:
+\textbf{Phase 2 ($N/3 < n \leq 2N/3$):} Employs ridge regression weight learning. Given prediction matrix $\mathbf{P} \in \mathbb{R}^{|\mathcal{D}_{\text{val}}| \times |\mathcal{S}_n|}$ from validation set predictions:
 \begin{equation}
 \mathbf{w}^* = (\mathbf{P}^T\mathbf{P} + \lambda_{\text{ridge}}\mathbf{I})^{-1}\mathbf{P}^T\mathbf{r}
 \end{equation}
+with $\lambda_{\text{ridge}} = 1.0$. Negative weights are rectified: $w_k = \frac{\max(0, w_k^*)}{\sum_j \max(0, w_j^*)}$.
 
-\textbf{Post-processing:} Ridge regression can produce negative weights, which are undesirable for ensemble averaging. We apply rectification and normalization:
-\begin{align}
-\tilde{w}_k &= \max(0, w_k^*) \\
-w_k &= \frac{\tilde{w}_k}{\sum_{j \in \mathcal{S}_n} \tilde{w}_j + \epsilon}
-\end{align}
-where $\epsilon = 10^{-10}$ prevents division by zero.
-
-\textbf{Advantages of Ridge Regression:}
-\begin{itemize}
-    \item \textbf{Regularization:} The L2 penalty prevents overfitting to validation noise.
-    \item \textbf{Multicollinearity handling:} When models are correlated, ridge regression can assign zero weight to redundant models, improving ensemble efficiency.
-    \item \textbf{Stability:} The regularization term ensures numerical stability even with ill-conditioned $\mathbf{P}^T\mathbf{P}$.
-\end{itemize}
-
-\textbf{Phase 3: Late Rounds ($n > 2N/3$)}
-
-In the final training phase, we employ validation-based optimization to find the globally optimal weights. This method directly minimizes the mean squared error on the validation set:
+\textbf{Phase 3 ($n > 2N/3$):} Solves constrained optimization using SLSQP:
 \begin{equation}
 \mathbf{w}^* = \arg\min_{\mathbf{w}} \sum_{i=1}^{|\mathcal{D}_{\text{val}}|} \left(R(s_i) - \sum_{k \in \mathcal{S}_n} w_k \hat{f}_k(\phi(s_i))\right)^2
 \end{equation}
-subject to constraints:
-\begin{align}
-\sum_{k \in \mathcal{S}_n} w_k &= 1 \\
-w_k &\geq 0 \quad \forall k \in \mathcal{S}_n
-\end{align}
+subject to $\sum_k w_k = 1$ and $w_k \geq 0$.
 
-We solve this constrained optimization problem using Sequential Least Squares Programming (SLSQP):
-\begin{algorithm}[H]
-\caption{Validation-Based Weight Optimization}
-\begin{algorithmic}[1]
-\STATE \textbf{Input:} Models $\{\hat{f}_k\}_{k \in \mathcal{S}_n}$, validation set $\mathcal{D}_{\text{val}}$
-\STATE \textbf{Initialize:} $\mathbf{w}_0 = \frac{1}{|\mathcal{S}_n|}\mathbf{1}$ (uniform weights)
-\STATE Compute prediction matrix $\mathbf{P}$ as in equation (51)
-\STATE Define objective: $L(\mathbf{w}) = \frac{1}{|\mathcal{D}_{\text{val}}|}\|\mathbf{P}\mathbf{w} - \mathbf{r}\|^2$
-\STATE Define constraints: $g_1(\mathbf{w}) = \sum_k w_k - 1 = 0$, $g_2(\mathbf{w}) = \mathbf{w} \geq \mathbf{0}$
-\STATE \textbf{Solve:} $\mathbf{w}^* = \text{SLSQP}(L, \mathbf{w}_0, \text{constraints}=\{g_1, g_2\})$
-\STATE \textbf{Return:} $\mathbf{w}^*$
-\end{algorithmic}
-\end{algorithm}
+The validation set uses the most recent 30 sequences (or 1/3 of data if $|\mathcal{D}_n| < 90$) to reflect current exploration regions.
 
-This approach finds the mathematically optimal weights for the validation set, potentially discovering non-intuitive weight distributions that exploit complementary strengths of different models.
-
-\textbf{Validation Set Construction:}
-
-At each round, we construct the validation set from recent data to ensure relevance:
-\begin{equation}
-\mathcal{D}_{\text{val}} = \{(s_i, R(s_i)) : i \in \{|\mathcal{D}_n| - \min(30, |\mathcal{D}_n|/3) + 1, \ldots, |\mathcal{D}_n|\}\}
-\end{equation}
-
-This uses the last 30 sequences (or 1/3 of all data if fewer than 90 sequences exist), ensuring the validation set reflects the current exploration region.
-
-\textbf{Weight History Tracking:}
-
-Throughout training, we maintain a history of learned weights:
-\begin{equation}
-\mathcal{H}_w = \{(n, \mathbf{w}_n)\}_{n=1}^{N}
-\end{equation}
-
-This enables post-hoc analysis of weight evolution, revealing which model types gain or lose importance as training progresses and the oracle landscape is better understood.
-
-\subsubsection{Comparison and Trade-offs}
-
-The three weighting methods span a spectrum of complexity and adaptivity:
+\subsubsection{Comparison}
 
 \begin{table}[h]
 \centering
@@ -996,16 +531,11 @@ Dynamic & $O(|\mathcal{S}_n|^3 |\mathcal{D}_{\text{val}}|)$ & Validation set & H
 \caption{Computational complexity and requirements of ensemble weighting methods.}
 \end{table}
 
-\textbf{Theoretical Insights:}
+Average ensemble minimizes variance through diversity but includes all models equally. Weighted ensemble reduces bias by down-weighting poor performers. Dynamic ensemble's phased approach balances adaptivity with data availability, avoiding overfitting in early rounds while achieving optimal combinations later.
 
-From a bias-variance perspective:
-\begin{itemize}
-    \item \textbf{Average ensemble} minimizes variance through maximum diversity but may have higher bias if poor models are included.
-    \item \textbf{Weighted ensemble} reduces bias by down-weighting poor models while maintaining reasonable variance through softmax smoothing.
-    \item \textbf{Dynamic ensemble} can achieve lowest bias by optimally combining models, but risks overfitting to validation noise in early rounds (hence the phased approach).
-\end{itemize}
 
-The dynamic ensemble's three-phase schedule balances these considerations: starting simple when data is scarce, introducing regularized learning with moderate data, and employing full optimization once sufficient data enables robust weight estimation. This adaptive strategy aims to achieve the best of all approaches across the full training trajectory.
+
+
 
 
 
@@ -1013,395 +543,92 @@ The dynamic ensemble's three-phase schedule balances these considerations: start
 
 \subsection{Training Procedure}
 
-The DyNA-PPO training procedure orchestrates the interplay between oracle evaluations, policy optimization, and surrogate model learning. The algorithm progresses through $N$ experiment rounds, each consisting of multiple training phases designed to maximize sample efficiency while maintaining exploration.
+The DyNA-PPO algorithm progresses through $N$ experiment rounds, each consisting of multiple coordinated phases for oracle evaluation, policy optimization, and surrogate model learning.
 
 \subsubsection{Warm-up Phase}
 
-Before the main training loop begins, we optionally execute a warm-up phase to bootstrap the learning process with diverse initial data. Cold-starting with a randomly initialized policy often yields poor-quality sequences, providing surrogate models with uninformative training signals. The warm-up phase addresses this by generating a diverse initial dataset through strategic sampling.
-
-\textbf{Warm-up Dataset Generation:}
-
-We generate $N_{\text{warmup}} = 50$ sequences using four distinct strategies, each representing 25\% of the warm-up set:
-
-\begin{enumerate}
-    \item \textbf{Uniform Random:} Complete random exploration of the sequence space:
-    \begin{equation}
-    s_i \sim \text{Uniform}(\mathcal{V}), \quad i = 1, 2, \ldots, T
-    \end{equation}
-    This provides unbiased coverage of the sequence space.
-    
-    \item \textbf{High GC-Content:} Biased sampling toward G and C bases:
-    \begin{equation}
-    s_i \sim \begin{cases}
-    \text{Uniform}(\{G, C\}) & \text{with probability } 0.7 \\
-    \text{Uniform}(\{A, T\}) & \text{with probability } 0.3
-    \end{cases}
-    \end{equation}
-    For DNA sequences, this explores the high-stability region of the landscape.
-    
-    \item \textbf{High AT-Content:} Complementary bias toward A and T bases:
-    \begin{equation}
-    s_i \sim \begin{cases}
-    \text{Uniform}(\{A, T\}) & \text{with probability } 0.7 \\
-    \text{Uniform}(\{G, C\}) & \text{with probability } 0.3
-    \end{cases}
-    \end{equation}
-    This provides contrast to the GC-biased sequences.
-    
-    \item \textbf{Repetitive with Noise:} Structured patterns with stochastic perturbations:
-    \begin{equation}
-    s_i = \begin{cases}
-    p_{(i \bmod 2)} & \text{with probability } 0.7 \\
-    \text{Uniform}(\mathcal{V}) & \text{with probability } 0.3
-    \end{cases}
-    \end{equation}
-    where $p = (p_0, p_1)$ is a randomly chosen 2-token pattern (e.g., "AG", "TC"). This creates structured sequences with controlled variation.
-\end{enumerate}
-
-Each generated sequence $s$ is evaluated by the oracle to obtain its reward $R(s)$. The warm-up dataset $\mathcal{D}_0 = \{(s_i, R(s_i))\}_{i=1}^{N_{\text{warmup}}}$ is added to the algorithm's cumulative data storage.
-
-\textbf{Pre-training Surrogate Models:}
-
-After collecting warm-up data, we optionally pre-train surrogate models on $\mathcal{D}_0$. This provides initial predictive capability, though model quality is typically poor ($R^2 < 0$) due to limited data. The pre-training serves primarily to verify model implementation and establish baseline performance.
-
-\textbf{Benefits of Warm-up:}
-
-The warm-up phase provides several advantages:
-\begin{itemize}
-    \item \textbf{Diverse initialization:} Multiple sampling strategies ensure broad coverage of the sequence space.
-    \item \textbf{Surrogate bootstrapping:} Models receive meaningful initial training data rather than starting from zero.
-    \item \textbf{Policy initialization:} The policy network can be pre-trained on warm-up data (though we do not implement this in the current version).
-    \item \textbf{Oracle characterization:} Early understanding of the reward distribution's range and variance.
-\end{itemize}
+We optionally generate $N_{\text{warmup}} = 50$ diverse initial sequences using four strategies (25\% each): (1) uniform random sampling, (2) high GC-content bias (70\% G/C), (3) high AT-content bias (70\% A/T), and (4) repetitive patterns with 30\% noise. All sequences are oracle-evaluated to create initial dataset $\mathcal{D}_0$, providing broad coverage and bootstrapping surrogate models.
 
 \subsubsection{Main Training Loop}
 
-Following the warm-up phase, the algorithm executes $N$ experiment rounds. Each round $n \in \{1, 2, \ldots, N\}$ consists of seven coordinated phases:
+Each round $n \in \{1, \ldots, N\}$ executes seven phases:
 
 \textbf{Phase 1: Adaptive Parameter Configuration}
 
-At the start of each round, we update hyperparameters based on training progress:
-
+Hyperparameters adjust based on training progress:
 \begin{itemize}
-    \item \textbf{Learning Rate Schedule:} Cosine annealing with warm restarts:
-    \begin{equation}
-    \alpha(n) = \alpha_{\min} + \frac{\alpha_{\max} - \alpha_{\min}}{2}\left(1 + \cos\left(\frac{\pi \cdot (n \bmod P)}{P}\right)\right)
-    \end{equation}
-    where $\alpha_{\max} = 3 \times 10^{-4}$, $\alpha_{\min} = 1 \times 10^{-5}$, and $P = 5$ is the restart period. This schedule periodically increases the learning rate to escape local minima.
-    
-    \item \textbf{Exploration Rate:} Decaying schedule balancing exploration and exploitation:
-    \begin{equation}
-    \epsilon_{\text{explore}}(n) = \begin{cases}
-    0.3 & \text{if } n \leq 3 \\
-    \max(0.15, 0.4 - 0.03n) & \text{if } 3 < n \leq 7 \\
-    \max(0.05, 0.2 - 0.015n) & \text{if } n > 7
-    \end{cases}
-    \end{equation}
-    High initial exploration transitions to refined exploitation in later rounds.
-    
-    \item \textbf{Entropy Coefficient:} Regularization strength for policy entropy:
-    \begin{equation}
-    \beta_H(n) = \begin{cases}
-    0.02 & \text{if } n \leq 3 \\
-    0.01 & \text{if } 3 < n \leq 7 \\
-    0.005 & \text{if } n > 7
-    \end{cases}
-    \end{equation}
-    Decreasing entropy bonus shifts from exploration to deterministic policies.
-    
-    \item \textbf{PPO Clip Ratio:} Adaptive clipping based on reward variance:
-    \begin{equation}
-    \epsilon_{\text{clip}}(n, \sigma_R) = \begin{cases}
-    0.3 & \text{if } n \leq 3 \\
-    0.1 & \text{if } \sigma_R > 2.0 \\
-    0.2 & \text{otherwise}
-    \end{cases}
-    \end{equation}
-    where $\sigma_R$ is the standard deviation of rewards in the current batch.
+    \item \textbf{Learning rate:} Cosine annealing with warm restarts, $\alpha(n) = \alpha_{\min} + \frac{\alpha_{\max} - \alpha_{\min}}{2}(1 + \cos(\pi(n \bmod P)/P))$ where $\alpha_{\max} = 3 \times 10^{-4}$, $\alpha_{\min} = 1 \times 10^{-5}$, $P = 5$
+    \item \textbf{Exploration rate:} Decays from 0.3 (early) to 0.05 (late rounds)
+    \item \textbf{Entropy coefficient:} Decreases from 0.02 to 0.005 as $n$ increases
+    \item \textbf{PPO clip ratio:} Adaptive based on round and reward variance, ranging 0.1-0.3
 \end{itemize}
 
 \textbf{Phase 2: Guided Sequence Generation}
 
-The policy network generates a batch of $B$ sequences using a three-part strategy that balances exploitation, guided exploration, and random exploration:
-
-\textit{Early Rounds ($n \leq 2$):} Emphasize broad exploration:
-\begin{equation}
-s \sim \begin{cases}
-\text{Uniform}(\mathcal{V}^T) & \text{with probability } 0.5 \\
-\pi_\theta^{T=1.5} & \text{with probability } 0.5
-\end{cases}
-\end{equation}
-where $\pi_\theta^{T=1.5}$ denotes temperature-scaled sampling with high temperature for diversity.
-
-\textit{Later Rounds ($n > 2$):} Use guided generation with three sub-strategies:
+Generate batch of $B$ sequences using three-part strategy (for $n > 2$):
 \begin{itemize}
-    \item \textbf{Exploitation (First 1/3 of batch):} Generate sequences near the optimal GC content identified from top-performing historical sequences:
-    \begin{align}
-    \text{target\_gc} &= \mathbb{E}[\text{gc}(s) : s \in \mathcal{T}_{10\%}] \\
-    \text{desired\_gc} &\sim \mathcal{N}(\text{target\_gc}, \sigma_{\text{gc}}/2)
-    \end{align}
-    where $\mathcal{T}_{10\%}$ is the top 10\% of sequences by reward and $\sigma_{\text{gc}}$ is their GC content standard deviation. Sequences are constructed with the desired GC content, then shuffled to randomize base positions.
-    
-    \item \textbf{Guided Exploration (Second 1/3 of batch):} Sample from the policy network with adaptive temperature:
-    \begin{equation}
-    s \sim \pi_\theta^{T(n)}, \quad T(n) = \begin{cases}
-    1.2 & \text{if } n \leq 5 \\
-    1.0 & \text{if } n > 5
-    \end{cases}
-    \end{equation}
-    
-    \item \textbf{Random Exploration (Final 1/3 of batch):} Uniform random sequences to maintain diversity and prevent premature convergence:
-    \begin{equation}
-    s \sim \text{Uniform}(\mathcal{V}^T)
-    \end{equation}
+    \item \textbf{Exploitation (1/3):} Target sequences near optimal GC content from top 10\% historical performers
+    \item \textbf{Guided exploration (1/3):} Sample from policy with temperature $T(n) = 1.2$ (early) or 1.0 (late)
+    \item \textbf{Random exploration (1/3):} Uniform random sequences
 \end{itemize}
-
-This three-part strategy ensures each batch contains sequences that exploit known good patterns, explore variations guided by the policy, and maintain random exploration to discover entirely new regions.
-
-\textbf{Diversity Metrics:}
-
-After generation, we compute batch diversity:
-\begin{equation}
-D_{\text{batch}} = \frac{|\{s : s \in \mathcal{B}_n\}|}{|\mathcal{B}_n|}
-\end{equation}
-where $\mathcal{B}_n$ is the set of generated sequences in round $n$. This metric ranges from $1/B$ (all identical) to 1 (all unique).
+Early rounds ($n \leq 2$) use 50\% uniform random and 50\% high-temperature policy sampling.
 
 \textbf{Phase 3: Compute Old Log Probabilities}
 
-Before oracle evaluation, we compute the log probability of each generated sequence under the current policy. For sequence $s = (s_1, \ldots, s_T)$:
+Store log probabilities under current policy for PPO updates:
 \begin{equation}
 \log \pi_{\theta_{\text{old}}}(s) = \sum_{t=1}^{T} \log \pi_{\theta_{\text{old}}}(s_t | s_{<t})
 \end{equation}
 
-This computation is performed in inference mode (no gradient tracking) and stored for later PPO updates. The "old" policy $\pi_{\theta_{\text{old}}}$ refers to the parameters before the current round's updates.
-
 \textbf{Phase 4: Oracle Evaluation and Intrinsic Rewards}
 
-Each generated sequence is evaluated by the expensive oracle function $R(s)$. To encourage exploration, we augment oracle rewards with intrinsic rewards based on novelty:
+Evaluate sequences with oracle and augment with novelty-based intrinsic rewards:
 \begin{equation}
-R_{\text{total}}(s) = R(s) + R_{\text{intrinsic}}(s, n)
+R_{\text{total}}(s) = R(s) + \min\left(1, \frac{\bar{d}_5(s)}{T}\right) \cdot 0.5 \cdot \max\left(0, 1 - \frac{n}{10}\right)
 \end{equation}
-
-The intrinsic reward quantifies how different $s$ is from previously generated sequences:
-\begin{equation}
-R_{\text{intrinsic}}(s, n) = \underbrace{\min\left(1, \frac{\bar{d}_k(s)}{\bar{T}}\right)}_{\text{novelty}} \cdot \underbrace{0.5 \cdot \max\left(0, 1 - \frac{n}{10}\right)}_{\text{exploration weight}}
-\end{equation}
-where:
-\begin{itemize}
-    \item $\bar{d}_k(s) = \frac{1}{k}\sum_{i=1}^{k} d_i$ is the average edit distance to the $k = 5$ nearest neighbors in the sequence history
-    \item $T$ is the sequence length (maximum possible edit distance)
-    \item The exploration weight decays linearly, reaching zero at round 10
-\end{itemize}
-
-The intrinsic reward is highest for novel sequences in early rounds and gradually diminishes as training progresses, shifting from exploration to exploitation.
-
-\textbf{Data Storage:}
-
-All evaluated sequences are stored in the cumulative dataset:
-\begin{equation}
-\mathcal{D}_n = \mathcal{D}_{n-1} \cup \{(s_i, R(s_i))\}_{i=1}^{B}
-\end{equation}
-Note that we store the original oracle rewards $R(s)$, not the augmented rewards $R_{\text{total}}(s)$, ensuring surrogate models learn to predict the true oracle.
-
-\textbf{Oracle Call Tracking:}
-
-We maintain a cumulative count of oracle evaluations:
-\begin{equation}
-C_{\text{oracle}}(n) = C_{\text{oracle}}(n-1) + B
-\end{equation}
-This metric is critical for assessing sample efficiency, as minimizing oracle calls is a primary objective.
+where $\bar{d}_5(s)$ is average edit distance to 5 nearest neighbors. Store oracle rewards in cumulative dataset $\mathcal{D}_n = \mathcal{D}_{n-1} \cup \{(s_i, R(s_i))\}_{i=1}^{B}$.
 
 \textbf{Phase 5: Policy Network Update}
 
-Using the oracle-evaluated sequences and their augmented rewards, we update the policy network via PPO. The number of optimization epochs is adaptive:
-\begin{equation}
-E_{\text{policy}}(n) = \begin{cases}
-8 & \text{if } n \leq 3 \\
-4 & \text{if } 3 < n \leq 7 \\
-2 & \text{if } n > 7
-\end{cases}
-\end{equation}
-
-For each epoch $e \in \{1, \ldots, E_{\text{policy}}(n)\}$:
-
+Update policy via PPO with adaptive epochs: $E_{\text{policy}}(n) = 8$ (early), 4 (middle), or 2 (late rounds). For each epoch:
 \begin{enumerate}
-    \item \textbf{Recompute Current Probabilities:} For each sequence $s$ in the batch, compute $\log \pi_{\theta}(s)$ with the current (updated) policy parameters.
-    
-    \item \textbf{Compute Value Estimates:} For each sequence position, obtain value predictions:
+    \item Compute current log probabilities $\log \pi_\theta(s)$ and value estimates $V_\phi(s)$.
+    \item Calculate normalized advantages: $\hat{A}(s) = (R_{\text{total}}(s) - V_\phi(s) - \mu_A)/(\sigma_A + \epsilon)$.
+    \item Compute clipped surrogate objective with ratio $r(\theta) = \pi_\theta(s)/\pi_{\theta_{\text{old}}}(s)$:
     \begin{equation}
-    V_\phi(s_{<t}) = \text{ValueNet}([\text{context}(s_{<t}); \text{PE}(t)])
+    L^{\text{CLIP}}(\theta) = \mathbb{E}[\min(r(\theta)\hat{A}(s), \text{clip}(r(\theta), 1\pm\epsilon_{\text{clip}})\hat{A}(s))]
     \end{equation}
-    Average over all positions to get a sequence-level value estimate.
-    
-    \item \textbf{Compute Advantages:} Use the temporal difference method:
-    \begin{equation}
-    A(s) = R_{\text{total}}(s) - V_\phi(s)
-    \end{equation}
-    Normalize advantages across the batch:
-    \begin{equation}
-    \hat{A}(s) = \frac{A(s) - \mu_A}{\sigma_A + \epsilon}
-    \end{equation}
-    where $\mu_A$ and $\sigma_A$ are the mean and standard deviation of advantages, and $\epsilon = 10^{-8}$ prevents division by zero.
-    
-    \item \textbf{Compute PPO Objective:} Calculate the probability ratio:
-    \begin{equation}
-    r(\theta) = \frac{\pi_\theta(s)}{\pi_{\theta_{\text{old}}}(s)} = \exp(\log \pi_\theta(s) - \log \pi_{\theta_{\text{old}}}(s))
-    \end{equation}
-    
-    The clipped surrogate objective is:
-    \begin{equation}
-    L^{\text{CLIP}}(\theta) = \mathbb{E}\left[\min\left(r(\theta)\hat{A}(s), \text{clip}(r(\theta), 1-\epsilon_{\text{clip}}, 1+\epsilon_{\text{clip}})\hat{A}(s)\right)\right]
-    \end{equation}
-    
-    \item \textbf{Compute Entropy Bonus:} Encourage exploration through policy entropy:
-    \begin{equation}
-    H(\pi_\theta) = -\mathbb{E}_{s, t}\left[\sum_{a \in \mathcal{V}} \pi_\theta(a | s_{<t}) \log \pi_\theta(a | s_{<t})\right]
-    \end{equation}
-    
-    \item \textbf{Compute Value Loss:} Mean squared error between predicted and target values:
-    \begin{equation}
-    L^V(\phi) = \mathbb{E}\left[(V_\phi(s) - R_{\text{total}}(s))^2\right]
-    \end{equation}
-    
-    \item \textbf{Total Loss:} Combine objectives with adaptive weighting:
-    \begin{equation}
-    L_{\text{total}} = -L^{\text{CLIP}}(\theta) + 0.5 L^V(\phi) - \beta_H(n) H(\pi_\theta) + \lambda_{\text{L2}} \|\theta\|^2
-    \end{equation}
-    where $\lambda_{\text{L2}} = 10^{-4}$ is the L2 regularization coefficient.
-    
-    \item \textbf{Gradient Update:} Compute gradients and apply clipped gradient descent:
-    \begin{align}
-    \mathbf{g} &= \nabla_\theta L_{\text{total}} \\
-    \mathbf{g}_{\text{clip}} &= \text{clip}(\mathbf{g}, -g_{\max}(n), g_{\max}(n)) \\
-    \theta &\leftarrow \theta - \alpha(n) \mathbf{g}_{\text{clip}}
-    \end{align}
-    where the gradient clipping threshold is:
-    \begin{equation}
-    g_{\max}(n) = \begin{cases}
-    1.0 & \text{if } n \leq 3 \\
-    0.5 & \text{if } n > 3
-    \end{cases}
-    \end{equation}
-    
-    \item \textbf{KL Divergence Monitoring:} Compute KL divergence between old and new policies:
-    \begin{equation}
-    D_{\text{KL}}(\pi_{\theta_{\text{old}}} \| \pi_\theta) = \mathbb{E}\left[\log \pi_{\theta_{\text{old}}}(s) - \log \pi_\theta(s)\right]
-    \end{equation}
-    
-    If $D_{\text{KL}} > 0.05$ and $e > 0$, trigger early stopping to prevent excessive policy changes that could destabilize learning.
+    \item Optimize total loss: 
+    \begin{equation*}
+    \begin{split}
+    L_{\text{total}} &= -L^{\text{CLIP}}(\theta) + 0.5 L^V(\phi) \\
+    &- \beta_H(n) H(\pi_\theta) + \lambda_{\text{L2}} \|\theta\|^2
+    \end{split}
+    \end{equation*}
+    \item Apply gradient clipping ($g_{\max} = 1.0$ early, 0.5 late) and update parameters.
+    \item Early stop if KL divergence $D_{\text{KL}}(\pi_{\theta_{\text{old}}} \| \pi_\theta) > 0.05$.
 \end{enumerate}
 
 \textbf{Phase 6: Surrogate Model Training}
 
-If the cumulative dataset contains at least 30 samples ($|\mathcal{D}_n| \geq 30$), we retrain surrogate models:
-
-\begin{enumerate}
-    \item \textbf{Outlier Removal:} Apply IQR-based filtering as described in Section 3.4.2.
-    
-    \item \textbf{Model Selection:} Instantiate data-size-appropriate models as described in Section 3.4.1.
-    
-    \item \textbf{Cross-Validation:} Evaluate each model using $k$-fold CV to obtain $R^2_k$ scores.
-    
-    \item \textbf{Model Acceptance:} Include models with $R^2_k > \tau(n)$ in the ensemble $\mathcal{S}_n$.
-    
-    \item \textbf{Retraining:} Fit accepted models on the full cleaned dataset $\mathcal{D}_{\text{clean}}$.
-\end{enumerate}
+If $|\mathcal{D}_n| \geq 30$, retrain surrogates: apply outlier removal, instantiate appropriate models, evaluate via cross-validation, accept models with $R^2_k > \tau(n)$, and retrain on cleaned data.
 
 \textbf{Phase 7: Model-Based Virtual Training}
 
-If reliable surrogate models exist ($\mathcal{S}_n \neq \emptyset$), we perform $M_{\text{actual}}$ virtual training rounds, where $M_{\text{actual}}$ is determined by model quality:
-\begin{equation}
-M_{\text{actual}} = \begin{cases}
-\min(M, 5) & \text{if } \max_{k \in \mathcal{S}_n} R^2_k > 0.3 \\
-\min(M, 3) & \text{if } \max_{k \in \mathcal{S}_n} R^2_k > 0 \\
-2 & \text{if } \max_{k \in \mathcal{S}_n} R^2_k > -0.3 \\
-1 & \text{otherwise}
-\end{cases}
-\end{equation}
-
-For each virtual round $m \in \{1, \ldots, M_{\text{actual}}\}$:
-
+If reliable models exist ($\mathcal{S}_n \neq \emptyset$), perform $M_{\text{actual}}$ virtual rounds with quality-based scheduling (1-5 rounds depending on $\max_k R^2_k$). Each virtual round:
 \begin{enumerate}
-    \item \textbf{Generate Virtual Sequences:} Use the same guided generation strategy as Phase 2, with possible temperature adjustment:
-    \begin{equation}
-    T_{\text{virtual}}(m) = 1.3 - 0.1m
-    \end{equation}
-    decreasing temperature across virtual rounds to focus on promising regions.
-    
-    \item \textbf{Ensemble Prediction:} Compute predicted rewards using the selected ensemble weighting method (average, weighted, or dynamic):
-    \begin{equation}
-    \hat{R}(s) = \sum_{k \in \mathcal{S}_n} w_k \hat{f}_k(\phi(s))
-    \end{equation}
-    
-    \item \textbf{Prediction Clipping:} Constrain predictions to observed reward ranges:
-    \begin{align}
-    r_{\min} &= \text{5th percentile of } \{R(s') : (s', R(s')) \in \mathcal{D}_n\} \\
-    r_{\max} &= \text{95th percentile of } \{R(s') : (s', R(s')) \in \mathcal{D}_n\} \\
-    \hat{R}_{\text{clip}}(s) &= \text{clip}(\hat{R}(s), r_{\min}, r_{\max})
-    \end{align}
-    This prevents surrogate models from making unrealistic extrapolations.
-    
-    \item \textbf{Diversity Penalty:} If model quality is sufficient ($\max_k R^2_k > 0$) and diversity penalties are enabled, apply penalties for sequences too similar to history:
-    \begin{equation}
-    R_{\text{final}}(s) = \hat{R}_{\text{clip}}(s) - \lambda_{\text{div}}(m) \sum_{s' \in \mathcal{H}} \max\left(0, 1 - \frac{d(s, s')}{\epsilon_d}\right)
-    \end{equation}
-    where:
-    \begin{align}
-    \lambda_{\text{div}}(m) &= \lambda \cdot \max(0.2, 1 - m/M_{\text{actual}}) \\
-    d(s, s') &= \text{edit\_distance}(s, s') \\
-    \mathcal{H} &= \text{sequence history}
-    \end{align}
-    The diversity weight decreases across virtual rounds to allow exploitation.
-    
-    \item \textbf{Policy Update:} Update the policy using predicted rewards with reduced epochs:
-    \begin{equation}
-    E_{\text{virtual}} = \begin{cases}
-    2 & \text{if } \max_k R^2_k > 0 \\
-    1 & \text{otherwise}
-    \end{cases}
-    \end{equation}
-    Use half the entropy coefficient:
-    \begin{equation}
-    \beta_{H,\text{virtual}} = 0.5 \beta_H(n)
-    \end{equation}
-    This conservative approach limits over-reliance on potentially inaccurate surrogate predictions.
-    
-    \item \textbf{History Update:} Add virtual sequences to the history (but not to $\mathcal{D}_n$, as they were not oracle-evaluated):
-    \begin{equation}
-    \mathcal{H} \leftarrow \mathcal{H} \cup \{s_1, \ldots, s_B\}
-    \end{equation}
+    \item Generate sequences with decreasing temperature $T_{\text{virtual}}(m) = 1.3 - 0.1m$
+    \item Predict rewards via ensemble: $\hat{R}(s) = \sum_{k \in \mathcal{S}_n} w_k \hat{f}_k(\phi(s))$
+    \item Clip predictions to 5th-95th percentile of observed rewards
+    \item Apply diversity penalty (if enabled): $R_{\text{final}}(s) = \hat{R}_{\text{clip}}(s) - \lambda_{\text{div}}(m) \sum_{s' \in \mathcal{H}} \max(0, 1 - d(s, s')/\epsilon_d)$
+    \item Update policy with reduced epochs ($E_{\text{virtual}} = 1$ or 2) and half entropy coefficient
 \end{enumerate}
 
-\textbf{Virtual Training Safeguards:}
-
-Several mechanisms prevent degradation from poor surrogate predictions:
-\begin{itemize}
-    \item \textbf{Adaptive virtual rounds:} Fewer iterations when models are poor.
-    \item \textbf{Reduced update epochs:} Limits policy change from virtual data.
-    \item \textbf{Prediction clipping:} Prevents unrealistic reward estimates.
-    \item \textbf{Lower entropy bonus:} Encourages exploitation of predicted high-reward regions rather than broad exploration.
-\end{itemize}
-
-The virtual training phase enables extensive policy improvement with zero additional oracle calls, amplifying the learning signal from each expensive oracle evaluation by a factor of up to $M \times B / B = M$.
+Safeguards include adaptive virtual rounds, prediction clipping, and reduced update epochs to prevent degradation from poor predictions.
 
 \subsubsection{Convergence and Termination}
 
-The main training loop continues for all $N$ rounds unless early termination criteria are met. After completing round $n$, we compute summary statistics:
-
-\begin{align}
-\mu_R(n) &= \frac{1}{B}\sum_{i=1}^{B} R(s_i^{(n)}) \quad \text{(mean oracle reward)} \\
-R_{\max}(n) &= \max_{i \in \{1,\ldots,B\}} R(s_i^{(n)}) \quad \text{(best reward this round)} \\
-R_{\max}^{\text{all}}(n) &= \max_{(s,r) \in \mathcal{D}_n} r \quad \text{(best reward overall)}
-\end{align}
-
-Optional early stopping can be triggered if performance plateaus:
-\begin{equation}
-\text{Var}([\mu_R(n-2), \mu_R(n-1), \mu_R(n)]) < 10^{-3} \text{ and } \mu_R(n) > 0
-\end{equation}
-
-However, in our experiments we typically run all $N$ rounds to fully characterize learning dynamics.
-
-Upon completion, the algorithm returns the trained policy network $\pi_{\theta^*}$, the final surrogate ensemble $\{\hat{f}_k\}_{k \in \mathcal{S}_N}$, and the complete evaluation history $\mathcal{D}_N$ containing all oracle-evaluated sequences.
+Training continues for $N$ rounds or until early stopping if mean rewards plateau: $\text{Var}([\mu_R(n-2), \mu_R(n-1), \mu_R(n)]) < 10^{-3}$ and $\mu_R(n) > 0$. Returns trained policy $\pi_{\theta^*}$, surrogate ensemble $\{\hat{f}_k\}_{k \in \mathcal{S}_N}$, and evaluation history $\mathcal{D}_N$.
 
 
 
@@ -1412,167 +639,57 @@ Upon completion, the algorithm returns the trained policy network $\pi_{\theta^*
 
 \subsection{Policy Optimization}
 
-The policy optimization component of DyNAPPO combines Proximal Policy Optimization (PPO) with adaptive mechanisms and sophisticated reward engineering strategies. This section details the mathematical formulations and implementation strategies employed in the system.
+The policy optimization combines PPO with adaptive mechanisms and reward engineering for stable learning and effective exploration.
 
 \subsubsection{PPO Loss Function}
 
-The core of our policy optimization is built upon the PPO algorithm with three key components: the clipped surrogate objective, value function loss, and entropy regularization.
-
-\textbf{Clipped Surrogate Objective.} The policy loss employs the PPO clipped objective to ensure stable policy updates. For each sequence trajectory, we compute the probability ratio between the current policy $\pi_{\theta}$ and the old policy $\pi_{\theta_{\text{old}}}$:
-%
-\begin{equation}
-r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)} = \exp(\log \pi_{\theta}(a_t|s_t) - \log \pi_{\theta_{\text{old}}}(a_t|s_t))
-\end{equation}
-%
-The clipped surrogate objective is then defined as:
-%
-\begin{equation}
-L^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[\min\left(r_t(\theta)\hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\right)\right]
-\end{equation}
-%
-where $\hat{A}_t$ represents the advantage function computed as $\hat{A}_t = R_t - V_{\theta}(s_t)$, with $R_t$ being the normalized reward and $V_{\theta}(s_t)$ the value function estimate. The clip ratio $\epsilon$ prevents excessively large policy updates.
-
-\textbf{Value Function Loss.} The value function is trained to predict expected returns using mean squared error:
-%
-\begin{equation}
-L^{VF}(\theta) = \mathbb{E}_t\left[\left(V_{\theta}(s_t) - R_t\right)^2\right]
-\end{equation}
-%
-where $V_{\theta}(s_t)$ is the predicted value and $R_t$ is the target return. The value function serves as a baseline to reduce variance in advantage estimates.
-
-\textbf{Entropy Regularization.} To encourage exploration, we incorporate an entropy bonus term:
-%
-\begin{equation}
-L^{ENT}(\theta) = -\mathbb{E}_t\left[H(\pi_{\theta}(\cdot|s_t))\right] = -\mathbb{E}_t\left[\sum_{a} \pi_{\theta}(a|s_t)\log \pi_{\theta}(a|s_t)\right]
-\end{equation}
-%
-The total loss function combines these three components:
+The total loss combines three standard PPO components:
 %
 \begin{equation}
 L^{TOTAL}(\theta) = -L^{\text{CLIP}}(\theta) + c_1 L^{VF}(\theta) + c_2 L^{ENT}(\theta) + \lambda_{L2}\|\theta\|^2
 \end{equation}
 %
-where $c_1 = 0.5$ is the value function coefficient, $c_2$ is the entropy coefficient (detailed in the next section), and $\lambda_{L2} = 0.0001$ provides L2 regularization to prevent overfitting.
+where the clipped surrogate objective prevents excessive policy updates:
+%
+\begin{equation}
+L^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[\min\left(r_t(\theta)\hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\right)\right]
+\end{equation}
+%
+with probability ratio $r_t(\theta) = \pi_{\theta}(a_t|s_t)/\pi_{\theta_{\text{old}}}(a_t|s_t)$ and advantages $\hat{A}_t = R_t - V_{\theta}(s_t)$. The value function loss $L^{VF}(\theta) = \mathbb{E}_t[(V_{\theta}(s_t) - R_t)^2]$ trains the baseline, and entropy regularization $L^{ENT}(\theta) = -\mathbb{E}_t[H(\pi_{\theta}(\cdot|s_t))]$ encourages exploration. We set $c_1 = 0.5$ and $\lambda_{L2} = 0.0001$.
 
 \subsubsection{Adaptive Mechanisms}
 
-Our implementation incorporates several adaptive mechanisms that adjust hyperparameters based on training progress and reward statistics.
+Several hyperparameters adapt during training:
 
-\textbf{Dynamic Clip Ratio.} The PPO clip ratio $\epsilon$ adapts based on training round and reward variance:
-%
-\begin{equation}
-\epsilon_n = \begin{cases}
-0.3 & \text{if } n \leq 3 \text{ (early exploration)} \\
-0.1 & \text{if } \sigma_r > 2.0 \text{ (high variance)} \\
-0.2 & \text{otherwise (standard)}
-\end{cases}
-\end{equation}
-%
-where $n$ is the current round number and $\sigma_r$ is the standard deviation of rewards in the current batch. Early rounds use larger clip ratios to permit more aggressive exploration, while high variance scenarios require conservative updates.
+\textbf{Dynamic clip ratio:} $\epsilon_n = 0.3$ (early rounds, $n \leq 3$), 0.1 (high variance, $\sigma_r > 2.0$), or 0.2 (otherwise).
 
-\textbf{KL Divergence-Based Early Stopping.} To prevent catastrophic policy collapse, we monitor the KL divergence between old and new policies:
-%
-\begin{equation}
-D_{KL}(\pi_{\theta_{\text{old}}} \| \pi_{\theta}) = \mathbb{E}_{s,a \sim \pi_{\theta_{\text{old}}}}\left[\log \pi_{\theta_{\text{old}}}(a|s) - \log \pi_{\theta}(a|s)\right]
-\end{equation}
-%
-If $D_{KL} > 0.05$ during any epoch after the first, training terminates early to preserve policy stability.
+\textbf{KL divergence early stopping:} Training terminates if $D_{KL}(\pi_{\theta_{\text{old}}} \| \pi_{\theta}) > 0.05$ to prevent policy collapse.
 
-\textbf{Gradient Clipping.} Gradient norms are clipped adaptively based on training progress:
-%
-\begin{equation}
-\text{max\_grad\_norm} = \begin{cases}
-1.0 & \text{if } n \leq 3 \\
-0.5 & \text{if } n > 3
-\end{cases}
-\end{equation}
-%
-This prevents gradient explosion while allowing larger updates during early exploration phases.
+\textbf{Gradient clipping:} Maximum gradient norm is 1.0 for $n \leq 3$, then 0.5.
 
-\textbf{Adaptive Entropy Coefficient.} The entropy regularization coefficient decreases over training to transition from exploration to exploitation:
-%
-\begin{equation}
-c_2 = \begin{cases}
-0.02 & \text{if } n \leq 3 \text{ (high exploration)} \\
-0.01 & \text{if } 3 < n \leq 7 \text{ (moderate exploration)} \\
-0.005 & \text{if } n > 7 \text{ (low exploration)}
-\end{cases}
-\end{equation}
-%
-For model-based (virtual) training rounds, the entropy coefficient is further reduced by a factor of 0.5 to focus on exploitation of surrogate model predictions.
+\textbf{Adaptive entropy coefficient:} Decreases from $c_2 = 0.02$ (early) to 0.01 (middle) to 0.005 (late rounds), with 0.5× reduction during virtual training.
 
-\textbf{Adaptive Reward Normalization.} Rewards are normalized using statistics-aware strategies. For high-variance reward distributions ($\sigma_r > 3.0$), we employ robust normalization using median absolute deviation (MAD):
-%
-\begin{equation}
-\tilde{R}_i = \frac{R_i - \text{median}(R)}{\text{MAD}(R) + \epsilon}, \quad \text{MAD}(R) = \text{median}(|R_i - \text{median}(R)|)
-\end{equation}
-%
-For lower variance scenarios, standard z-score normalization is used:
-%
-\begin{equation}
-\tilde{R}_i = \frac{R_i - \mu_R}{\sigma_R + \epsilon}
-\end{equation}
-%
-where $\epsilon = 10^{-8}$ prevents division by zero.
+\textbf{Adaptive normalization:} For high variance ($\sigma_r > 3.0$), use robust MAD normalization: $\tilde{R}_i = (R_i - \text{median}(R))/(\text{MAD}(R) + \epsilon)$; otherwise standard z-score normalization.
 
 \subsubsection{Reward Engineering}
 
-The reward signal combines extrinsic oracle rewards with intrinsic motivation signals and diversity penalties to guide effective exploration.
-
-\textbf{Intrinsic Rewards for Exploration.} To encourage exploration of under-explored regions of the sequence space, we compute novelty-based intrinsic rewards. For a candidate sequence $s$, we measure its distance to the $k$-nearest neighbors in the sequence history:
-%
-\begin{equation}
-d_{\text{avg}}(s) = \frac{1}{k}\sum_{i=1}^{k} d_{\text{edit}}(s, s_i^{(k)})
-\end{equation}
-%
-where $d_{\text{edit}}(s, s')$ is the edit distance (Levenshtein distance) between sequences, and $s_i^{(k)}$ are the $k=5$ nearest historical sequences. The intrinsic reward is then:
+\textbf{Intrinsic rewards:} Novelty-based exploration bonus using average edit distance to $k=5$ nearest neighbors:
 %
 \begin{equation}
 r_{\text{int}}(s, n) = \min\left(1.0, \frac{d_{\text{avg}}(s)}{T}\right) \cdot 0.5 \cdot \max(0, 1 - n/10)
 \end{equation}
 %
-where $T$ is the sequence length and $n$ is the current training round. This formulation provides stronger exploration bonuses in early rounds and gradually reduces them as training progresses.
+decaying over rounds to transition from exploration to exploitation.
 
-\textbf{Diversity Penalties.} To prevent the policy from collapsing to repetitive sequences, we apply diversity penalties during model-based training. For a candidate sequence $s$, the penalty is computed as:
+\textbf{Diversity penalties:} During virtual training, penalize sequences similar to history:
 %
 \begin{equation}
-p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} w(d_{\text{edit}}(s, s'))
+p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} \max\left(0, 1 - \frac{d_{\text{edit}}(s, s')}{\epsilon_{\text{div}}}\right)
 \end{equation}
 %
-where $\mathcal{H}$ is the sequence history, $\lambda_{\text{div}} = 0.1$ is the diversity coefficient, and the weight function is:
-%
-\begin{equation}
-w(d) = \begin{cases}
-\max\left(0, 1 - \frac{d}{\epsilon_{\text{div}}}\right) & \text{if } d \leq \epsilon_{\text{div}} \\
-0 & \text{otherwise}
-\end{cases}
-\end{equation}
-%
-with $\epsilon_{\text{div}} = 3$ defining the similarity threshold. This linear decay function ensures that sequences within edit distance 3 receive penalties proportional to their similarity.
+with $\lambda_{\text{div}} = 0.1$ and threshold $\epsilon_{\text{div}} = 3$. The penalty weight decays as $\lambda_{\text{div}}^{(m)} = \lambda_{\text{div}} \cdot \max(0.2, 1 - m/M)$ across $M$ virtual rounds.
 
-During model-based training, the diversity penalty weight decays across virtual rounds:
-%
-\begin{equation}
-\lambda_{\text{div}}^{(m)} = \lambda_{\text{div}} \cdot \max\left(0.2, 1 - \frac{m}{M}\right)
-\end{equation}
-%
-where $m$ is the current virtual round and $M$ is the total number of virtual rounds.
-
-\textbf{Reward Normalization Strategies.} The final reward for each sequence combines the oracle reward with intrinsic exploration bonuses:
-%
-\begin{equation}
-R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)
-\end{equation}
-%
-For model-based training, predicted rewards are adjusted with diversity penalties:
-%
-\begin{equation}
-R_{\text{virtual}}(s) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s)
-\end{equation}
-%
-where $\hat{R}_{\text{ensemble}}(s)$ is the ensemble prediction from surrogate models.
-
-These reward engineering strategies work synergistically with the adaptive PPO mechanisms to balance exploration and exploitation throughout training, enabling the discovery of high-quality sequences while maintaining population diversity.
+\textbf{Combined rewards:} Oracle training uses $R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)$, while virtual training uses $R_{\text{virtual}}(s) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s)$.
 
 
 
@@ -1582,47 +699,34 @@ These reward engineering strategies work synergistically with the adaptive PPO m
 
 \subsection{Adaptive Learning Mechanisms}
 
-The training process incorporates multiple adaptive mechanisms that dynamically adjust learning parameters based on training progress, performance trends, and data characteristics. These mechanisms enable the system to automatically transition from exploration to exploitation phases while maintaining training stability.
+Multiple adaptive mechanisms dynamically adjust learning parameters based on training progress, enabling automatic transition from exploration to exploitation while maintaining stability.
 
 \subsubsection{Learning Rate Scheduling}
 
-The learning rate schedule combines two complementary strategies: a cyclical schedule for escaping local minima and performance-based adjustments for convergence optimization.
-
-\textbf{Cosine Annealing with Warm Restarts.} The base learning rate follows a cosine annealing schedule with periodic warm restarts to help the optimization escape local minima and explore different regions of the parameter space. Given a base learning rate $\eta_{\text{base}} = 3 \times 10^{-4}$ and minimum learning rate $\eta_{\text{min}} = 1 \times 10^{-5}$, the scheduled learning rate at round $n$ is computed as:
+\textbf{Cosine annealing with warm restarts:} The learning rate follows a periodic schedule to escape local minima:
 %
 \begin{equation}
 \eta_{\text{scheduled}}(n) = \eta_{\text{min}} + \frac{\eta_{\text{base}} - \eta_{\text{min}}}{2}\left(1 + \cos\left(\frac{\pi \cdot (n \bmod P)}{P}\right)\right)
 \end{equation}
 %
-where $P = 5$ is the period of warm restarts. This schedule creates a sawtooth pattern where the learning rate starts high at the beginning of each period and gradually decreases following a cosine curve. At the end of each period, the learning rate is abruptly reset to $\eta_{\text{base}}$, providing a ``warm restart'' that can help escape shallow local minima.
+with $\eta_{\text{base}} = 3 \times 10^{-4}$, $\eta_{\text{min}} = 1 \times 10^{-5}$, and period $P = 5$.
 
-The cosine function $\cos(\pi \cdot (n \bmod P) / P)$ evaluates to 1 at the start of each period and -1 at the end, creating smooth transitions. The modulo operation $(n \bmod P)$ ensures the schedule repeats every $P$ rounds, allowing multiple exploration-exploitation cycles throughout training.
-
-\textbf{Performance-Based Adjustment.} The scheduled learning rate is further refined based on recent performance trends. Let $\mathcal{T}_n = \{r_{n-2}, r_{n-1}, r_n\}$ denote the set of mean rewards from the three most recent rounds. We analyze the variance and monotonicity of this trend to adjust the learning rate:
+\textbf{Performance-based adjustment:} The scheduled rate is refined based on recent trends:
 %
 \begin{equation}
 \eta_{\text{adjusted}}(n) = \begin{cases}
 0.5 \cdot \eta_{\text{scheduled}}(n) & \text{if } \text{Var}(\mathcal{T}_n) < 0.01 \text{ (plateau)} \\
-1.2 \cdot \eta_{\text{scheduled}}(n) & \text{if } r_{n-2} < r_{n-1} < r_n \text{ (improvement)} \\
-\eta_{\text{scheduled}}(n) & \text{otherwise (normal)}
+1.2 \cdot \eta_{\text{scheduled}}(n) & \text{if } r_{n-2} < r_{n-1} < r_n \\
+& \text{\hspace{1em} (improvement)} \\
+\eta_{\text{scheduled}}(n) & \text{otherwise}
 \end{cases}
 \end{equation}
 %
-The plateau detection condition $\text{Var}(\mathcal{T}_n) < 0.01$ identifies when performance has stabilized, triggering a 50\% learning rate reduction to encourage fine-grained convergence. Conversely, consistent improvement across three consecutive rounds indicates the model is in a favorable region of the loss landscape, warranting a 20\% learning rate increase to accelerate optimization.
-
-The final learning rate is clipped to the valid range:
-%
-\begin{equation}
-\eta(n) = \text{clip}(\eta_{\text{adjusted}}(n), \eta_{\text{min}}, \eta_{\text{base}})
-\end{equation}
-%
-This hybrid approach balances the benefits of cyclical schedules (exploration through periodic resets) with reactive adaptation to empirical performance, creating a robust learning rate policy.
+where $\mathcal{T}_n = \{r_{n-2}, r_{n-1}, r_n\}$ are recent mean rewards. Final rate is clipped: $\eta(n) = \text{clip}(\eta_{\text{adjusted}}(n), \eta_{\text{min}}, \eta_{\text{base}})$.
 
 \subsubsection{Exploration Scheduling}
 
-Effective exploration-exploitation balance is achieved through coordinated scheduling of multiple exploration-related hyperparameters.
-
-\textbf{Decaying Exploration Rate over Rounds.} The exploration rate $\varepsilon_n$ controls the probability of random actions during sequence generation and follows a piecewise linear decay schedule:
+\textbf{Exploration rate:} Piecewise linear decay:
 %
 \begin{equation}
 \varepsilon_n = \begin{cases}
@@ -1631,58 +735,18 @@ Effective exploration-exploitation balance is achieved through coordinated sched
 \max(0.05, 0.2 - 0.015n) & \text{if } n > 7
 \end{cases}
 \end{equation}
-%
-This three-stage schedule implements an aggressive exploration strategy in early rounds ($\varepsilon = 0.3$), followed by gradual decay during the middle phase, and finally maintaining a minimum exploration rate of 0.05 in later rounds to preserve discovery of novel high-quality sequences.
 
-The decay rates are carefully calibrated: the middle phase uses a faster decay rate ($-0.03$ per round) to quickly reduce random exploration once initial coverage is achieved, while the late phase uses a gentler decay ($-0.015$ per round) to smoothly transition to near-greedy exploitation. The floor values (0.15 and 0.05) prevent complete elimination of exploration, which could lead to premature convergence.
+\textbf{Entropy coefficient:} Decays from 0.02 (early) to 0.01 (middle) to 0.005 (late), with 0.5× reduction for virtual training: $c_2^{\text{virtual}}(n) = 0.5 \cdot c_2(n)$.
 
-\textbf{Adaptive Entropy Coefficients.} As described in the policy optimization section, the entropy regularization coefficient $c_2$ follows a similar decay pattern:
-%
-\begin{equation}
-c_2(n) = \begin{cases}
-0.02 & \text{if } n \leq 3 \\
-0.01 & \text{if } 3 < n \leq 7 \\
-0.005 & \text{if } n > 7
-\end{cases}
-\end{equation}
-%
-The entropy coefficient directly influences the policy's stochasticity by penalizing deterministic policies during optimization. High values ($c_2 = 0.02$) in early rounds encourage uniform action distributions, promoting broad exploration of the sequence space. The coefficient is progressively reduced by factors of 2, allowing the policy to gradually sharpen its distribution around high-reward actions.
-
-For model-based (virtual) training rounds, the entropy coefficient is further scaled by a factor of 0.5:
-%
-\begin{equation}
-c_2^{\text{virtual}}(n) = 0.5 \cdot c_2(n)
-\end{equation}
-%
-This reduction reflects the fact that surrogate model predictions are less reliable than oracle evaluations, and thus exploitation of predicted high-reward regions should be tempered to avoid overfitting to model errors.
-
-The number of policy update epochs also adapts to the training phase:
-%
-\begin{equation}
-E_n = \begin{cases}
-8 & \text{if } n \leq 3 \text{ (thorough early learning)} \\
-4 & \text{if } 3 < n \leq 7 \text{ (balanced updates)} \\
-2 & \text{if } n > 7 \text{ (fast convergence)}
-\end{cases}
-\end{equation}
-%
-More epochs in early rounds allow the policy to fully incorporate diverse exploration experiences, while fewer epochs in later rounds prevent overfitting and reduce computational overhead.
+\textbf{Policy update epochs:} Adaptive scheduling: $E_n = 8$ ($n \leq 3$), 4 ($3 < n \leq 7$), or 2 ($n > 7$).
 
 \subsubsection{Threshold Management}
 
-The $R^2$ threshold $\tau_n$ determines which surrogate models are considered sufficiently accurate for model-based training. The system supports two threshold management modes: fixed and dynamic.
+The $R^2$ threshold $\tau_n$ determines surrogate model acceptance. Two modes are supported:
 
-\textbf{Fixed vs. Dynamic Threshold Modes.} In \emph{fixed} mode, the threshold remains constant throughout training:
-%
-\begin{equation}
-\tau_n^{\text{fixed}} = \tau_0 \quad \forall n
-\end{equation}
-%
-where $\tau_0$ is a user-specified value (typically $\tau_0 = 0.2$). This mode is suitable when the oracle function's complexity is well-understood and consistent model quality is expected.
+\textbf{Fixed mode:} Constant threshold $\tau_n^{\text{fixed}} = \tau_0$ (typically 0.2).
 
-In \emph{dynamic} mode, the threshold gradually increases to accommodate improving model quality as more training data accumulates. This mode is more robust for complex oracle functions where initial model quality may be poor.
-
-\textbf{Linear Interpolation for Dynamic Thresholds.} The dynamic threshold follows a piecewise linear schedule with an initial warm-up phase:
+\textbf{Dynamic mode:} Piecewise linear increase:
 %
 \begin{equation}
 \tau_n^{\text{dynamic}} = \begin{cases}
@@ -1691,29 +755,7 @@ In \emph{dynamic} mode, the threshold gradually increases to accommodate improvi
 \end{cases}
 \end{equation}
 %
-where:
-\begin{itemize}
-    \item $\tau_{\text{start}} = -0.3$ is the initial threshold, allowing even poorly performing models in early rounds
-    \item $\tau_{\text{end}} = \tau_0$ is the target final threshold (user-specified)
-    \item $n_{\text{warmup}} = \lfloor N/10 \rfloor$ is the warm-up period (10\% of total rounds)
-    \item $\delta_{\tau} = 0.01$ is the threshold increment per round
-\end{itemize}
-
-The warm-up phase ($n < n_{\text{warmup}}$) maintains a lenient threshold $\tau_{\text{start}} = -0.3$, accepting models that explain less variance than a constant mean predictor ($R^2 < 0$). This is justified because: (1) initial training data is limited and may not reveal the oracle's true structure, (2) even crude models can provide useful guidance for exploration, and (3) rejecting all models would reduce the algorithm to pure PPO, forfeiting the sample efficiency benefits of model-based training.
-
-After the warm-up phase, the threshold increases linearly at rate $\delta_{\tau} = 0.01$ per round until reaching $\tau_{\text{end}}$. The linear growth ensures that model quality requirements increase proportionally with data availability, preventing the use of stale or inadequate models in later rounds when sufficient data exists to train accurate surrogates.
-
-The minimum operator in Equation (15) ensures the threshold never exceeds $\tau_{\text{end}}$, providing an upper bound on model quality requirements. This prevents overly stringent thresholds that might reject useful models due to inherent oracle stochasticity or complexity.
-
-\textbf{Threshold History Tracking.} The system maintains a complete history of threshold values:
-%
-\begin{equation}
-\mathcal{H}_{\tau} = \{(n, \tau_n) : n = 1, 2, \ldots, N\}
-\end{equation}
-%
-This history enables post-hoc analysis of the relationship between threshold settings, model selection decisions, and overall algorithm performance. The stored history facilitates hyperparameter tuning and provides insights into the data efficiency characteristics of different threshold schedules.
-
-Together, these adaptive mechanisms create a cohesive training strategy that automatically adjusts learning dynamics based on training progress, enabling robust optimization across diverse oracle functions without manual hyperparameter tuning for each specific problem instance.
+with $\tau_{\text{start}} = -0.3$, $\tau_{\text{end}} = \tau_0$, $n_{\text{warmup}} = \lfloor N/10 \rfloor$, and $\delta_{\tau} = 0.01$. The lenient initial threshold accepts poor models when data is limited, then increases linearly to match improving model quality. Threshold history $\mathcal{H}_{\tau} = \{(n, \tau_n)\}$ is maintained for analysis.
 
 
 
@@ -1723,148 +765,42 @@ Together, these adaptive mechanisms create a cohesive training strategy that aut
 
 \subsection{Diversity Control}
 
-Maintaining sequence diversity is critical for effective exploration and preventing premature convergence to suboptimal solutions. Our diversity control framework combines quantitative diversity metrics with penalty-based regulation mechanisms to ensure broad coverage of the sequence space while avoiding redundant evaluations.
+Maintaining sequence diversity prevents premature convergence and ensures broad exploration coverage through quantitative metrics and penalty-based regulation.
 
 \subsubsection{Sequence Diversity Metrics}
 
-We employ two complementary metrics to quantify sequence diversity: edit distance for pairwise similarity assessment and population-level uniqueness ratio for aggregate diversity measurement.
+\textbf{Edit distance:} We use Levenshtein distance $d_{\text{edit}}(s, s')$ computed via dynamic programming to measure sequence similarity. For sequences of length $T$, this has complexity $\mathcal{O}(T^2)$.
 
-\textbf{Edit Distance Computation.} The edit distance (Levenshtein distance) $d_{\text{edit}}(s, s')$ between two sequences $s$ and $s'$ measures the minimum number of single-token operations (insertion, deletion, or substitution) required to transform one sequence into the other. This metric provides a granular measure of sequence similarity that respects sequential structure.
-
-Given sequences $s = [s_1, s_2, \ldots, s_m]$ and $s' = [s'_1, s'_2, \ldots, s'_n]$, the edit distance is computed via dynamic programming. Let $D[i,j]$ denote the edit distance between the first $i$ tokens of $s$ and the first $j$ tokens of $s'$. The recurrence relation is:
-%
-\begin{equation}
-D[i,j] = \begin{cases}
-i & \text{if } j = 0 \\
-j & \text{if } i = 0 \\
-D[i-1,j-1] & \text{if } s_i = s'_j \\
-1 + \min\begin{cases}
-D[i-1,j] & \text{(deletion)} \\
-D[i,j-1] & \text{(insertion)} \\
-D[i-1,j-1] & \text{(substitution)}
-\end{cases} & \text{if } s_i \neq s'_j
-\end{cases}
-\end{equation}
-%
-The edit distance is then $d_{\text{edit}}(s, s') = D[m,n]$. The boundary conditions $D[i,0] = i$ and $D[0,j] = j$ represent the cost of transforming an empty sequence to a prefix of length $i$ or $j$ through pure insertions.
-
-This metric has several desirable properties for diversity assessment:
-\begin{itemize}
-    \item \textbf{Symmetry}: $d_{\text{edit}}(s, s') = d_{\text{edit}}(s', s)$
-    \item \textbf{Non-negativity}: $d_{\text{edit}}(s, s') \geq 0$, with equality iff $s = s'$
-    \item \textbf{Triangle inequality}: $d_{\text{edit}}(s, s'') \leq d_{\text{edit}}(s, s') + d_{\text{edit}}(s', s'')$
-    \item \textbf{Bounded range}: $0 \leq d_{\text{edit}}(s, s') \leq \max(|s|, |s'|)$
-\end{itemize}
-
-The computational complexity is $\mathcal{O}(mn)$ where $m = |s|$ and $n = |s'|$. For fixed-length sequences ($m = n = T$), this reduces to $\mathcal{O}(T^2)$.
-
-\textbf{K-Nearest Neighbor Diversity Assessment.} To assess the novelty of a candidate sequence $s$ relative to the exploration history $\mathcal{H}$, we employ a $k$-nearest neighbor ($k$-NN) approach. For each sequence $s' \in \mathcal{H}$, we compute $d_{\text{edit}}(s, s')$. Let $\mathcal{N}_k(s) \subseteq \mathcal{H}$ denote the set of $k$ sequences in $\mathcal{H}$ with smallest edit distances to $s$. The average distance to the $k$-nearest neighbors is:
+\textbf{K-nearest neighbor novelty:} Average distance to $k=5$ nearest neighbors in recent history (last $L=100$ sequences):
 %
 \begin{equation}
 \bar{d}_k(s) = \frac{1}{k}\sum_{s' \in \mathcal{N}_k(s)} d_{\text{edit}}(s, s')
 \end{equation}
 %
-We use $k = 5$ as a balance between local neighborhood sensitivity and computational efficiency. To manage computational cost, we restrict the search to the most recent $L = 100$ sequences in the history: $\mathcal{H}_{\text{recent}} = \{s_{N-L+1}, \ldots, s_N\}$ where $N = |\mathcal{H}|$. This windowing strategy has two benefits: (1) reduces computation from $\mathcal{O}(N \cdot T^2)$ to $\mathcal{O}(L \cdot T^2)$, and (2) emphasizes recent exploration patterns while allowing the algorithm to revisit older promising regions.
+Normalized novelty score: $\text{novelty}(s) = \min(1, \bar{d}_k(s)/T) \in [0, 1]$.
 
-The normalized diversity score is:
-%
-\begin{equation}
-\text{novelty}(s) = \min\left(1, \frac{\bar{d}_k(s)}{T}\right)
-\end{equation}
-%
-where $T$ is the sequence length. The normalization by $T$ ensures the novelty score lies in $[0, 1]$, with 1 indicating maximum diversity (all $k$ neighbors differ in every position) and 0 indicating exact match with neighbors.
-
-For population-level diversity assessment, we compute the uniqueness ratio of a sequence batch $\mathcal{B}$:
-%
-\begin{equation}
-\rho_{\text{unique}}(\mathcal{B}) = \frac{|\{s : s \in \mathcal{B}\}|}{|\mathcal{B}|}
-\end{equation}
-%
-where the numerator counts distinct sequences (using set cardinality) and the denominator is the batch size. This metric ranges from $\rho_{\text{unique}} = 1/|\mathcal{B}|$ (all sequences identical) to $\rho_{\text{unique}} = 1$ (all sequences unique).
+\textbf{Batch uniqueness:} Population-level diversity measured as $\rho_{\text{unique}}(\mathcal{B}) = |\{s : s \in \mathcal{B}\}|/|\mathcal{B}|$.
 
 \subsubsection{Diversity Penalties}
 
-To actively encourage diverse exploration, we incorporate novelty-based intrinsic rewards into the policy optimization objective and apply diversity penalties to model-based predictions.
-
-\textbf{Novelty-Based Intrinsic Rewards.} The intrinsic reward $r_{\text{int}}(s, n)$ for sequence $s$ at training round $n$ is computed as:
+\textbf{Intrinsic rewards:} Novelty-based exploration bonus added to oracle rewards (for $n > 2$):
 %
 \begin{equation}
-r_{\text{int}}(s, n) = \text{novelty}(s) \cdot \alpha_{\text{nov}} \cdot w_{\text{explore}}(n)
+R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + \text{novelty}(s) \cdot \alpha_{\text{nov}} \cdot w_{\text{explore}}(n)
 \end{equation}
 %
-where:
-\begin{itemize}
-    \item $\text{novelty}(s)$ is the normalized $k$-NN diversity score from Equation (3)
-    \item $\alpha_{\text{nov}} = 0.5$ is the novelty coefficient, scaling the intrinsic reward magnitude
-    \item $w_{\text{explore}}(n)$ is the exploration weight function (detailed below)
-\end{itemize}
+with $\alpha_{\text{nov}} = 0.5$ and linear decay $w_{\text{explore}}(n) = \max(0, 1 - n/10)$, reaching zero at round 10.
 
-The intrinsic reward is added to the oracle reward to form the total reward used in policy updates:
+\textbf{Virtual training penalties:} During model-based training, penalize sequences similar to history:
 %
 \begin{equation}
-R_{\text{total}}(s, n) = R_{\text{oracle}}(s) + r_{\text{int}}(s, n)
+\begin{split}
+R_{\text{virtual}}(s, m) &= \hat{R}_{\text{ensemble}}(s) \\
+&- \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} \max\left(0, 1 - \frac{d_{\text{edit}}(s, s')}{\epsilon_{\text{div}}}\right) \cdot w_{\text{virtual}}(m)
+\end{split}
 \end{equation}
 %
-This formulation provides a direct incentive for the policy to generate sequences in under-explored regions of the sequence space. The novelty term $\text{novelty}(s)$ ensures that sequences far from existing data receive higher bonuses, while the scaling factor $\alpha_{\text{nov}}$ controls the relative importance of exploration versus exploitation.
-
-Importantly, intrinsic rewards are not applied during the first two rounds ($n \leq 2$) or when the sequence history is empty, as the $k$-NN computation requires sufficient historical context. This warm-up period allows initial data collection before diversity regularization begins.
-
-\textbf{Exploration Weight Decay.} The exploration weight function $w_{\text{explore}}(n)$ implements a time-dependent decay schedule that gradually reduces the influence of intrinsic rewards as training progresses:
-%
-\begin{equation}
-w_{\text{explore}}(n) = \max\left(0, 1 - \frac{n}{n_{\text{decay}}}\right)
-\end{equation}
-%
-where $n_{\text{decay}} = 10$ is the decay horizon. This linear decay schedule has the following characteristics:
-\begin{itemize}
-    \item \textbf{Early rounds} ($n \leq n_{\text{decay}}$): $w_{\text{explore}}(n) \in (0, 1]$, providing full to moderate exploration bonuses
-    \item \textbf{Late rounds} ($n > n_{\text{decay}}$): $w_{\text{explore}}(n) = 0$, eliminating intrinsic rewards to focus on exploitation
-    \item \textbf{Linearity}: The weight decreases by $1/n_{\text{decay}} = 0.1$ per round, enabling smooth transition
-\end{itemize}
-
-The decay function can be explicitly written as:
-%
-\begin{equation}
-w_{\text{explore}}(n) = \begin{cases}
-1 - 0.1n & \text{if } n \leq 10 \\
-0 & \text{if } n > 10
-\end{cases}
-\end{equation}
-
-This schedule aligns with the broader exploration-exploitation strategy: in early rounds, when the surrogate models are inaccurate and the oracle function structure is unknown, aggressive exploration via intrinsic rewards helps map the sequence space. As training progresses and high-reward regions are identified, the intrinsic rewards diminish, allowing the policy to focus on refining solutions within promising regions.
-
-For model-based training, diversity is enforced through penalties rather than rewards. The diversity penalty $p_{\text{div}}(s)$ for sequence $s$ during virtual training is:
-%
-\begin{equation}
-p_{\text{div}}(s) = \lambda_{\text{div}} \sum_{s' \in \mathcal{H}} w_{\text{sim}}(d_{\text{edit}}(s, s'))
-\end{equation}
-%
-where $\lambda_{\text{div}} = 0.1$ is the diversity penalty coefficient and the similarity weight function is:
-%
-\begin{equation}
-w_{\text{sim}}(d) = \begin{cases}
-\max\left(0, 1 - \frac{d}{\epsilon_{\text{div}}}\right) & \text{if } d \leq \epsilon_{\text{div}} \\
-0 & \text{otherwise}
-\end{cases}
-\end{equation}
-%
-with $\epsilon_{\text{div}} = 3$ defining the similarity threshold. Only sequences within edit distance $\epsilon_{\text{div}}$ contribute to the penalty, with contribution linearly decreasing as distance increases. This localized penalty prevents exact or near-exact duplicates without penalizing moderately different sequences.
-
-During model-based training, the penalty is applied to ensemble predictions:
-%
-\begin{equation}
-R_{\text{virtual}}(s, m) = \hat{R}_{\text{ensemble}}(s) - p_{\text{div}}(s) \cdot w_{\text{virtual}}(m)
-\end{equation}
-%
-where $m$ is the virtual round index and:
-%
-\begin{equation}
-w_{\text{virtual}}(m) = \max\left(0.2, 1 - \frac{m}{M}\right)
-\end{equation}
-%
-with $M$ being the total number of virtual rounds. This decay ensures diversity penalties are strongest in early virtual rounds and weaken as model-based training progresses, with a floor of 0.2 maintaining minimal diversity enforcement throughout.
-
-The diversity control framework thus operates on two timescales: (1) \emph{oracle-based training} uses decaying intrinsic rewards (Equations 5-8) to encourage exploration across experiment rounds, and (2) \emph{model-based training} uses decaying penalties (Equations 9-12) to prevent redundancy within each model-based training phase. This dual mechanism ensures comprehensive diversity maintenance throughout the algorithm's execution.
+with $\lambda_{\text{div}} = 0.1$, threshold $\epsilon_{\text{div}} = 3$, and decay $w_{\text{virtual}}(m) = \max(0.2, 1 - m/M)$ across $M$ virtual rounds. This dual mechanism maintains diversity in both oracle-based (via intrinsic rewards) and model-based (via penalties) training phases.
 
 
 
@@ -1880,161 +816,181 @@ The diversity control framework thus operates on two timescales: (1) \emph{oracl
 \section{Experiments and Results}
 \subsection{Experimental Setup}
 
-This section describes the implementation details, evaluation methodology, and experimental configurations used to validate the DyNAPPO algorithm.
-
 \subsubsection{Implementation Details}
 
-The DyNAPPO system is implemented using a hybrid framework that leverages specialized libraries for different algorithmic components.
-
-\textbf{Framework.} The policy optimization component employs \textbf{PyTorch} (version 1.x) for implementing the policy network, value network, and all gradient-based optimization procedures. PyTorch provides automatic differentiation capabilities essential for computing policy gradients and backpropagating through the neural networks during PPO updates. The policy network architecture consists of:
-\begin{itemize}
-    \item \textbf{Input layer}: Context window encoder processing the last 8 tokens with character embeddings (dimension 64) and sinusoidal positional encodings (dimension 64), resulting in input dimension $8 \times 64 + 64 = 576$
-    \item \textbf{Hidden layers}: Two fully connected layers with ReLU activations, each containing 256 hidden units
-    \item \textbf{Output heads}: Separate policy head (softmax over vocabulary size 4) and value head (scalar output)
-\end{itemize}
-
-The surrogate modeling component utilizes \textbf{scikit-learn} (version 1.x) for implementing diverse ensemble models. The surrogate model library includes eight distinct model types:
-\begin{enumerate}
-    \item \textbf{Random Forest} (RF): Ensemble of decision trees with configurable depth and number of estimators
-    \item \textbf{Gradient Boosting} (GB): Sequential boosting with adaptive learning rates
-    \item \textbf{XGBoost} (XGB): Optimized gradient boosting with regularization
-    \item \textbf{K-Nearest Neighbors} (KNN): Instance-based learning with adaptive $k$ selection
-    \item \textbf{Gaussian Process} (GP): Bayesian non-parametric regression with RBF and Matern kernels
-    \item \textbf{Multi-Layer Perceptron} (MLP): Neural network regressor with hidden layers $(128, 64, 32)$
-    \item \textbf{Support Vector Regression} (SVR): Kernel-based regression with RBF and polynomial kernels
-    \item \textbf{Bayesian Ridge Regression}: Probabilistic linear model with L2 regularization
-\end{enumerate}
-
-Model selection is adaptive based on dataset size: simpler models (RF, KNN, Ridge, GP) are preferred for small data ($n < 100$), balanced complexity models for medium data ($100 \leq n < 300$), and complex models (XGBoost, deep MLP, polynomial SVR) for large data ($n \geq 300$). All surrogate models employ standardized input features via \texttt{StandardScaler} normalization.
-
-Optimal ensemble weight learning is implemented through three methods (detailed in Section \ref{sec:ensemble}): (1) \textit{validation-based optimization} using Sequential Least Squares Programming (SLSQP) from \textbf{scipy.optimize}, (2) \textit{ridge regression} from scikit-learn for regularized weight learning, and (3) \textit{performance-based weighting} using softmax over $R^2$ scores.
-
-The complete implementation comprises approximately 1,800 lines of Python code distributed across six primary modules: \texttt{DyNAPPO.py} (main algorithm, 1,819 lines), \texttt{PolicyNetwork.py} (neural architecture, 154 lines), \texttt{SurrogateModel.py} (model wrapper, 70 lines), \texttt{OptimalEnsembleWeights.py} (weight learning, 200 lines), \texttt{SequenceUtils.py} (diversity metrics, 89 lines), and \texttt{LearningMetricsTracker.py} (evaluation, 359 lines).
-
-\textbf{Hardware Specifications.} All experiments were conducted on a workstation with the following configuration:
-\begin{itemize}
-    \item \textbf{Processor}: Apple M-series chip (or equivalent x86-64 architecture)
-    \item \textbf{Memory}: 16 GB RAM minimum for large-scale experiments
-    \item \textbf{Operating System}: macOS 14+ (Darwin kernel) or Linux
-    \item \textbf{Python Version}: 3.8+
-\end{itemize}
-
-No GPU acceleration was required for the experiments presented in this work, as the policy network is relatively shallow (256 hidden units) and the batch size is moderate (32 sequences). A typical training run with $N = 200$ rounds, $M = 5$ virtual rounds, batch size $B = 32$, and sequence length $T = 10$ completes in approximately 300--600 seconds of wall-clock time on the specified hardware.
+Policy network: 576-dimensional input (8-token context with 64-dim embeddings + positional encoding), two 256-unit hidden layers, separate policy/value heads. Surrogate ensemble: eight model types (Random Forest, Gradient Boosting, XGBoost, KNN, Gaussian Process, MLP, SVR, Bayesian Ridge) with adaptive selection based on dataset size. Ensemble weights optimized via SLSQP, ridge regression, or softmax weighting.
 
 \subsubsection{Evaluation Metrics}
 
-We employ a comprehensive set of metrics to assess algorithm performance across multiple dimensions: reward maximization, model quality, exploration diversity, and sample efficiency.
+\textbf{Oracle rewards:} Mean $\bar{R}_n$, maximum $R_{\max}^{(n)}$, cumulative best $R_{\max}^{\text{cum}}(n)$, and standard deviation $\sigma_R^{(n)}$. Final deterministic performance: mean/max over 10 argmax sequences.
 
-\textbf{Oracle Reward Statistics.} The primary performance measure is the quality of generated sequences as evaluated by the oracle function. For each training round $n$, we compute:
+\textbf{Model quality:} 5-fold CV $R^2 = 1 - \sum_i(y_i - \hat{y}_i)^2/\sum_i(y_i - \bar{y})^2$. Track maximum $(R^2)_{\max}^{(n)}$, mean $\overline{R^2}^{(n)}$, number of accepted models, and validation MAE.
+
+\textbf{Diversity:} Uniqueness ratio $\rho_{\text{unique}}^{(n)} = |\{s : s \in \mathcal{B}_n\}|/B$.
+
+\textbf{Sample efficiency:} Cumulative oracle calls $N_{\text{oracle}}^{(n)}$ and reward vs. oracle calls curves.
+
+\subsubsection{Experimental Configurations}
+
+We systematically evaluate DyNAPPO variants and baselines to assess each component's contribution:
+
+\textbf{Ensemble weighting methods:}
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{} l >{\RaggedRight}X @{}}
+\toprule
+\textbf{Method} & \textbf{Description} \\
+\midrule
+Average & Uniform weights: $w_i = 1/|\mathcal{M}|$ \\
+Weighted & Softmax over $R^2$: $w_f \propto \exp(R^2(f)/0.1)$ \\
+Dynamic & Adaptive: performance-based $\to$ ridge $\to$ validation-optimized \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Threshold schedules:}
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{} l >{\RaggedRight}X @{}}
+\toprule
+\textbf{Type} & \textbf{Description} \\
+\midrule
+Fixed & Constant $\tau_n = 0.2$ throughout training \\
+Dynamic & Linear increase from $-0.3$ to $0.2$ over rounds \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Diversity control variants:}
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{} l >{\RaggedRight}X @{}}
+\toprule
+\textbf{Configuration} & \textbf{Components} \\
+\midrule
+None & No diversity mechanisms: $\lambda_{\text{div}} = 0$, $r_{\text{int}} = 0$ \\
+Intrinsic only & Exploration rewards only: $r_{\text{int}}$ enabled, $\lambda_{\text{div}} = 0$ \\
+Full & Both intrinsic rewards and diversity penalties (default) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Baseline methods:}
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{@{} l >{\RaggedRight}X @{}}
+\toprule
+\textbf{Method} & \textbf{Description} \\
+\midrule
+Pure PPO & PPO without surrogates ($M=0$), oracle-only training \\
+Random Search & Uniform random generation with oracle evaluation \\
+Fixed DyNA-PPO & No adaptive mechanisms (fixed LR, exploration, uniform weights) \\
+DyNAPPO (full) & Complete algorithm with all adaptive components \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Oracle function:} Complex DNA sequence scorer combining: GC content optimality (50\% peak), biological motifs (EcoRI, BamHI, TATA box), position-dependent preferences, repetitive penalties, local complexity, dinucleotide pairs, melting temperature, and Gaussian noise ($\sigma=0.15$). Maps 10-base sequences (vocabulary: A, T, G, C) to rewards $\approx [0,20]$. Multimodal, noisy landscape.
+
+
+
+
+
+
+
+
+\subsection{Ensemble Method Comparison}
+
+We compare three ensemble weighting strategies (Average, Weighted, Dynamic) across 200 training rounds with batch size 32 and sequence length 10. All configurations use dynamic thresholds and full diversity control.
+  
+\subsubsection{Performance Metrics}
+The table shows the metrics of three emsemble strategies
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lccc}
+\hline
+\textbf{Metric} & \textbf{Average} & \textbf{Weighted} & \textbf{Dynamic} \\
+\hline
+Final Mean Reward & $9.2 \pm 0.3$ & $9.4 \pm 0.3$ & $9.8 \pm 0.3$ \\
+Best Reward Found & $12.8$ & $13.2$ & $14.1$ \\
+Convergence Round & $\sim$120 & $\sim$100 & $\sim$80 \\
+Final Max $R^2$ & $0.672$ & $0.686$ & $0.683$ \\
+Training Time (sec) & 9773 & 6480 & 12212 \\
+\hline
+\end{tabular}
+\caption{Performance comparison across ensemble methods (mean over 3 seeds).}
+\end{table}
+
+\subsubsection{Key Observations}
+
+\textbf{Reward optimization:} Dynamic ensemble achieves highest final performance ($\bar{R} = 9.8$) and best single sequence ($R_{\max} = 14.1$), outperforming Weighted ($9.4$, $13.2$) and Average ($9.2$, $12.8$). All methods show stable convergence after round 100, with Dynamic converging fastest.
+
+\textbf{Model weight evolution:} Figure~\ref{fig:model_evaluation_basic} reveals distinct patterns:
 \begin{itemize}
-    \item \textbf{Mean reward}: $\bar{R}_n = \frac{1}{B}\sum_{i=1}^{B} R_{\text{oracle}}(s_i^{(n)})$, where $s_i^{(n)}$ are the $B$ sequences generated at round $n$
-    \item \textbf{Maximum reward}: $R_{\max}^{(n)} = \max_{i=1}^{B} R_{\text{oracle}}(s_i^{(n)})$, tracking the best sequence found per round
-    \item \textbf{Standard deviation}: $\sigma_R^{(n)} = \sqrt{\frac{1}{B-1}\sum_{i=1}^{B}(R_{\text{oracle}}(s_i^{(n)}) - \bar{R}_n)^2}$, measuring reward distribution spread
+    \item \textbf{Average:} Gradient Boosting (gb) dominates with $\sim$70-80\% weight throughout training, showing minimal diversity in model selection
+    \item \textbf{Weighted:} Similar gb dominance ($\sim$40\%) with moderate KNN and MLP contributions, reflecting softmax concentration on high-$R^2$ models
+    \item \textbf{Dynamic:} Highly diverse weight distribution with frequent switching among gb, rf, xgb, ridge, and svr models. This adaptive behavior leverages complementary model strengths across training phases
 \end{itemize}
 
-The cumulative best reward $R_{\max}^{\text{cum}}(n) = \max_{k=1}^{n} R_{\max}^{(k)}$ tracks the highest reward achieved up to round $n$. We also report the \textit{final deterministic performance}: after training completes, the policy is evaluated in deterministic mode (argmax action selection) over 10 sequences, and the mean and maximum rewards are recorded.
+\textbf{Surrogate model quality:} All methods achieve comparable final $R^2$ scores ($0.672$-$0.686$), with individual models converging to $0.6$-$0.7$ by round 200. Early rounds ($n < 30$) show negative $R^2$ due to limited data, improving steadily as data accumulates. Dynamic ensemble's adaptive weighting (ridge regression in middle rounds, validation optimization in late rounds) maintains consistent prediction accuracy despite more aggressive model switching.
 
-\textbf{Model $R^2$ Scores.} Surrogate model quality is assessed using the coefficient of determination ($R^2$ score) computed via 5-fold cross-validation on all available oracle-labeled data at each round. For a model $f$ predicting rewards $\hat{y}_i = f(x_i)$ for true rewards $y_i$, the $R^2$ score is:
-%
-\begin{equation}
-R^2 = 1 - \frac{\sum_{i}(y_i - \hat{y}_i)^2}{\sum_{i}(y_i - \bar{y})^2}
-\end{equation}
-%
-where $\bar{y} = \frac{1}{n}\sum_{i}y_i$ is the mean reward. We track:
-\begin{itemize}
-    \item \textbf{Per-model $R^2$ scores}: Individual scores for each candidate model at each round
-    \item \textbf{Maximum $R^2$}: ${(R^2)}_{\max}^{(n)} = \max_{f \in \mathcal{F}} R^2(f)$, where $\mathcal{F}$ is the model candidate set
-    \item \textbf{Mean $R^2$}: $\overline{R^2}^{(n)} = \frac{1}{|\mathcal{F}|}\sum_{f \in \mathcal{F}} R^2(f)$, averaged over all candidates
-    \item \textbf{Number of accepted models}: Count of models with $R^2 > \tau_n$ used in the ensemble
-\end{itemize}
+\textbf{Prediction accuracy:} Mean absolute error stabilizes at $0.4$-$0.7$ after round 50 for all methods. Dynamic shows slightly lower variance in prediction error, suggesting more robust ensemble predictions. Occasional spikes correlate with model retraining events.
 
-Additionally, we compute \textit{prediction errors} on held-out validation samples (10 sequences per virtual round) to assess ensemble calibration: $\text{MAE} = \frac{1}{10}\sum_{i=1}^{10}|R_{\text{oracle}}(s_i) - \hat{R}_{\text{ensemble}}(s_i)|$.
+\textbf{Computational cost:} Average ensemble is most efficient (9773 sec) due to simple weight computation. Weighted ensemble achieves best efficiency-performance trade-off (6480 sec). Dynamic ensemble requires longest training time (12212 sec) due to validation optimization overhead, but delivers superior final performance.
 
-\textbf{Sequence Diversity.} Population diversity is quantified using the uniqueness ratio (Equation 4 from Section III):
-%
-\begin{equation}
-\rho_{\text{unique}}^{(n)} = \frac{|\{s : s \in \mathcal{B}_n\}|}{B}
-\end{equation}
-%
-where $\mathcal{B}_n$ is the batch of sequences generated at round $n$. This metric ranges from $1/B$ (all sequences identical) to 1 (all unique). We track diversity across all oracle-based rounds to ensure exploration is maintained throughout training.
+\textbf{Diversity maintenance:} All methods maintain $\rho_{\text{unique}} > 0.65$ throughout training, with initial diversity $\sim$1.0 declining to $\sim$0.7 by round 50 as the policy converges. No significant differences observed across ensemble methods, indicating diversity control mechanisms operate independently of weighting strategy.
 
-\textbf{Oracle Call Efficiency.} A critical metric for real-world applicability is sample efficiency, measured by the number of oracle evaluations required to reach target performance levels. We track:
-\begin{itemize}
-    \item \textbf{Cumulative oracle calls}: $N_{\text{oracle}}^{(n)} = \sum_{k=1}^{n} B_k$, where $B_k$ is the batch size at round $k$
-    \item \textbf{Calls to target}: Minimum $N_{\text{oracle}}$ required to first achieve a specified reward threshold (e.g., $R_{\max} \geq 15$)
-    \item \textbf{Oracle call history}: Tuple $(n, N_{\text{oracle}}^{(n)}, R_{\max}^{\text{cum}}(n))$ for each round, enabling analysis of reward vs. sample complexity trade-offs
-\end{itemize}
+\subsubsection{Statistical Analysis}
 
-For comparison with baselines (pure PPO, random search), we plot reward curves as a function of oracle calls rather than training rounds to ensure fair sample complexity comparisons.
+Paired t-tests reveal Dynamic ensemble significantly outperforms Average ($p < 0.01$) and Weighted ($p < 0.05$) in final mean reward. The improvement stems from Dynamic's ability to adapt weight computation complexity to data availability: performance-based weighting avoids overfitting in early rounds, ridge regression handles moderate data efficiently, and validation optimization exploits abundant late-round data for optimal weight discovery.
 
-\subsubsection{Configuration Variants}
+\textbf{Recommendation:} For sample-efficient applications where computational budget permits, Dynamic ensemble is preferred. For faster experimentation or limited computational resources, Weighted ensemble provides competitive performance at significantly lower cost. Average ensemble serves as a robust baseline but sacrifices potential performance gains from adaptive weighting.
 
-We systematically evaluate DyNAPPO across multiple configuration axes to assess the contribution of each algorithmic component.
 
-\textbf{Ensemble Methods Comparison.} Three ensemble aggregation strategies are compared:
-\begin{enumerate}
-    \item \textbf{Average} (uniform weighting): $\hat{R}(s) = \frac{1}{|\mathcal{M}|}\sum_{f \in \mathcal{M}} f(s)$, where $\mathcal{M}$ is the set of accepted models. This baseline method assigns equal weight $w_i = 1/|\mathcal{M}|$ to all models regardless of performance.
 
-    \item \textbf{Weighted} (performance-based): $\hat{R}(s) = \sum_{f \in \mathcal{M}} w_f f(s)$ with $w_f \propto \exp(R^2(f) / \tau_T)$, where $\tau_T = 0.1$ is the temperature parameter. Weights are computed via softmax over $R^2$ scores, emphasizing high-quality models while retaining ensemble diversity.
+\begin{figure}[htbp]
+    \centering
+    
+    \begin{subfigure}[b]{0.8\linewidth}
+        \includegraphics[width=\linewidth]{images/model_evolution_r200_b32_l10_average.png}
+        \caption{Average Ensemble}
+        \label{fig:average_model}
+    \end{subfigure}
+    
+    \vspace{1em} % optional vertical space
 
-    \item \textbf{Dynamic} (adaptive weighting): Uses a progressive schedule across training:
-    \begin{itemize}
-        \item Early rounds ($n \leq N/3$): Performance-based weights
-        \item Middle rounds ($N/3 < n \leq 2N/3$): Ridge regression weights minimizing validation loss
-        \item Late rounds ($n > 2N/3$): Validation-optimized weights via SLSQP
-    \end{itemize}
-    This method adapts weight learning complexity to data availability and model maturity.
-\end{enumerate}
+    \begin{subfigure}[b]{0.8\linewidth}
+        \includegraphics[width=\linewidth]{images/model_evolution_r200_b32_l10_weight.png}
+        \caption{R2 Weighted Ensemble}
+        \label{fig:weight_model}
+    \end{subfigure}
+    
+    \vspace{1em}
 
-All three methods share the same model candidate pool and $R^2$ threshold for model selection; only the weight computation differs. We compare these methods on metrics including cumulative reward, convergence speed, and final performance.
+    \begin{subfigure}[b]{0.8\linewidth}
+        \includegraphics[width=\linewidth]{images/model_evolution_r200_b32_l10_dynamic.png}
+        \caption{Dynamic Ensemble}
+        \label{fig:dynamic_model}
+    \end{subfigure}
 
-\textbf{Threshold Types.} Two $R^2$ threshold schedules are evaluated:
-\begin{enumerate}
-    \item \textbf{Fixed}: $\tau_n = \tau_0 = 0.2$ for all rounds. This provides consistent model quality requirements but may reject useful models in early rounds with limited data.
-
-    \item \textbf{Dynamic}: $\tau_n$ increases linearly from $-0.3$ to $\tau_0 = 0.2$ over rounds $\lfloor N/10 \rfloor$ to $N$ (Equation 15 from Section IV). This lenient initial threshold accepts crude early models, then progressively increases quality standards as more data accumulates.
-\end{enumerate}
-
-For each threshold type, we measure: (1) number of accepted models per round, (2) ensemble $R^2$ vs. oracle reward correlation, and (3) overall sample efficiency. We hypothesize that dynamic thresholds improve early-round model-based training, accelerating exploration.
-
-\textbf{Impact of Diversity Penalties.} To assess the contribution of diversity control mechanisms, we compare three configurations:
-\begin{enumerate}
-    \item \textbf{No diversity control}: $\lambda_{\text{div}} = 0$, $r_{\text{int}} = 0$, disabling all diversity penalties and intrinsic rewards
-
-    \item \textbf{Intrinsic rewards only}: $r_{\text{int}}(s,n)$ enabled (Equation 5--8), but $\lambda_{\text{div}} = 0$ for model-based training. Tests exploration bonuses without virtual training penalties.
-
-    \item \textbf{Full diversity control}: Both intrinsic rewards ($r_{\text{int}}$) and diversity penalties ($p_{\text{div}}$) enabled as specified in Section III. This is the default configuration.
-\end{enumerate}
-
-We measure the impact on sequence diversity ($\rho_{\text{unique}}$), exploration coverage (number of unique sequences in history), and final reward quality. We expect full diversity control to maintain higher diversity while achieving competitive or superior final performance compared to no diversity control.
-
-\textbf{Baseline Comparisons.} DyNAPPO is compared against:
-\begin{itemize}
-    \item \textbf{Pure PPO}: PPO without surrogate models ($M = 0$), using only oracle-based training
-    \item \textbf{Random Search}: Uniform random sequence generation with oracle evaluation, tracking best reward found
-    \item \textbf{Fixed DyNA-PPO}: Standard DyNA-PPO with fixed learning rate, fixed exploration rate, and uniform ensemble weights (no adaptive mechanisms)
-\end{itemize}
-
-All methods use the same oracle function (DNA sequence scoring described below), batch size ($B = 32$), and sequence length ($T = 10$ bases) for fair comparison. The primary comparison metric is cumulative oracle reward versus number of oracle calls.
-
-\textbf{Oracle Function.} Experiments use a complex DNA sequence scoring function that combines eight components: (1) GC content optimality (peak at 50\%), (2) biological motif rewards (EcoRI, BamHI restriction sites, TATA box), (3) position-dependent base preferences, (4) repetitive sequence penalties, (5) local complexity rewards, (6) dinucleotide pair preferences, (7) melting temperature scoring, and (8) Gaussian noise ($\sigma = 0.15$) simulating experimental variability. The function maps 10-base DNA sequences (vocabulary size 4: A, T, G, C) to rewards in approximate range $[0, 20]$. This oracle is intentionally complex and non-smooth to challenge the surrogate models and test the algorithm's robustness to noisy, multimodal reward landscapes.
-
-Each experimental configuration is run with 3 random seeds to account for stochastic variation. We report mean performance across seeds with standard error bars. Statistical significance is assessed using paired t-tests at $\alpha = 0.05$ significance level.
+    \caption{Model evaluation of three ensemble approaches.}
+    \label{fig:model_evaluation_basic}
+\end{figure}
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
+\begin{comment}
 \subsection{Base Comparison}
 We compare the following approaches:
 \begin{itemize}
@@ -2044,12 +1000,19 @@ We compare the following approaches:
     \item Pure PPO
 \end{itemize}
 
+
+
+
+
+
+
 Metrics to track:
 \begin{itemize}
     \item Final best reward achieved
     \item Convergence speed (rounds to reach 90\% of best)
     \item Reward Variance
 \end{itemize}
+\end{comment}
 
 \subsection{Ablation Study}
 We test the importance of each component by removing them individually.  

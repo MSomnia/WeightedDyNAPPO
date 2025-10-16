@@ -1,26 +1,25 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2025.1.6)  15 OCT 2025 12:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.4.3)  16 OCT 2025 00:25
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
-**llin_report.tex
-(./llin_report.tex
+**./llin_report.tex
+(llin_report.tex
 LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
-(/usr/local/texlive/2024/texmf-dist/tex/latex/ieeetran/IEEEtran.cls
+L3 programming layer <2024-01-04>
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/ieeetran\IEEEtran.cls
 Document Class: IEEEtran 2015/08/26 V1.8b by Michael Shell
 -- See the "IEEEtran_HOWTO" manual for usage information.
 -- http://www.michaelshell.org/tex/ieeetran/
 \@IEEEtrantmpdimenA=\dimen140
 \@IEEEtrantmpdimenB=\dimen141
 \@IEEEtrantmpdimenC=\dimen142
-\@IEEEtrantmpcountA=\count188
-\@IEEEtrantmpcountB=\count189
-\@IEEEtrantmpcountC=\count190
+\@IEEEtrantmpcountA=\count187
+\@IEEEtrantmpcountB=\count188
+\@IEEEtrantmpcountC=\count189
 \@IEEEtrantmptoksA=\toks17
 LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 5
 03.
-(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1ptm.fd
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 )
 -- Using 8.5in x 11in (letter) paper.
@@ -92,61 +91,61 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <24> not available
 \IEEEiednormlabelsep=\dimen156
 \IEEEiedmathlabelsep=\dimen157
 \IEEEiedtopsep=\skip48
-\c@section=\count191
-\c@subsection=\count192
-\c@subsubsection=\count193
-\c@paragraph=\count194
-\c@IEEEsubequation=\count195
+\c@section=\count190
+\c@subsection=\count191
+\c@subsubsection=\count192
+\c@paragraph=\count193
+\c@IEEEsubequation=\count194
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
-\c@figure=\count196
-\c@table=\count197
-\@IEEEeqnnumcols=\count198
-\@IEEEeqncolcnt=\count199
-\@IEEEsubeqnnumrollback=\count266
+\c@figure=\count195
+\c@table=\count196
+\@IEEEeqnnumcols=\count197
+\@IEEEeqncolcnt=\count198
+\@IEEEsubeqnnumrollback=\count199
 \@IEEEquantizeheightA=\dimen158
 \@IEEEquantizeheightB=\dimen159
 \@IEEEquantizeheightC=\dimen160
 \@IEEEquantizeprevdepth=\dimen161
-\@IEEEquantizemultiple=\count267
+\@IEEEquantizemultiple=\count266
 \@IEEEquantizeboxA=\box51
 \@IEEEtmpitemindent=\dimen162
 \IEEEPARstartletwidth=\dimen163
-\c@IEEEbiography=\count268
+\c@IEEEbiography=\count267
 \@IEEEtranrubishbin=\box52
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/inputenc.sty
+) (C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
 Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks18
 \inpenc@posthook=\toks19
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsmath.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
 Package: amsmath 2023/05/13 v2.17o AMS math features
 \@mathmargin=\skip51
 
 For additional information on amsmath, use the `?' option.
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amstext.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
 Package: amstext 2021/08/26 v2.01 AMS text
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsgen.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks20
 \ex@=\dimen164
 ))
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsbsy.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen165
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsmath/amsopn.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count269
+\inf@bad=\count268
 LaTeX Info: Redefining \frac on input line 234.
-\uproot@=\count270
-\leftroot@=\count271
+\uproot@=\count269
+\leftroot@=\count270
 LaTeX Info: Redefining \overline on input line 399.
 LaTeX Info: Redefining \colon on input line 410.
-\classnum@=\count272
-\DOTSCASE@=\count273
+\classnum@=\count271
+\DOTSCASE@=\count272
 LaTeX Info: Redefining \ldots on input line 496.
 LaTeX Info: Redefining \dots on input line 499.
 LaTeX Info: Redefining \cdots on input line 620.
@@ -159,20 +158,20 @@ LaTeX Info: Redefining \Bigg on input line 725.
 \big@size=\dimen166
 LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
-\macc@depth=\count274
+\macc@depth=\count273
 LaTeX Info: Redefining \bmod on input line 905.
 LaTeX Info: Redefining \pmod on input line 910.
 LaTeX Info: Redefining \smash on input line 940.
 LaTeX Info: Redefining \relbar on input line 970.
 LaTeX Info: Redefining \Relbar on input line 971.
-\c@MaxMatrixCols=\count275
+\c@MaxMatrixCols=\count274
 \dotsspace@=\muskip16
-\c@parentequation=\count276
-\dspbrk@lvl=\count277
+\c@parentequation=\count275
+\dspbrk@lvl=\count276
 \tag@help=\toks21
-\row@=\count278
-\column@=\count279
-\maxfields@=\count280
+\row@=\count277
+\column@=\count278
+\maxfields@=\count279
 \andhelp@=\toks22
 \eqnshift@=\dimen167
 \alignsep@=\dimen168
@@ -187,493 +186,525 @@ LaTeX Info: Redefining \Relbar on input line 971.
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSa=\mathgroup4
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-))
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphicx.sty
+)) (C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.st
+y
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/keyval.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks25
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphics.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/trig.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
 Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-def/pdftex.def
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
 File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen173
 \Gin@req@width=\dimen174
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/cite/cite.sty
+) (C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/cite\cite.sty
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/hyperref.sty
-Package: hyperref 2024-01-20 v7.01h Hypertext links for LaTeX
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2023-11-26 v7.01g Hypertext links for LaTeX
 
-(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/iftex.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
 
-(/usr/local/texlive/2024/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
 Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
-)
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/infwarerr/infwarerr.sty
-Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
 )
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
 ))
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hycolor/hycolor.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/auxhook/auxhook.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/letltxmacro\letltxmacro
+.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/auxhook\auxhook.sty
 Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/nameref.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/refcount/refcount.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 )
-(/usr/local/texlive/2024/texmf-dist/tex/generic/gettitlestring/gettitlestring.s
-ty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
- (/usr/local/texlive/2024/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count281
+\c@section@level=\count280
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
 Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count282
+\etb@tempcnta=\count281
 )
 \@linkdim=\dimen175
-\Hy@linkcounter=\count283
-\Hy@pagecounter=\count284
+\Hy@linkcounter=\count282
+\Hy@pagecounter=\count283
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/pd1enc.def
-File: pd1enc.def 2024-01-20 v7.01h Hyperref: PDFDocEncoding definition (HO)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2023-11-26 v7.01g Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
 )
-(/usr/local/texlive/2024/texmf-dist/tex/generic/intcalc/intcalc.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count285
+\Hy@SavedSpaceFactor=\count284
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/puenc.def
-File: puenc.def 2024-01-20 v7.01h Hyperref: PDF Unicode definition (HO)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+File: puenc.def 2023-11-26 v7.01g Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
 )
-Package hyperref Info: Hyper figures OFF on input line 4179.
-Package hyperref Info: Link nesting OFF on input line 4184.
-Package hyperref Info: Hyper index ON on input line 4187.
-Package hyperref Info: Plain pages OFF on input line 4194.
-Package hyperref Info: Backreferencing OFF on input line 4199.
+Package hyperref Info: Hyper figures OFF on input line 4181.
+Package hyperref Info: Link nesting OFF on input line 4186.
+Package hyperref Info: Hyper index ON on input line 4189.
+Package hyperref Info: Plain pages OFF on input line 4196.
+Package hyperref Info: Backreferencing OFF on input line 4201.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
-Package hyperref Info: Bookmarks ON on input line 4446.
-\c@Hy@tempcnt=\count286
+Package hyperref Info: Bookmarks ON on input line 4448.
+\c@Hy@tempcnt=\count285
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/url/url.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
-LaTeX Info: Redefining \url on input line 4784.
+LaTeX Info: Redefining \url on input line 4786.
 \XeTeXLinkMargin=\dimen176
 
-(/usr/local/texlive/2024/texmf-dist/tex/generic/bitset/bitset.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 
-(/usr/local/texlive/2024/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
 )
 ))
-\Fld@menulength=\count287
+\Fld@menulength=\count286
 \Field@Width=\dimen177
 \Fld@charsize=\dimen178
-Package hyperref Info: Hyper figures OFF on input line 6063.
-Package hyperref Info: Link nesting OFF on input line 6068.
-Package hyperref Info: Hyper index ON on input line 6071.
-Package hyperref Info: backreferencing OFF on input line 6078.
-Package hyperref Info: Link coloring OFF on input line 6083.
-Package hyperref Info: Link coloring with OCG OFF on input line 6088.
-Package hyperref Info: PDF/A mode OFF on input line 6093.
+Package hyperref Info: Hyper figures OFF on input line 6065.
+Package hyperref Info: Link nesting OFF on input line 6070.
+Package hyperref Info: Hyper index ON on input line 6073.
+Package hyperref Info: backreferencing OFF on input line 6080.
+Package hyperref Info: Link coloring OFF on input line 6085.
+Package hyperref Info: Link coloring with OCG OFF on input line 6090.
+Package hyperref Info: PDF/A mode OFF on input line 6095.
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/atbegshi-ltx.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/base\atbegshi-ltx.sty
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
-\Hy@abspage=\count288
-\c@Item=\count289
-\c@Hfootnote=\count290
+\Hy@abspage=\count287
+\c@Item=\count288
+\c@Hfootnote=\count289
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2023-11-26 v7.01g Hyperref driver for pdfTeX
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/hpdftex.def
-File: hpdftex.def 2024-01-20 v7.01h Hyperref driver for pdfTeX
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/atveryend-ltx.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/base\atveryend-ltx.sty
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
 kage
 with kernel methods
 )
-\Fld@listcount=\count291
-\c@bookmark@seq@number=\count292
+\Fld@listcount=\count290
+\c@bookmark@seq@number=\count291
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
-Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
 
-(/usr/local/texlive/2024/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
-85.
+84.
 )
 \Hy@SectionHShift=\skip54
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/algorithms/algorithm.sty
+)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/algorithms\algorithm.st
+y
 Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
 nment
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/float/float.sty
+ (C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count293
+\c@float@type=\count292
 \float@exts=\toks26
 \float@box=\box55
 \@float@everytoks=\toks27
 \@floatcapt=\box56
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/ifthen.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
 Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
 )
 \@float@every@algorithm=\toks28
-\c@algorithm=\count294
+\c@algorithm=\count293
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/algorithms/algorithmic.sty
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/algorithms\algorithmic.
+sty
 Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
-\c@ALC@unique=\count295
-\c@ALC@line=\count296
-\c@ALC@rem=\count297
-\c@ALC@depth=\count298
+\c@ALC@unique=\count294
+\c@ALC@line=\count295
+\c@ALC@rem=\count296
+\c@ALC@depth=\count297
 \ALC@tlm=\skip55
 \algorithmicindent=\skip56
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
-File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count299
-\l__pdf_internal_box=\box57
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen179
+\lightrulewidth=\dimen180
+\cmidrulewidth=\dimen181
+\belowrulesep=\dimen182
+\belowbottomsep=\dimen183
+\aboverulesep=\dimen184
+\abovetopsep=\dimen185
+\cmidrulesep=\dimen186
+\cmidrulekern=\dimen187
+\defaultaddspace=\dimen188
+\@cmidla=\count298
+\@cmidlb=\count299
+\@aboverulesep=\dimen189
+\@belowrulesep=\dimen190
+\@thisruleclass=\count300
+\@lastruleclass=\count301
+\@thisrulewidth=\dimen191
 )
-(./llin_report.aux)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/caption\subcaption.sty
+Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
+
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen192
+\captionmargin=\dimen193
+\caption@leftmargin=\dimen194
+\caption@rightmargin=\dimen195
+\caption@width=\dimen196
+\caption@indent=\dimen197
+\caption@parindent=\dimen198
+\caption@hangindent=\dimen199
+Package caption Info: Unknown document class (or package),
+(caption)             standard defaults will be used.
+Package caption Info: \@makecaption = \long macro:#1#2->\ifx \@captype \@IEEEta
+blestring \footnotesize \bgroup \par \centering \@IEEEtabletopskipstrut {\norma
+lfont \footnotesize #1}\\{\normalfont \footnotesize \scshape #2}\par \addvspace
+ {0.5\baselineskip }\egroup \@IEEEtablecaptionsepspace \else \@IEEEfigurecaptio
+nsepspace \setbox \@tempboxa \hbox {\normalfont \footnotesize {#1.}\nobreakspac
+e \nobreakspace #2}\ifdim \wd \@tempboxa >\hsize \setbox \@tempboxa \hbox {\nor
+malfont \footnotesize {#1.}\nobreakspace \nobreakspace }\parbox [t]{\hsize }{\n
+ormalfont \footnotesize \noindent \unhbox \@tempboxa #2}\else \ifCLASSOPTIONcon
+ference \hbox to\hsize {\normalfont \footnotesize \hfil \box \@tempboxa \hfil }
+\else \hbox to\hsize {\normalfont \footnotesize \box \@tempboxa \hfil }\fi \fi 
+\fi  on input line 1175.
+)
+
+Package caption Warning: Unknown document class (or package),
+(caption)                standard defaults will be used.
+See the caption package documentation for explanation.
+
+\c@caption@flags=\count302
+\c@continuedfloat=\count303
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+)
+Package caption Info: New subtype `subfigure' on input line 238.
+\c@subfigure=\count304
+Package caption Info: New subtype `subtable' on input line 238.
+\c@subtable=\count305
+) (C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
+
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen256
+\ar@mcellbox=\box57
+\extrarowheight=\dimen257
+\NC@list=\toks29
+\extratabsurround=\skip57
+\backup@length=\skip58
+\ar@cellbox=\box58
+)
+\TX@col@width=\dimen258
+\TX@old@table=\dimen259
+\TX@old@col=\dimen260
+\TX@target=\dimen261
+\TX@delta=\dimen262
+\TX@cols=\count306
+\TX@ftn=\toks30
+)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/ragged2e\ragged2e.sty
+Package: ragged2e 2023/06/22 v3.6 ragged2e Package
+\CenteringLeftskip=\skip59
+\RaggedLeftLeftskip=\skip60
+\RaggedRightLeftskip=\skip61
+\CenteringRightskip=\skip62
+\RaggedLeftRightskip=\skip63
+\RaggedRightRightskip=\skip64
+\CenteringParfillskip=\skip65
+\RaggedLeftParfillskip=\skip66
+\RaggedRightParfillskip=\skip67
+\JustifyingParfillskip=\skip68
+\CenteringParindent=\skip69
+\RaggedLeftParindent=\skip70
+\RaggedRightParindent=\skip71
+\JustifyingParindent=\skip72
+)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/comment\comment.sty
+\CommentStream=\write3
+
+Excluding comment 'comment')
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count307
+\l__pdf_internal_box=\box59
+) (llin_report.aux)
 \openout1 = `llin_report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
 
 -- Lines per column: 56 (exact).
-(/usr/local/texlive/2024/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count300
-\scratchdimen=\dimen179
-\scratchbox=\box58
-\nofMPsegments=\count301
-\nofMParguments=\count302
-\everyMPshowfont=\toks29
-\MPscratchCnt=\count303
-\MPscratchDim=\dimen180
-\MPnumerator=\count304
-\makeMPintoPDFobject=\count305
-\everyMPtoPDFconversion=\toks30
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+\scratchcounter=\count308
+\scratchdimen=\dimen263
+\scratchbox=\box60
+\nofMPsegments=\count309
+\nofMParguments=\count310
+\everyMPshowfont=\toks31
+\MPscratchCnt=\count311
+\MPscratchDim=\dimen264
+\MPnumerator=\count312
+\makeMPintoPDFobject=\count313
+\everyMPtoPDFconversion=\toks32
+)
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 85.
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
-e
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 21.
+Package hyperref Info: Link coloring OFF on input line 27.
+ (llin_report.out) (llin_report.out)
+\@outlinefile=\write4
+\openout4 = `llin_report.out'.
 
-(./llin_report.out) (./llin_report.out)
-\@outlinefile=\write3
-\openout3 = `llin_report.out'.
-
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 24.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 24.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 30.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 30.
 
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsa.fd
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 24.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 30.
 
 
-(/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsb.fd
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr
-/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}
+)
+[1{C:/Users/linle/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/li
+nle/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
 
 
 ]
-Overfull \hbox (6.50148pt too wide) detected at line 148
-[][][]\OML/cmm/m/it/10 R[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) 
-= [] []
+Underfull \hbox (badness 1496) in paragraph at lines 184--185
+ \OT1/ptm/m/it/10 2) Key Hy-per-pa-ram-e-ters: [][][] \OT1/ptm/m/n/10 DyNA-PPO 
+em-ploys sev-eral
  []
 
 
-Overfull \hbox (4.87216pt too wide) detected at line 156
-[][][]\OML/cmm/m/it/10 P[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) 
-= [] [] \U/msb/m/n/10 1[] \OMS/cmsy/m/n/10 ^^A \OT1/cmr/m/n/10 ([](\OML/cmm/m/i
-t/10 s; i; `\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OT1/cmr/m/n/10 2) \OMS/cmsy
-/m/n/10 ^^A \OML/cmm/m/it/10 ` \OMS/cmsy/m/n/10 ^^A \OT1/cmr/m/n/10 0\OML/cmm/m
-/it/10 :\OT1/cmr/m/n/10 3
+Underfull \hbox (badness 4531) in paragraph at lines 266--266
+[]|\OT1/ptm/m/n/9 Adaptive: $\OML/cmm/m/it/9 M[] \OT1/cmr/m/n/9 = 
+ []
+
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family ptm in TS1 encoding.
+            Default family used instead on input line 266.
+
+Underfull \hbox (badness 1852) in paragraph at lines 269--270
+[]\OT1/ptm/m/n/10 Overall, DyNA-PPO's adap-tively sched-uled pa-ram-e-ters
  []
 
 
-Overfull \hbox (172.76343pt too wide) detected at line 197
-[][][]\OML/cmm/m/it/10 R\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) = 
-[] []
- []
+LaTeX Warning: Citation `vaswani2017attention' on page 2 undefined on input lin
+e 286.
 
 [2]
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 2
-18.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-Overfull \hbox (43.26262pt too wide) detected at line 282
-[][][]\OML/cmm/m/it/10 ^^\\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 n\OT1/cmr/m/n/10 ) 
-= []
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 354.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 354.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--417
+[]|\OT1/ptm/m/n/9 Random For-est
+ []
+
+
+Underfull \hbox (badness 1354) in paragraph at lines 417--417
+\OT1/ptm/m/n/9 datasets, low 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--417
+[]|\OT1/ptm/m/n/9 Gradient
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--417
+[]|\OT1/ptm/m/n/9 Support Vec-tor
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--417
+\OT1/ptm/m/n/9 Re-gres-sion
+ []
+
+
+Underfull \hbox (badness 6842) in paragraph at lines 417--417
+[]|\OT1/ptm/m/n/9 [256,128,64] ReLU;
+ []
+
+
+Underfull \hbox (badness 4024) in paragraph at lines 438--438
+[]|\OT1/ptm/m/n/9 Transformer Re-
+ []
+
+
+Underfull \hbox (badness 2735) in paragraph at lines 438--438
+[]|\OT1/ptm/m/n/9 64 hid-den units; 2
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 438--438
+[]|\OT1/ptm/m/n/9 Ensemble
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 438--438
+[]|\OT1/ptm/m/n/9 Weighted by $\OML/cmm/m/it/9 R[]$
  []
 
 [3]
-Underfull \hbox (badness 1888) in paragraph at lines 361--362
-[]\OT1/ptm/m/n/10 For a se-quence $\OML/cmm/m/it/10 s \OT1/cmr/m/n/10 = (\OML/c
-mm/m/it/10 s[]; s[]; [] ; s[]\OT1/cmr/m/n/10 )$ \OT1/ptm/m/n/10 at po-si-tion $
-\OML/cmm/m/it/10 t$\OT1/ptm/m/n/10 ,
+Underfull \hbox (badness 3713) in paragraph at lines 445--446
+[]\OT1/ptm/m/n/10 Feature en-gi-neer-ing trans-forms each se-quence $\OML/cmm/m
+/it/10 s \OT1/cmr/m/n/10 =
  []
 
 
-Underfull \hbox (badness 1436) in paragraph at lines 361--362
-\OT1/ptm/m/n/10 the net-work ob-serves the con-text win-dow $\OML/cmm/m/it/10 s
-[] \OT1/cmr/m/n/10 =
+Overfull \hbox (19.8478pt too wide) detected at line 453
+[][][][]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 t; \OT1/cmr/m/n/10 2\OML/cmm/m/it/10 
+i\OT1/cmr/m/n/10 ) = [] [] \OML/cmm/m/it/10 ;  []\OT1/cmr/m/n/10 (\OML/cmm/m/it
+/10 t; \OT1/cmr/m/n/10 2\OML/cmm/m/it/10 i \OT1/cmr/m/n/10 + 1) = [] []
  []
 
-
-LaTeX Warning: Citation `vaswani2017attention' on page 4 undefined on input lin
-e 379.
-
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 4
+96.
+(C:\Users\linle\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+)
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 450--451
-[]\OT1/ptm/m/n/10 Compute em-bed-dings: $\OT1/cmr/bx/n/10 c[] \OT1/cmr/m/n/10 =
-
+Underfull \hbox (badness 10000) in paragraph at lines 620--621
+[]\OT1/ptm/m/n/10 Generate se-quences with de-creas-ing tem-per-a-ture
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 452--453
-[]\OT1/ptm/m/n/10 Forward pass: $\OML/cmm/m/it/10 ^^Y[]\OT1/cmr/m/n/10 (\OMS/cm
-sy/m/n/10 ^^Aj\OML/cmm/m/it/10 s[]\OT1/cmr/m/n/10 ) =
+Underfull \hbox (badness 10000) in paragraph at lines 621--622
+[]\OT1/ptm/m/n/10 Predict re-wards via en-sem-ble: $[]\OT1/cmr/m/n/10 (\OML/cmm
+/m/it/10 s\OT1/cmr/m/n/10 ) =
  []
 
 
-Overfull \hbox (6.53496pt too wide) detected at line 525
-[][][]\OMS/cmsy/m/n/10 T[] \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 f\OML/cmm/m/it/10
- a \OMS/cmsy/m/n/10 2 V \OT1/cmr/m/n/10 : \OML/cmm/m/it/10 ^^Y[]\OT1/cmr/m/n/10
- (\OML/cmm/m/it/10 a\OMS/cmsy/m/n/10 j\OML/cmm/m/it/10 s[]\OT1/cmr/m/n/10 )[]\O
-ML/cmm/m/it/10 k[]\OMS/cmsy/m/n/10 g
- []
-
-[5]
-Underfull \hbox (badness 6461) in paragraph at lines 554--555
-[]\OT1/ptm/b/n/10 K-Nearest Neigh-bors (KNN-XS, KNN-S): \OT1/ptm/m/n/10 Non-
+Underfull \hbox (badness 2717) in paragraph at lines 623--624
+[]\OT1/ptm/m/n/10 Apply di-ver-sity penalty (if en-abled): $\OML/cmm/m/it/10 R[
+]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) =
  []
 
 
-Overfull \hbox (39.09961pt too wide) detected at line 617
-[][][][]\OT1/cmr/m/n/10 50 \OMS/cmsy/m/n/10 ! \OT1/cmr/m/n/10 25 \OMS/cmsy/m/n/
-10 ! \OT1/cmr/m/n/10 1\OML/cmm/m/it/10 ;  [] \OT1/cmr/m/n/10 = 500\OML/cmm/m/it
-/10 ;  [] \OT1/cmr/m/n/10 = 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 2
- []
-
-
-Overfull \hbox (22.63521pt too wide) detected at line 624
-[]
- []
-
-[6]
-Overfull \hbox (46.0269pt too wide) detected at line 640
-[]
- []
-
-
-Overfull \hbox (28.90678pt too wide) detected at line 647
-[]
- []
-
-
-Overfull \hbox (47.92545pt too wide) detected at line 653
-[]
- []
-
-
-Overfull \hbox (67.1751pt too wide) detected at line 660
-[]
- []
-
-
-Overfull \hbox (63.8392pt too wide) detected at line 681
-[][][]\OML/cmm/m/it/10 k\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s; s[]\OT1/cmr/m/n/10
- ) = \OML/cmm/m/it/10 ^^[[][] [][] K[] []
- []
-
-
-Overfull \hbox (6.58002pt too wide) detected at line 737
-[][][]\OML/cmm/m/it/10 ^^\\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 n\OT1/cmr/m/n/10 ) 
-= []
- []
-
-[7]
-Overfull \hbox (67.75667pt too wide) detected at line 847
-[][][][]\OT1/cmr/m/n/10 [[](\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 )] = [] [] [][[](
-\OML/cmm/m/it/10 ^^^\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ))] + []
- [] [][[](\OML/cmm/m/it/10 ^^^\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/1
-0 ))\OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^^\OT1/cmr/m/n/10 (
-\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ))]
- []
-
-[8]
-Underfull \hbox (badness 1484) in paragraph at lines 900--901
-\OT1/ptm/m/n/10 regression-based weight learn-ing. Given a val-i-da-tion set
- []
-
-
-Overfull \hbox (55.30225pt too wide) detected at line 908
-[][][]\OT1/cmr/bx/n/10 P \OT1/cmr/m/n/10 = [] \OMS/cmsy/m/n/10 2 \U/msb/m/n/10 
-R[]
- []
-
-[9]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 949.
-
-Overfull \hbox (13.43542pt too wide) detected at line 968
-[][][]\OMS/cmsy/m/n/10 D[] \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10 f\OT1/cmr/m/n/10 
-(\OML/cmm/m/it/10 s[]; R\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s[]\OT1/cmr/m/n/10 ))
- : \OML/cmm/m/it/10 i \OMS/cmsy/m/n/10 2 fjD[]j ^^@ []\OT1/cmr/m/n/10 (30\OML/c
-mm/m/it/10 ; \OMS/cmsy/m/n/10 jD[]j\OML/cmm/m/it/10 =\OT1/cmr/m/n/10 3) + 1\OML
-/cmm/m/it/10 ; [] ; \OMS/cmsy/m/n/10 jD[]jgg
- []
-
-
-Underfull \hbox (badness 2126) in paragraph at lines 1004--1005
-\OT1/ptm/m/n/10 poor mod-els while main-tain-ing rea-son-able vari-ance
- []
-
-[10
-pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has
- been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1059 \end{enumerate}
-                      ]
-Overfull \hbox (11.37422pt too wide) detected at line 1089
-[][][]\OML/cmm/m/it/10 \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 n\OT1/cmr/m/n/10 ) = 
-\OML/cmm/m/it/10 [] \OT1/cmr/m/n/10 + [] []
- []
-
-
-Underfull \hbox (badness 2512) in paragraph at lines 1138--1139
-\OT1/ptm/m/n/10 near the op-ti-mal GC con-tent iden-ti-fied from top-
- []
-
-[11]
-Overfull \hbox (44.62544pt too wide) detected at line 1254
-[][][]\OML/cmm/m/it/10 L[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^R\OT1/cmr/m/n/10 
-) = \U/msb/m/n/10 E []
- []
-
-
-Underfull \hbox (badness 2990) in paragraph at lines 1256--1257
-[]\OT1/ptm/b/n/10 Compute En-tropy Bonus: \OT1/ptm/m/n/10 En-cour-age ex-plo-ra
-tion
- []
-
-[12]
-Overfull \hbox (2.07056pt too wide) detected at line 1341
-[]
- []
-
-
-Underfull \hbox (badness 3179) in paragraph at lines 1344--1345
-[]\OT1/ptm/b/n/10 Diversity Penalty: \OT1/ptm/m/n/10 If model qual-ity is suf-f
-i-cient
- []
-
-
-Overfull \hbox (4.89145pt too wide) detected at line 1347
-[][][]\OML/cmm/m/it/10 R[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) 
-= [](\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 
-^^U[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 m\OT1/cmr/m/n/10 ) [] [] []
- []
-
-[13]
-Overfull \hbox (19.92702pt too wide) detected at line 1447
-[][][]\OML/cmm/m/it/10 L[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^R\OT1/cmr/m/n/10 
-) = \OMS/cmsy/m/n/10 ^^@\U/msb/m/n/10 E[] [] \OT1/cmr/m/n/10 = \OMS/cmsy/m/n/10
- ^^@\U/msb/m/n/10 E[] []
- []
-
-
-Overfull \hbox (1.8566pt too wide) detected at line 1453
+Overfull \hbox (1.8566pt too wide) detected at line 650
 [][][]\OML/cmm/m/it/10 L[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^^R\OT1/cmr/m/n/10 
 ) = \OMS/cmsy/m/n/10 ^^@\OML/cmm/m/it/10 L[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 ^
 ^R\OT1/cmr/m/n/10 ) + \OML/cmm/m/it/10 c[]L[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 
@@ -682,141 +713,79 @@ Overfull \hbox (1.8566pt too wide) detected at line 1453
 0 ^^R\OMS/cmsy/m/n/10 k[]
  []
 
-
-Overfull \hbox (15.6034pt too wide) detected at line 1508
-[][][][] \OT1/cmr/m/n/10 = []\OML/cmm/m/it/10 ;  []\OT1/cmr/m/n/10 (\OML/cmm/m/
-it/10 R\OT1/cmr/m/n/10 ) = [](\OMS/cmsy/m/n/10 j\OML/cmm/m/it/10 R[] \OMS/cmsy/
-m/n/10 ^^@ []\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 R\OT1/cmr/m/n/10 )\OMS/cmsy/m/n/
-10 j\OT1/cmr/m/n/10 )
+[5]
+Underfull \hbox (badness 3088) in paragraph at lines 672--673
+[]\OT1/ptm/b/n/10 Adaptive nor-mal-iza-tion: \OT1/ptm/m/n/10 For high vari-ance
+ ($\OML/cmm/m/it/10 ^^[[] >
  []
 
-[14]
-Overfull \hbox (6.97116pt too wide) detected at line 1595
+
+Underfull \hbox (badness 3657) in paragraph at lines 672--673
+\OT1/cmr/m/n/10 3\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0$\OT1/ptm/m/n/10 ), use ro-
+bust MAD nor-mal-iza-tion: $[] \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 R[] \OMS/cms
+y/m/n/10 ^^@
+ []
+
+
+Overfull \hbox (6.97116pt too wide) detected at line 710
 [][][]\OML/cmm/m/it/10 ^^Q[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 n\OT1/cmr/m/n/10 
 ) = \OML/cmm/m/it/10 ^^Q[] \OT1/cmr/m/n/10 + [] []
  []
 
 
-Overfull \hbox (41.03932pt too wide) detected at line 1609
+Overfull \hbox (3.54439pt too wide) detected at line 723
 [][][]\OML/cmm/m/it/10 ^^Q[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 n\OT1/cmr/m/n/10 
 ) = []
  []
 
-[15]
-Underfull \hbox (badness 10000) in paragraph at lines 1623--1624
- \OT1/ptm/m/it/10 2) Ex-plo-ration Schedul-ing: [][][] \OT1/ptm/m/n/10 Ef-fec-t
-ive exploration-
- []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1623--1624
-\OT1/ptm/m/n/10 exploitation bal-ance is achieved through co-or-di-nated
- []
-
-
-Overfull \hbox (15.73604pt too wide) detected at line 1692
+Overfull \hbox (15.73607pt too wide) detected at line 756
 [][][]\OML/cmm/m/it/10 ^^\[] \OT1/cmr/m/n/10 = []
  []
 
-[16]
-Underfull \hbox (badness 4254) in paragraph at lines 1734--1736
-[]\OT1/ptm/m/n/10 Given se-quences $\OML/cmm/m/it/10 s \OT1/cmr/m/n/10 = [\OML/
-cmm/m/it/10 s[]; s[]; [] ; s[]\OT1/cmr/m/n/10 ]$ \OT1/ptm/m/n/10 and $\OML/cmm/
-m/it/10 s[] \OT1/cmr/m/n/10 =
+
+Overfull \hbox (3.82773pt too wide) detected at line 801
+[]
  []
 
 
-Overfull \hbox (18.09605pt too wide) detected at line 1747
-[][][]\OML/cmm/m/it/10 D\OT1/cmr/m/n/10 [\OML/cmm/m/it/10 i; j\OT1/cmr/m/n/10 ]
- = []
+Underfull \hbox (badness 10000) in paragraph at lines 821--822
+ \OT1/ptm/m/it/10 1) Im-ple-men-ta-tion De-tails: [][][] \OT1/ptm/m/n/10 Pol-ic
+y net-work: 576-
  []
 
 
-Underfull \hbox (badness 4899) in paragraph at lines 1755--1756
-[]\OT1/ptm/b/n/10 Triangle in-equal-ity\OT1/ptm/m/n/10 : $\OML/cmm/m/it/10 d[]\
-OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s; s[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^T \
-OML/cmm/m/it/10 d[]\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 s; s[]\OT1/cmr/m/n/10 ) +
+Underfull \hbox (badness 7667) in paragraph at lines 821--822
+\OT1/ptm/m/n/10 (Ran-dom For-est, Gra-di-ent Boost-ing, XG-Boost, KNN,
  []
 
-[17]
-Underfull \hbox (badness 5908) in paragraph at lines 1834--1835
-[]\OT1/ptm/m/n/10 This sched-ule aligns with the broader exploration-
- []
+[6]
 
-[18]
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 1
-908.
- (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1pcr.fd
-File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-)
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-LaTeX Warning: Reference `sec:ensemble' on page 19 undefined on input line 1910
-.
-
-
-Underfull \hbox (badness 2142) in paragraph at lines 1910--1911
-\OT1/ptm/m/n/10 three meth-ods (de-tailed in Sec-tion []): (1) \OT1/ptm/m/it/10
- validation-
- []
-
-
-Underfull \hbox (badness 1466) in paragraph at lines 1912--1913
-[]\OT1/ptm/m/n/10 The com-plete im-ple-men-ta-tion com-prises ap-prox-i-mately
- []
-
-
-Underfull \hbox (badness 2150) in paragraph at lines 1912--1913
-\OT1/ptm/m/n/10 1,800 lines of Python code dis-tributed across six pri-
- []
-
-
-Underfull \hbox (badness 6428) in paragraph at lines 1912--1913
-\OT1/ptm/m/n/10 mary mod-ules: \OT1/pcr/m/n/10 DyNAPPO.py \OT1/ptm/m/n/10 (main
- al-go-rithm, 1,819
- []
-
-
-Underfull \hbox (badness 6592) in paragraph at lines 1912--1913
-\OT1/ptm/m/n/10 lines), \OT1/pcr/m/n/10 PolicyNetwork.py \OT1/ptm/m/n/10 (neu-r
-al ar-chi-tec-ture, 154
- []
-
-
-Underfull \hbox (badness 3746) in paragraph at lines 1912--1913
-\OT1/ptm/m/n/10 and \OT1/pcr/m/n/10 LearningMetricsTracker.py \OT1/ptm/m/n/10 (
-eval-u-a-tion, 359
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1932--1933
-[]\OT1/ptm/b/n/10 Standard de-vi-a-tion\OT1/ptm/m/n/10 : $\OML/cmm/m/it/10 ^^[[
-] \OT1/cmr/m/n/10 =
- []
-
-
-Underfull \hbox (badness 6016) in paragraph at lines 1932--1933
-[]$\OT1/ptm/m/n/10 , mea-sur-ing re-ward
- []
-
-[19]
-Underfull \hbox (badness 10000) in paragraph at lines 1976--1977
-[]\OT1/ptm/b/n/10 Average \OT1/ptm/m/n/10 (uni-form weight-ing): $[]\OT1/cmr/m/
-n/10 (\OML/cmm/m/it/10 s\OT1/cmr/m/n/10 ) =
- []
-
-
-Underfull \hbox (badness 1708) in paragraph at lines 1980--1982
-[]\OT1/ptm/b/n/10 Dynamic \OT1/ptm/m/n/10 (adap-tive weight-ing): Uses a pro-gr
-es-sive
- []
-
-
-Underfull \hbox (badness 1810) in paragraph at lines 1982--1983
-[]\OT1/ptm/m/n/10 Early rounds ($\OML/cmm/m/it/10 n \OMS/cmsy/m/n/10 ^^T \OML/c
-mm/m/it/10 N=\OT1/cmr/m/n/10 3$\OT1/ptm/m/n/10 ): Performance-based
- []
-
-[20]
+[7]
+<images/model_evolution_r200_b32_l10_average.png, id=339, 859.7721pt x 714.2685
+pt>
+File: images/model_evolution_r200_b32_l10_average.png Graphic file (type png)
+<use images/model_evolution_r200_b32_l10_average.png>
+Package pdftex.def Info: images/model_evolution_r200_b32_l10_average.png  used 
+on input line 963.
+(pdftex.def)             Requested size: 201.60077pt x 167.48256pt.
+<images/model_evolution_r200_b32_l10_weight.png, id=341, 859.7721pt x 714.9912p
+t>
+File: images/model_evolution_r200_b32_l10_weight.png Graphic file (type png)
+<use images/model_evolution_r200_b32_l10_weight.png>
+Package pdftex.def Info: images/model_evolution_r200_b32_l10_weight.png  used o
+n input line 971.
+(pdftex.def)             Requested size: 201.60077pt x 167.65201pt.
+<images/model_evolution_r200_b32_l10_dynamic.png, id=342, 859.7721pt x 714.2685
+pt>
+File: images/model_evolution_r200_b32_l10_dynamic.png Graphic file (type png)
+<use images/model_evolution_r200_b32_l10_dynamic.png>
+Package pdftex.def Info: images/model_evolution_r200_b32_l10_dynamic.png  used 
+on input line 979.
+(pdftex.def)             Requested size: 201.60077pt x 167.48256pt.
+ Excluding 'comment' comment.
 No file llin_report.bbl.
 
 ** Conference Paper **
@@ -829,95 +798,64 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[21
-
-] (./llin_report.aux)
+[8 <./images/model_evolution_r200_b32_l10_average.png> <./images/model_evolutio
+n_r200_b32_l10_weight.png> <./images/model_evolution_r200_b32_l10_dynamic.png>]
+(llin_report.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
+L3 programming layer <2024-01-04>
  ***********
 
 
 LaTeX Warning: There were undefined references.
 
-
-Package rerunfilecheck Warning: File `llin_report.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `llin_report.out':
-(rerunfilecheck)             Before: 5B0BFE85B0E0C7176173F01DF62FA568;8625
-(rerunfilecheck)             After:  5FCCD9B0A8E0E2407E19CF4D12ADCC07;7937.
+Package rerunfilecheck Info: File `llin_report.out' has not changed.
+(rerunfilecheck)             Checksum: 2C67DC98DDCF8B6423CA7C7AFF2F2D57;8905.
  ) 
 Here is how much of TeX's memory you used:
- 11354 strings out of 474116
- 175927 string characters out of 5743683
- 1958187 words of memory out of 5000000
- 33204 multiletter control sequences out of 15000+600000
- 608570 words of font info for 140 fonts, out of 8000000 for 9000
+ 12871 strings out of 474486
+ 210018 string characters out of 5743756
+ 1958542 words of memory out of 5000000
+ 34851 multiletter control sequences out of 15000+600000
+ 607798 words of font info for 139 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,15n,79p,803b,544s stack positions out of 10000i,1000n,20000p,200000b,200000s
-
-pdfTeX warning (dest): name{subsubsection.4.11.3} has been referenced but does 
-not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsubsection.4.11.2} has been referenced but does 
-not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsubsection.4.11.1} has been referenced but does 
-not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.4.11} has been referenced but does not e
-xist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsubsection.4.10.3} has been referenced but does 
-not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsubsection.4.10.2} has been referenced but does 
-not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsubsection.4.10.1} has been referenced but does 
-not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{subsection.4.10} has been referenced but does not e
-xist, replaced by a fixed one
-
-</usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
-/usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></u
-sr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
-r/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb><
-/usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
-usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></us
-r/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/
-local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/lo
-cal/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loca
-l/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/loca
-l/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/
-texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/tex
-live/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texliv
-e/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2
-024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2024/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2024/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-
-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/te
-xmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2024/texmf-dist
-/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/typ
-e1/urw/times/utmbi8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/ti
-mes/utmr8a.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/urw/times/utmri8
-a.pfb>
-Output written on llin_report.pdf (21 pages, 422016 bytes).
+ 75i,21n,79p,514b,505s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\linle\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm
+0900.pk><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
+ts/cm/cmbx10.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/publ
+ic/amsfonts/cm/cmbx7.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/ty
+pe1/public/amsfonts/cm/cmex10.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX
+/fonts/type1/public/amsfonts/cmextra/cmex7.pfb><C:/Users/linle/AppData/Local/Pr
+ograms/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><C:/Users/linle/App
+Data/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><C:/Us
+ers/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.p
+fb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm
+/cmmi5.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/cm/cmmi6.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/pu
+blic/amsfonts/cm/cmmi7.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/linle/AppData/Local/Programs/MiKTe
+X/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/linle/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/linle/AppData/Loca
+l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/linle/AppDa
+ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/linl
+e/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Use
+rs/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb>
+<C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cm
+r9.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
+s/cm/cmsy10.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/type1/publi
+c/amsfonts/cm/cmsy5.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/amsfonts/cm/cmsy6.pfb><C:/Users/linle/AppData/Local/Programs/MiKTeX/f
+onts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/linle/AppData/Local/Programs/
+MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/linle/AppData/Local/P
+rograms/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Users/linle/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users
+/linle/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users
+/linle/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/User
+s/linle/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/User
+s/linle/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
+Output written on llin_report.pdf (8 pages, 2704757 bytes).
 PDF statistics:
- 787 PDF objects out of 1000 (max. 8388607)
- 706 compressed objects within 8 object streams
- 351 named destinations out of 1000 (max. 500000)
- 417 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 501 PDF objects out of 1000 (max. 8388607)
+ 121 named destinations out of 1000 (max. 500000)
+ 440 words of extra memory for PDF output out of 10000 (max. 10000000)
 
